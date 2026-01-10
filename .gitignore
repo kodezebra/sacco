@@ -1,0 +1,26 @@
+# --- Cloudflare/Wrangler ---
+.wrangler/
+.dev.vars
+dist/
+
+# --- Databases (SQLite/Drizzle) ---
+# Ignore local SQLite files and logs
+*.sqlite
+*.sqlite-journal
+*.sqlite-shm
+*.sqlite-wal
+
+# --- Dependencies ---
+node_modules/
+package-lock.json
+
+# --- Environment & Secrets ---
+.env
+.env.local
+.env.*.local
+
+# --- IDEs & OS ---
+.DS_Store
+.vscode/
+.idea/
+*.log

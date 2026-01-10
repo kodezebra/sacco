@@ -1,0 +1,11 @@
+name = "sacco"
+main = "src/index.js"
+compatibility_date = "2024-12-30"
+
+assets = { directory = "public" }
+
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "sacco-db"
+# database_id = "xxxx-xxxx-xxxx-xxxx-xxxx"
+# migrations_dir = "drizzle/migrations"
