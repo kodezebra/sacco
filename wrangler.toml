@@ -4,8 +4,8 @@ compatibility_date = "2024-12-30"
 
 assets = { directory = "public" }
 
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "sacco-db"
-# database_id = "xxxx-xxxx-xxxx-xxxx-xxxx"
-# migrations_dir = "drizzle/migrations"
+[[d1_databases]]
+binding = "DB"
+database_name = "sacco_db"
+database_id = "d255d18a-4fdf-48dd-b068-e2cf719fb4fb"
+migrations_dir = "drizzle"

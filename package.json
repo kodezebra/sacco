@@ -6,12 +6,15 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
+    "login": "wrangler login",
+    "db:create": "wrangler d1 create sacco_db",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
+    "db:migrate:local": "wrangler d1 migrations apply sacco_db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply sacco_db --remote",
+    "db:seed": "wrangler d1 execute sacco_db --local --file=seed.sql",
     "db:studio": "drizzle-kit studio",
     "build": "tailwindcss -i ./src/styles/global.css -o ./public/styles.css --minify",
-  "build:css": "tailwindcss -i ./src/styles/global.css -o ./public/styles.css --watch"
+    "build:css": "tailwindcss -i ./src/styles/global.css -o ./public/styles.css --watch"
   },
   "keywords": [],
   "author": "",

@@ -2,6 +2,7 @@ import {
   sqliteTable,
   text,
   real,
+  integer,
 } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 
@@ -26,6 +27,11 @@ export const members = sqliteTable("members", {
   fullName: text("full_name").notNull(),
   phone: text("phone"),
   memberNumber: text("member_number").unique(),
+  
+  // New Fields
+  address: text("address"),
+  nextOfKinName: text("next_of_kin_name"),
+  nextOfKinPhone: text("next_of_kin_phone"),
 
   status: text("status").default("active"),
   createdAt: text("created_at").notNull(),
@@ -57,7 +63,7 @@ export const transactions = sqliteTable("transactions", {
 
   type: text("type").notNull(), // income | expense
   category: text("category").notNull(),
-  amount: real("amount").notNull(),
+  amount: integer("amount").notNull(),
 
   description: text("description"),
   date: text("date").notNull(),
@@ -71,7 +77,20 @@ export const shares = sqliteTable("shares", {
   id: text("id").primaryKey(),
   memberId: text("member_id").notNull(),
 
-  amount: real("amount").notNull(),
+  amount: integer("amount").notNull(),
+  date: text("date").notNull(),
+});
+
+/* =========================
+   SAVINGS (LIQUID)
+========================= */
+
+export const savings = sqliteTable("savings", {
+  id: text("id").primaryKey(),
+  memberId: text("member_id").notNull(),
+
+  type: text("type").notNull(), // deposit | withdrawal
+  amount: integer("amount").notNull(),
   date: text("date").notNull(),
 });
 
@@ -83,8 +102,9 @@ export const loans = sqliteTable("loans", {
   id: text("id").primaryKey(),
   memberId: text("member_id").notNull(),
 
-  principal: real("principal").notNull(),
+  principal: integer("principal").notNull(),
   interestRate: real("interest_rate").notNull(),
+  durationMonths: integer("duration_months").default(6),
 
   issuedDate: text("issued_date").notNull(),
   status: text("status").default("active"),
@@ -98,21 +118,8 @@ export const loanPayments = sqliteTable("loan_payments", {
   id: text("id").primaryKey(),
   loanId: text("loan_id").notNull(),
 
-  amount: real("amount").notNull(),
+  amount: integer("amount").notNull(),
   date: text("date").notNull(),
-});
-
-/* =========================
-   FLEETS
-========================= */
-
-export const fleets = sqliteTable("fleets", {
-  id: text("id").primaryKey(),
-  associationId: text("association_id").notNull(),
-
-  name: text("name").notNull(),
-  identifier: text("identifier"),
-  status: text("status").default("active"),
 });
 
 /* =========================
@@ -125,7 +132,7 @@ export const staff = sqliteTable("staff", {
 
   fullName: text("full_name").notNull(),
   role: text("role"),
-  salary: real("salary"),
+  salary: integer("salary"),
 
   status: text("status").default("active"),
 });
@@ -140,7 +147,7 @@ export const payroll = sqliteTable("payroll", {
   staffId: text("staff_id").notNull(),
   transactionId: text("transaction_id").notNull(),
 
-  amount: real("amount").notNull(),
+  amount: integer("amount").notNull(),
   date: text("date").notNull(),
 });
 
@@ -155,12 +162,12 @@ export const saccoRelations = relations(sacco, ({ many }) => ({
 
 export const memberRelations = relations(members, ({ many }) => ({
   shares: many(shares),
+  savings: many(savings),
   loans: many(loans),
 }));
 
 export const associationRelations = relations(associations, ({ many }) => ({
   transactions: many(transactions),
-  fleets: many(fleets),
   staff: many(staff),
 }));
 

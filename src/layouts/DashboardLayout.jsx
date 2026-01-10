@@ -1,7 +1,7 @@
 import { 
   Users, Banknote, ArrowRightLeft, PieChart, 
-  Building2, Car, Briefcase, Wallet, Settings,
-  PanelLeft, LayoutDashboard
+  Building2, Briefcase, Wallet, Settings,
+  PanelLeft, LayoutDashboard, FileText
 } from 'lucide';
 import Icon from '../components/Icon.jsx';
 import MainLayout from './MainLayout.jsx';
@@ -9,15 +9,18 @@ import MainLayout from './MainLayout.jsx';
 export default function DashboardLayout({ title, children }) {
   const menuItems = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { label: "SACCO", href: "/dashboard/sacco", icon: Building2 },
     { label: "Members", href: "/dashboard/members", icon: Users },
     { label: "Loans", href: "/dashboard/loans", icon: Banknote },
     { label: "Transactions", href: "/dashboard/transactions", icon: ArrowRightLeft },
     { label: "Shares", href: "/dashboard/shares", icon: PieChart },
     { isDivider: true }, 
     { label: "Associations", href: "/dashboard/associations", icon: Building2 },
-    { label: "Fleets", href: "/dashboard/fleets", icon: Car },
     { label: "Staff", href: "/dashboard/staff", icon: Briefcase },
     { label: "Payroll", href: "/dashboard/payroll", icon: Wallet },
+    { label: "Reports", href: "/dashboard/reports", icon: FileText },
+    { isDivider: true },
+    { label: "Settings", href: "/dashboard/sacco", icon: Settings },
   ];
 
   return (
@@ -42,6 +45,9 @@ export default function DashboardLayout({ title, children }) {
           <main class="p-4 md:p-8">
             {children}
           </main>
+          
+          {/* Toast/Alert container for HTMX */}
+          <div id="htmx-toast-container" class="toast toast-top toast-end"></div>
         </div>
 
         <div class="drawer-side z-20">
@@ -85,6 +91,16 @@ export default function DashboardLayout({ title, children }) {
           </div>
         </div>
       </div>
+
+      {/* Generic Modal for HTMX content */}
+      <dialog id="htmx-modal" class="modal">
+        <div id="htmx-modal-content" class="modal-box">
+          {/* Content will be loaded here by HTMX */}
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
     </MainLayout>
   );
 }

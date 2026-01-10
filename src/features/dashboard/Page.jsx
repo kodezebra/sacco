@@ -58,13 +58,55 @@ export default function DashboardHome() {
           </div>
         </div>
 
-        {/* Recent Activity Placeholder */}
+        {/* Charts Section */}
         <div class="card bg-base-100 border border-base-200 shadow-sm">
           <div class="card-body">
-             <h3 class="card-title text-lg">Recent Activity</h3>
-             <div class="py-8 text-center text-slate-400">
-               No recent activity to display.
-             </div>
+             <h3 class="card-title text-lg mb-4">Revenue Overview</h3>
+             <div id="revenue-chart" class="w-full h-80"></div>
+             <script dangerouslySetInnerHTML={{ __html: `
+                document.addEventListener('DOMContentLoaded', function () {
+                  var options = {
+                    series: [{
+                      name: 'Income',
+                      data: [31, 40, 28, 51, 42, 109, 100]
+                    }, {
+                      name: 'Expense',
+                      data: [11, 32, 45, 32, 34, 52, 41]
+                    }],
+                    chart: {
+                      height: 350,
+                      type: 'area',
+                      fontFamily: 'inherit',
+                      toolbar: { show: false }
+                    },
+                    dataLabels: { enabled: false },
+                    stroke: { curve: 'smooth', width: 2 },
+                    colors: ['#2563eb', '#dc2626'],
+                    xaxis: {
+                      categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+                      axisBorder: { show: false },
+                      axisTicks: { show: false }
+                    },
+                    yaxis: { show: false },
+                    grid: {
+                      strokeDashArray: 4,
+                      borderColor: '#e2e8f0'
+                    },
+                    fill: {
+                      type: 'gradient',
+                      gradient: {
+                        shadeIntensity: 1,
+                        opacityFrom: 0.7,
+                        opacityTo: 0.9,
+                        stops: [0, 90, 100]
+                      }
+                    }
+                  };
+
+                  var chart = new ApexCharts(document.querySelector("#revenue-chart"), options);
+                  chart.render();
+                });
+             `}} />
           </div>
         </div>
       </div>
