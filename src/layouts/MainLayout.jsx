@@ -8,6 +8,12 @@ export default function MainLayout({ title = "kzApp", children }) {
         <link href="/styles.css" rel="stylesheet" />
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
         <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+        <script dangerouslySetInnerHTML={{ __html: `
+          document.body.addEventListener('closeModal', function() {
+            const modal = document.getElementById('htmx-modal');
+            if (modal) modal.close();
+          });
+        `}}></script>
       </head>
       <body class="min-h-screen bg-base-100 font-sans text-slate-900">
         {children}
