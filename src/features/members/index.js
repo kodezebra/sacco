@@ -141,6 +141,17 @@ app.post('/:id/savings', async (c) => {
     date: body.date,
   }).execute();
 
+  // Record Transaction (Savings Deposit)
+  await db.insert(transactions).values({
+    id: `txn_${Math.random().toString(36).substring(2, 9)}`,
+    associationId: 'sacco-01',
+    type: 'income',
+    category: 'Savings Deposit',
+    amount: parseInt(body.amount),
+    description: `Savings deposit from member ${memberId}`,
+    date: body.date,
+  }).execute();
+
   const stats = await getMemberStats(db, memberId);
   const memberSavings = await db.select().from(savings).where(eq(savings.memberId, memberId)).orderBy(desc(savings.date)).execute();
 

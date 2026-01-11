@@ -46,36 +46,35 @@ export function LoansList({ loans = [], page = 1, totalPages = 1, search = "" })
           </div>
         ) : (
           <table class="table table-zebra">
-            <thead>
-              <tr>
-                <th>Member</th>
-                <th>Principal</th>
-                <th>Interest</th>
-                <th>Term</th>
-                <th>Status</th>
-                <th>Issued</th>
-                <th class="text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loans.map((loan) => (
-                <tr key={loan.id} class="hover">
-                  <td>
-                    <div class="flex items-center gap-3">
-                      <div class="avatar placeholder">
-                          <div class="bg-neutral text-neutral-content rounded-full w-8">
-                            <Icon icon={User} size={14} />
-                          </div>
-                      </div>
-                      <div>
-                        <div class="font-bold">{loan.memberName}</div>
-                        <div class="text-xs opacity-50">ID: {loan.id.substring(0,8)}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="font-medium text-slate-700">{formatUGX(loan.principal)}</td>
-                  <td>{loan.interestRate}%</td>
-                  <td>{loan.durationMonths} Mo</td>
+                      <thead>
+                        <tr>
+                          <th>Member</th>
+                          <th class="text-right">Principal (UGX)</th>
+                          <th>Interest</th>
+                          <th>Term</th>
+                          <th>Status</th>
+                          <th>Issued</th>
+                          <th class="text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {loans.map((loan) => (
+                          <tr key={loan.id} class="hover">
+                            <td>
+                              <div class="flex items-center gap-3">
+                                <div class="avatar placeholder">
+                                    <div class="bg-neutral text-neutral-content rounded-full w-8">
+                                      <Icon icon={User} size={14} />
+                                    </div>
+                                </div>
+                                <div>
+                                  <div class="font-bold">{loan.memberName}</div>
+                                  <div class="text-xs opacity-50">ID: {loan.id.substring(0,8)}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td class="text-right font-medium text-slate-700">{(loan.principal || 0).toLocaleString()}</td>
+                            <td>{loan.interestRate}%</td>                  <td>{loan.durationMonths} Mo</td>
                   <td>
                     <span class={`badge badge-sm badge-soft uppercase text-[10px] font-bold tracking-wider ${loan.status === 'active' ? 'badge-info' : 'badge-success'}`}>
                       {loan.status}

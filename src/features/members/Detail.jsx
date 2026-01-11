@@ -41,13 +41,13 @@ export function MemberDetailSavingsTab({ id, savings = [] }) {
     return (
         <div id={id} hx-swap-oob={id ? "true" : "false"} class="overflow-x-auto">
             <table class="table table-sm">
-                <thead><tr><th>Date</th><th>Type</th><th class="text-right">Amount</th></tr></thead>
+                <thead><tr><th>Date</th><th>Type</th><th class="text-right">Amount (UGX)</th></tr></thead>
                 <tbody>
                     {savings.length > 0 ? savings.map(s => (
                         <tr key={s.id}>
                             <td>{s.date}</td>
                             <td><span class={`badge badge-xs badge-soft uppercase font-bold tracking-wider ${s.type === 'deposit' ? 'badge-success' : 'badge-error'}`}>{s.type}</span></td>
-                            <td class="text-right font-medium">{formatUGX(s.amount)}</td>
+                            <td class="text-right font-medium">{(s.amount || 0).toLocaleString()}</td>
                         </tr>
                     )) : (
                         <tr><td colspan="3" class="text-center py-4 text-slate-400">No savings history</td></tr>
@@ -62,11 +62,11 @@ export function MemberDetailSavingsTab({ id, savings = [] }) {
 export function MemberDetailLoansTab({ id, loans = [] }) {
   return (
     <ul id={id} hx-swap-oob={id ? "true" : "false"} class="list bg-base-100 rounded-box shadow-sm border border-base-200">
-      <li class="p-4 pb-2 text-xs opacity-60 tracking-wide uppercase font-bold">Loans History</li>
+      <li class="p-4 pb-2 text-xs opacity-60 tracking-wide uppercase font-bold border-b border-base-200">Loans History (UGX)</li>
       {loans.length > 0 ? loans.map(l => (
         <li key={l.id} class="list-row items-center">
           <div class="grow">
-            <div class="font-bold text-lg">{formatUGX(l.principal)}</div>
+            <div class="font-bold text-lg">{(l.principal || 0).toLocaleString()}</div>
             <div class="text-xs uppercase font-semibold opacity-60">{l.durationMonths} Months • {l.interestRate}% Interest</div>
             <div class="text-xs opacity-40 italic">Issued: {l.issuedDate}</div>
           </div>

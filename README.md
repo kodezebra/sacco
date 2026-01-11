@@ -74,6 +74,12 @@ pnpm run build:css
 - `db:studio`: Opens Drizzle Studio to manage the database.
 - `build:css`: Watches and builds Tailwind CSS.
 
+## Documentation
+
+- [Project Workflow](docs/WORKFLOW.md) - Development guidelines and git workflow.
+- [Loan Management](docs/LOANS.md) - Details on loan lifecycle and architecture.
+- [Reports](docs/REPORTS.md) - Information on reporting features.
+
 ## Deployment
 
 To deploy to Cloudflare:

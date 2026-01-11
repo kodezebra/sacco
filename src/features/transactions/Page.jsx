@@ -22,7 +22,7 @@ export function TransactionsTable({ transactions = [] }) {
             <th>Type</th>
             <th>Category</th>
             <th>Description</th>
-            <th class="text-right">Amount</th>
+            <th class="text-right">Amount (UGX)</th>
           </tr>
         </thead>
         <tbody>
@@ -38,7 +38,7 @@ export function TransactionsTable({ transactions = [] }) {
               <td>{t.category}</td>
               <td class="max-w-xs truncate" title={t.description}>{t.description}</td>
               <td class={`text-right font-medium ${t.type === 'income' ? 'text-success' : 'text-error'}`}>
-                {t.type === 'expense' ? '-' : '+'}{formatUGX(t.amount)}
+                {t.type === 'expense' ? '-' : '+'}{(t.amount || 0).toLocaleString()}
               </td>
             </tr>
           ))}
