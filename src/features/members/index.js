@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
-import { like, or, eq, desc } from 'drizzle-orm';
+import { like, or, eq, desc, sql } from 'drizzle-orm';
 import { members, shares, savings, loans } from '../../db/schema';
-import MembersPage, { MembersTable, MemberRow } from './List';
+import MembersPage, { MembersList, MemberRow } from './List';
 import NewMemberForm from './NewForm';
 import MemberDetailPage, { MemberDetailStats, MemberDetailSavingsTab, MemberDetailProfileForm } from './Detail';
 import { Toast } from '../../components/Toast';
@@ -9,27 +9,38 @@ import DepositForm from './DepositForm';
 
 const app = new Hono();
 
-// Helper function to get members
-const getMembers = async (db, search = '') => {
+// Helper function to get members with pagination
+const getMembers = async (db, search = '', page = 1, limit = 10) => {
+  const offset = (page - 1) * limit;
   let query = db.select().from(members);
+  let countQuery = db.select({ count: sql`count(*)` }).from(members);
+
   if (search) {
     const searchPattern = `%${search}%`;
-    query = query.where(
-      or(like(members.fullName, searchPattern), like(members.phone, searchPattern), like(members.memberNumber, searchPattern))
-    );
+    const whereClause = or(like(members.fullName, searchPattern), like(members.phone, searchPattern), like(members.memberNumber, searchPattern));
+    query = query.where(whereClause);
+    countQuery = countQuery.where(whereClause);
   }
-  return await query.orderBy(desc(members.createdAt)).execute();
+
+  const data = await query.orderBy(desc(members.createdAt)).limit(limit).offset(offset).execute();
+  const totalResult = await countQuery.execute();
+  const total = totalResult[0].count;
+  const totalPages = Math.ceil(total / limit);
+
+  return { data, total, page, totalPages };
 };
 
 // GET / ... Main members list
 app.get('/', async (c) => {
   const db = c.get('db');
   const search = c.req.query('search') || '';
-  const data = await getMembers(db, search);
+  const page = parseInt(c.req.query('page') || '1');
+  const { data, totalPages } = await getMembers(db, search, page);
+
   if (c.req.header('hx-request')) {
-    return c.html(<MembersTable members={data} />);
+    return c.html(<MembersList members={data} page={page} totalPages={totalPages} search={search} />);
   }
-  return c.html(<MembersPage members={data} search={search} />);
+  return c.html(<MembersPage members={data} page={page} totalPages={totalPages} search={search} />);
 });
 
 // GET /new ... Form for creating a new member

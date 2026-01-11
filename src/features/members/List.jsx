@@ -1,6 +1,6 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
-import { Plus, Search, FileSpreadsheet, Filter, Trash2 } from 'lucide';
+import { Plus, Search, FileSpreadsheet, Filter, Trash2, ChevronLeft, ChevronRight } from 'lucide';
 
 export function MemberRow({ member }) {
   return (
@@ -43,23 +43,74 @@ export function MemberRow({ member }) {
   );
 }
 
-export function MembersTable({ members = [] }) {
+export function Pagination({ page, totalPages, search }) {
+  if (totalPages <= 1) return null;
+
   return (
-    <tbody id="members-table-body" hx-indicator=".htmx-indicator">
-      {members.length > 0 ? (
-        members.map((member) => <MemberRow key={member.id} member={member} />)
-      ) : (
-        <tr>
-          <td colspan="5" class="text-center py-8 text-slate-400">
-            No members found
-          </td>
-        </tr>
-      )}
-    </tbody>
+    <div class="flex justify-between items-center p-4 border-t border-base-200 bg-base-100">
+      <div class="text-sm text-slate-500">
+        Page {page} of {totalPages}
+      </div>
+      <div class="join">
+        <button 
+          class="join-item btn btn-sm" 
+          disabled={page <= 1}
+          hx-get={`/dashboard/members?page=${page - 1}&search=${search}`}
+          hx-target="#members-list-container"
+          hx-swap="outerHTML"
+        >
+          <Icon icon={ChevronLeft} size={16} />
+        </button>
+        <button 
+          class="join-item btn btn-sm"
+          disabled={page >= totalPages}
+          hx-get={`/dashboard/members?page=${page + 1}&search=${search}`}
+          hx-target="#members-list-container"
+          hx-swap="outerHTML"
+        >
+          <Icon icon={ChevronRight} size={16} />
+        </button>
+      </div>
+    </div>
   );
 }
 
-export default function MembersPage({ members = [], search = "" }) {
+export function MembersList({ members = [], page = 1, totalPages = 1, search = "" }) {
+  return (
+    <div id="members-list-container">
+      <div class="overflow-x-auto min-h-[400px]">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>Member</th>
+              <th>Contact</th>
+              <th>Status</th>
+              <th>Joined</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {members.length > 0 ? (
+              members.map((member) => <MemberRow key={member.id} member={member} />)
+            ) : (
+              <tr>
+                <td colspan="5" class="text-center py-8 text-slate-400">
+                  No members found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      <Pagination page={page} totalPages={totalPages} search={search} />
+    </div>
+  );
+}
+
+// Export MemberRow for individual row updates if needed
+export { MembersList as MembersTable }; 
+
+export default function MembersPage({ members = [], page = 1, totalPages = 1, search = "" }) {
   return (
     <DashboardLayout title="Members">
       <div class="flex flex-col gap-8">
@@ -80,10 +131,13 @@ export default function MembersPage({ members = [], search = "" }) {
                   value={search}
                   hx-get="/dashboard/members"
                   hx-trigger="keyup changed delay:500ms, search"
-                  hx-target="#members-table-body"
-                  hx-swap="innerHTML"
+                  hx-target="#members-list-container"
+                  hx-swap="outerHTML"
                   hx-indicator=".htmx-indicator"
+                  hx-include="[name='page']" 
                 />
+                 {/* Reset page to 1 on search */}
+                <input type="hidden" name="page" value="1" />
               </label>
               <button class="btn btn-square btn-ghost border border-base-300" title="Filter">
                 <Icon icon={Filter} size={20} />
@@ -108,20 +162,7 @@ export default function MembersPage({ members = [], search = "" }) {
             </div>
           </div>
           
-          <div class="overflow-x-auto">
-            <table class="table table-zebra">
-              <thead>
-                <tr>
-                  <th>Member</th>
-                  <th>Contact</th>
-                  <th>Status</th>
-                  <th>Joined</th>
-                  <th class="text-right">Actions</th>
-                </tr>
-              </thead>
-              <MembersTable members={members} />
-            </table>
-          </div>
+          <MembersList members={members} page={page} totalPages={totalPages} search={search} />
         </div>
       </div>
     </DashboardLayout>
