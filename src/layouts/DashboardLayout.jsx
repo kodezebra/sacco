@@ -1,5 +1,5 @@
 import { 
-  Users, Banknote, ArrowRightLeft, PieChart, 
+  Users, Banknote, ArrowRightLeft, PieChart, Wallet,
   Settings, PanelLeft, LayoutDashboard, FileText
 } from 'lucide';
 import Icon from '../components/Icon.jsx';
@@ -11,6 +11,7 @@ export default function DashboardLayout({ title, children }) {
     { label: "Members", href: "/dashboard/members", icon: Users },
     { label: "Loans", href: "/dashboard/loans", icon: Banknote },
     { label: "Shares", href: "/dashboard/shares", icon: PieChart },
+    { label: "Savings", href: "/dashboard/savings", icon: Wallet },
     { label: "Transactions", href: "/dashboard/transactions", icon: ArrowRightLeft },
     { label: "Reports", href: "/dashboard/reports", icon: FileText },
   ];

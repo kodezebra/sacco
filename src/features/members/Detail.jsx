@@ -37,85 +37,141 @@ export function MemberDetailStats({ id, stats }) {
 }
 
 // Partial component for savings history (OOB Swap)
-export function MemberDetailSavingsTab({ id, savings = [] }) {
+export function MemberDetailSavingsTab({ id, memberId, savings = [] }) {
     return (
-        <div id={id} hx-swap-oob={id ? "true" : "false"} class="overflow-x-auto">
-            <table class="table table-sm">
-                <thead><tr><th>Date</th><th>Type</th><th class="text-right">Amount (UGX)</th></tr></thead>
-                <tbody>
-                    {savings.length > 0 ? savings.map(s => (
-                        <tr key={s.id}>
-                            <td>{s.date}</td>
-                            <td><span class={`badge badge-xs badge-soft uppercase font-bold tracking-wider ${s.type === 'deposit' ? 'badge-success' : 'badge-error'}`}>{s.type}</span></td>
-                            <td class="text-right font-medium">{(s.amount || 0).toLocaleString()}</td>
-                        </tr>
-                    )) : (
-                        <tr><td colspan="3" class="text-center py-4 text-slate-400">No savings history</td></tr>
-                    )}
-                </tbody>
-            </table>
+        <div id={id} hx-swap-oob={id ? "true" : "false"} class="flex flex-col gap-4">
+            <div class="flex justify-between items-center bg-base-100 p-4 rounded-box border border-base-200 shadow-sm">
+                <div class="font-bold text-lg">Savings History</div>
+                <div class="flex gap-2">
+                    <button 
+                      class="btn btn-sm btn-outline gap-2"
+                      hx-get={`/dashboard/members/${memberId}/deposit`}
+                      hx-target="#htmx-modal-content"
+                      hx-swap="innerHTML"
+                      onClick="document.getElementById('htmx-modal').showModal()"
+                    >
+                       <Icon icon={Plus} size={16} /> Deposit
+                    </button>
+                    <button 
+                      class="btn btn-sm btn-outline gap-2"
+                      hx-get={`/dashboard/members/${memberId}/withdraw`}
+                      hx-target="#htmx-modal-content"
+                      hx-swap="innerHTML"
+                      onClick="document.getElementById('htmx-modal').showModal()"
+                    >
+                       <Icon icon={Minus} size={16} /> Withdraw
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto bg-base-100 rounded-box border border-base-200 shadow-sm">
+                <table class="table table-sm">
+                    <thead><tr><th>Date</th><th>Type</th><th class="text-right">Amount (UGX)</th></tr></thead>
+                    <tbody>
+                        {savings.length > 0 ? savings.map(s => (
+                            <tr key={s.id}>
+                                <td>{s.date}</td>
+                                <td><span class={`badge badge-xs badge-soft uppercase font-bold tracking-wider ${s.type === 'deposit' ? 'badge-success' : 'badge-error'}`}>{s.type}</span></td>
+                                <td class="text-right font-medium">{(s.amount || 0).toLocaleString()}</td>
+                            </tr>
+                        )) : (
+                            <tr><td colspan="3" class="text-center py-4 text-slate-400">No savings history</td></tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }
 
 // Partial component for loans history (OOB Swap)
-export function MemberDetailLoansTab({ id, loans = [] }) {
+export function MemberDetailLoansTab({ id, memberId, loans = [] }) {
   return (
-    <ul id={id} hx-swap-oob={id ? "true" : "false"} class="list bg-base-100 rounded-box shadow-sm border border-base-200">
-      <li class="p-4 pb-2 text-xs opacity-60 tracking-wide uppercase font-bold border-b border-base-200">Loans History (UGX)</li>
-      {loans.length > 0 ? loans.map(l => (
-        <li key={l.id} class="list-row items-center">
-          <div class="grow">
-            <div class="font-bold text-lg">{(l.principal || 0).toLocaleString()}</div>
-            <div class="text-xs uppercase font-semibold opacity-60">{l.durationMonths} Months • {l.interestRate}% Interest</div>
-            <div class="text-xs opacity-40 italic">Issued: {l.issuedDate}</div>
-          </div>
-          <div class="min-w-24 text-center">
-            <span class={`badge badge-sm badge-soft uppercase text-[10px] font-bold tracking-wider ${l.status === 'active' ? 'badge-info' : 'badge-success'}`}>{l.status}</span>
-          </div>
-          <div class="min-w-32 flex justify-end">
-            {l.status === 'active' && (
-              <button 
-                class="btn btn-sm btn-success text-white gap-2 px-4"
-                hx-get={`/dashboard/members/${l.memberId}/loans/${l.id}/pay`}
+    <div id={id} hx-swap-oob={id ? "true" : "false"} class="flex flex-col gap-4">
+        <div class="flex justify-between items-center bg-base-100 p-4 rounded-box border border-base-200 shadow-sm">
+            <div class="font-bold text-lg">Loans History</div>
+            <button 
+                class={`btn btn-sm btn-primary gap-2 ${loans.some(l => l.status === 'active') ? 'btn-disabled' : ''}`}
+                hx-get={!loans.some(l => l.status === 'active') ? `/dashboard/members/${memberId}/loans/new` : undefined}
                 hx-target="#htmx-modal-content"
                 hx-swap="innerHTML"
-                onClick="document.getElementById('htmx-modal').showModal()"
-              >
-                <Icon icon={Banknote} size={16} /> Pay
-              </button>
-            )}
-          </div>
-        </li>
-      )) : (
-        <li class="p-10 text-center text-slate-400 italic">No loans recorded</li>
-      )}
-    </ul>
+                onClick={!loans.some(l => l.status === 'active') ? "document.getElementById('htmx-modal').showModal()" : undefined}
+            >
+                <Icon icon={Banknote} size={16} /> New Loan
+            </button>
+        </div>
+
+        <ul class="list bg-base-100 rounded-box shadow-sm border border-base-200">
+          <li class="p-4 pb-2 text-xs opacity-60 tracking-wide uppercase font-bold border-b border-base-200">Loans List (UGX)</li>
+          {loans.length > 0 ? loans.map(l => (
+            <li key={l.id} class="list-row items-center">
+              <div class="grow">
+                <div class="font-bold text-lg">{(l.principal || 0).toLocaleString()}</div>
+                <div class="text-xs uppercase font-semibold opacity-60">{l.durationMonths} Months • {l.interestRate}% Interest</div>
+                <div class="text-xs opacity-40 italic">Issued: {l.issuedDate}</div>
+              </div>
+              <div class="min-w-24 text-center">
+                <span class={`badge badge-sm badge-soft uppercase text-[10px] font-bold tracking-wider ${l.status === 'active' ? 'badge-info' : 'badge-success'}`}>{l.status}</span>
+              </div>
+              <div class="min-w-32 flex justify-end">
+                {l.status === 'active' && (
+                  <button 
+                    class="btn btn-sm btn-success text-white gap-2 px-4"
+                    hx-get={`/dashboard/members/${l.memberId}/loans/${l.id}/pay`}
+                    hx-target="#htmx-modal-content"
+                    hx-swap="innerHTML"
+                    onClick="document.getElementById('htmx-modal').showModal()"
+                  >
+                    <Icon icon={Banknote} size={16} /> Pay
+                  </button>
+                )}
+              </div>
+            </li>
+          )) : (
+            <li class="p-10 text-center text-slate-400 italic">No loans recorded</li>
+          )}
+        </ul>
+    </div>
   );
 }
 
 // Partial component for shares history (OOB Swap)
-export function MemberDetailSharesTab({ id, shares = [] }) {
+export function MemberDetailSharesTab({ id, memberId, shares = [] }) {
   return (
-    <ul id={id} hx-swap-oob={id ? "true" : "false"} class="list bg-base-100 rounded-box shadow-sm border border-base-200">
-      <li class="p-4 pb-2 text-xs opacity-60 tracking-wide uppercase font-bold border-b border-base-200">Investment History (UGX)</li>
-      {shares.length > 0 ? shares.map(s => (
-        <li key={s.id} class="list-row items-center">
-          <div class="grow">
-            <div class="font-bold text-lg">{(s.amount || 0).toLocaleString()}</div>
-            <div class="text-xs opacity-40 italic">Date: {s.date}</div>
-          </div>
-          <div class="min-w-24 text-center">
-             <span class="badge badge-sm badge-soft badge-primary uppercase text-[10px] font-bold tracking-wider">Equity</span>
-          </div>
-          <div class="min-w-32 flex justify-end">
-             <div class="p-2 bg-primary/10 text-primary rounded-lg"><Icon icon={PieChart} size={16} /></div>
-          </div>
-        </li>
-      )) : (
-        <li class="p-10 text-center text-slate-400 italic">No shares history</li>
-      )}
-    </ul>
+    <div id={id} hx-swap-oob={id ? "true" : "false"} class="flex flex-col gap-4">
+        <div class="flex justify-between items-center bg-base-100 p-4 rounded-box border border-base-200 shadow-sm">
+            <div class="font-bold text-lg">Share Capital</div>
+            <button 
+              class="btn btn-sm btn-primary gap-2"
+              hx-get={`/dashboard/members/${memberId}/shares/new`}
+              hx-target="#htmx-modal-content"
+              hx-swap="innerHTML"
+              onClick="document.getElementById('htmx-modal').showModal()"
+            >
+               <Icon icon={PieChart} size={16} /> Buy Shares
+            </button>
+        </div>
+
+        <ul class="list bg-base-100 rounded-box shadow-sm border border-base-200">
+          <li class="p-4 pb-2 text-xs opacity-60 tracking-wide uppercase font-bold border-b border-base-200">Investment History (UGX)</li>
+          {shares.length > 0 ? shares.map(s => (
+            <li key={s.id} class="list-row items-center">
+              <div class="grow">
+                <div class="font-bold text-lg">{(s.amount || 0).toLocaleString()}</div>
+                <div class="text-xs opacity-40 italic">Date: {s.date}</div>
+              </div>
+              <div class="min-w-24 text-center">
+                 <span class="badge badge-sm badge-soft badge-primary uppercase text-[10px] font-bold tracking-wider">Equity</span>
+              </div>
+              <div class="min-w-32 flex justify-end">
+                 <div class="p-2 bg-primary/10 text-primary rounded-lg"><Icon icon={PieChart} size={16} /></div>
+              </div>
+            </li>
+          )) : (
+            <li class="p-10 text-center text-slate-400 italic">No shares history</li>
+          )}
+        </ul>
+    </div>
   );
 }
 
@@ -187,52 +243,6 @@ export default function MemberDetailPage({ member, stats, loans = [], savings = 
               </div>
             </div>
           </div>
-          <div class="flex gap-2">
-            <button 
-              class="btn btn-outline btn-sm gap-2"
-              hx-get={`/dashboard/members/${member.id}/deposit`}
-              hx-target="#htmx-modal-content"
-              hx-swap="innerHTML"
-              onClick="document.getElementById('htmx-modal').showModal()"
-            >
-               <Icon icon={Plus} size={16} /> Deposit
-            </button>
-            <button 
-              class="btn btn-outline btn-sm gap-2"
-              hx-get={`/dashboard/members/${member.id}/withdraw`}
-              hx-target="#htmx-modal-content"
-              hx-swap="innerHTML"
-              onClick="document.getElementById('htmx-modal').showModal()"
-            >
-               <Icon icon={Minus} size={16} /> Withdraw
-            </button>
-            <button 
-              class="btn btn-outline btn-sm gap-2"
-              hx-get={`/dashboard/members/${member.id}/shares/new`}
-              hx-target="#htmx-modal-content"
-              hx-swap="innerHTML"
-              onClick="document.getElementById('htmx-modal').showModal()"
-            >
-               <Icon icon={PieChart} size={16} /> Buy Shares
-            </button>
-            {loans.some(l => l.status === 'active') ? (
-              <div class="tooltip tooltip-bottom" data-tip="Member has an active loan">
-                <button class="btn btn-primary btn-sm gap-2 btn-disabled">
-                  <Icon icon={Banknote} size={16} /> New Loan
-                </button>
-              </div>
-            ) : (
-              <button 
-                class="btn btn-primary btn-sm gap-2"
-                hx-get={`/dashboard/members/${member.id}/loans/new`}
-                hx-target="#htmx-modal-content"
-                hx-swap="innerHTML"
-                onClick="document.getElementById('htmx-modal').showModal()"
-              >
-                <Icon icon={Banknote} size={16} /> New Loan
-              </button>
-            )}
-          </div>
         </div>
 
         {/* Stats Grid */}
@@ -252,19 +262,19 @@ export default function MemberDetailPage({ member, stats, loans = [], savings = 
                   {/* Savings Tab */}
                   <input type="radio" name="member_tabs" role="tab" class="tab" aria-label="Savings" checked />
                   <div role="tabpanel" class="tab-content bg-base-100 border-base-200 p-6">
-                    <MemberDetailSavingsTab id="member-savings-history" savings={savings} />
+                    <MemberDetailSavingsTab id="member-savings-history" memberId={member.id} savings={savings} />
                   </div>
 
                   {/* Loans Tab */}
                   <input type="radio" name="member_tabs" role="tab" class="tab" aria-label="Loans" />
                    <div role="tabpanel" class="tab-content bg-base-100 border-base-200 p-6">
-                    <MemberDetailLoansTab id="member-loans-history" loans={loans} />
+                    <MemberDetailLoansTab id="member-loans-history" memberId={member.id} loans={loans} />
                   </div>
 
                   {/* Shares Tab */}
                   <input type="radio" name="member_tabs" role="tab" class="tab" aria-label="Shares" />
                   <div role="tabpanel" class="tab-content bg-base-100 border-base-200 p-6">
-                     <MemberDetailSharesTab id="member-shares-history" shares={shares} />
+                     <MemberDetailSharesTab id="member-shares-history" memberId={member.id} shares={shares} />
                   </div>
 
                 </div>

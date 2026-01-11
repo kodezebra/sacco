@@ -9,6 +9,7 @@ import staff from '../staff';
 import payroll from '../payroll';
 import reports from '../reports';
 import sacco from '../sacco';
+import savings from '../savings';
 
 const app = new Hono();
 
@@ -27,5 +28,6 @@ app.route('/staff', staff);
 app.route('/payroll', payroll);
 app.route('/reports', reports);
 app.route('/sacco', sacco);
+app.route('/savings', savings);
 
 export default app;
