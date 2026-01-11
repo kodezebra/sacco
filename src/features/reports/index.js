@@ -1,5 +1,9 @@
 import { Hono } from 'hono';
+import { eq, desc, sql } from 'drizzle-orm';
+import { loans, members, loanPayments, shares, savings } from '../../db/schema';
 import ReportsPage from './Page';
+import LoanPortfolioReport from './LoanPortfolioReport';
+import MemberStatement from './MemberStatement';
 
 const app = new Hono();
 
@@ -7,12 +11,85 @@ app.get('/', (c) => {
   return c.html(<ReportsPage />);
 });
 
-// Placeholder routes for specific reports
+// GET /loans-active ... Active Loan Portfolio Report
+app.get('/loans-active', async (c) => {
+  const db = c.get('db');
+
+  const activeLoans = await db.select({
+    id: loans.id,
+    principal: loans.principal,
+    interestRate: loans.interestRate,
+    durationMonths: loans.durationMonths,
+    issuedDate: loans.issuedDate,
+    memberName: members.fullName,
+    memberNumber: members.memberNumber,
+  })
+  .from(loans)
+  .leftJoin(members, eq(loans.memberId, members.id))
+  .where(eq(loans.status, 'active'))
+  .orderBy(desc(loans.issuedDate))
+  .execute();
+
+  const loanIds = activeLoans.map(l => l.id);
+  let payments = [];
+  if (loanIds.length > 0) {
+    payments = await db.select().from(loanPayments).execute();
+    payments = payments.filter(p => loanIds.includes(p.loanId));
+  }
+
+  const reportData = activeLoans.map(loan => {
+    const totalInterest = loan.principal * (loan.interestRate / 100) * loan.durationMonths;
+    const totalDue = loan.principal + totalInterest;
+    const totalPaid = payments.filter(p => p.loanId === loan.id).reduce((sum, p) => sum + p.amount, 0);
+    const balance = totalDue - totalPaid;
+
+    return {
+      ...loan,
+      totalDue,
+      totalPaid,
+      balance
+    };
+  });
+
+  return c.html(<LoanPortfolioReport data={reportData} />);
+});
+
+// GET /member-statement/:id ... Member Detailed Statement
+app.get('/member-statement/:id', async (c) => {
+  const db = c.get('db');
+  const id = c.req.param('id');
+
+  const memberResult = await db.select().from(members).where(eq(members.id, id)).limit(1);
+  const member = memberResult[0];
+  if (!member) return c.text('Member not found', 404);
+
+  const memberSavings = await db.select().from(savings).where(eq(savings.memberId, id)).execute();
+  const memberShares = await db.select().from(shares).where(eq(shares.memberId, id)).execute();
+  const memberLoans = await db.select().from(loans).where(eq(loans.memberId, id)).execute();
+  
+  const loanIds = memberLoans.map(l => l.id);
+  let payments = [];
+  if (loanIds.length > 0) {
+    payments = await db.select().from(loanPayments).execute();
+    payments = payments.filter(p => loanIds.includes(p.loanId));
+  }
+
+  const ledger = [
+    ...memberSavings.map(s => ({ date: s.date, type: 'Savings', category: s.type, amount: s.amount, impact: s.type === 'deposit' ? 'credit' : 'debit' })),
+    ...memberShares.map(s => ({ date: s.date, type: 'Shares', category: 'Investment', amount: s.amount, impact: 'credit' })),
+    ...payments.map(p => ({ date: p.date, type: 'Loan Repay', category: 'Payment', amount: p.amount, impact: 'credit' })),
+    ...memberLoans.map(l => ({ date: l.issuedDate, type: 'Loan Issue', category: 'Disbursement', amount: l.principal, impact: 'debit' }))
+  ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  return c.html(<MemberStatement member={member} ledger={ledger} />);
+});
+
+// Placeholder routes for remaining reports
 const placeholderHandler = (c) => {
   return c.html(
     <div class="p-10 text-center">
       <h1 class="text-2xl font-bold mb-4">Report Under Construction</h1>
-      <p>This report logic will be implemented with D1 data.</p>
+      <p>This report logic is being implemented.</p>
       <a href="/dashboard/reports" class="btn btn-primary mt-4">Back to Reports</a>
     </div>
   );

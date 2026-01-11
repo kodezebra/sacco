@@ -13,9 +13,9 @@ export default function ReportsPage() {
       icon: TrendingUp,
       color: "text-primary",
       reports: [
-        { name: "Income Statement (P&L)", url: "/reports/income" },
-        { name: "Balance Sheet", url: "/reports/balance-sheet" },
-        { name: "Cash Flow Statement", url: "/reports/cash-flow" },
+        { name: "Income Statement (P&L)", url: "/dashboard/reports/income" },
+        { name: "Balance Sheet", url: "/dashboard/reports/balance-sheet" },
+        { name: "Cash Flow Statement", url: "/dashboard/reports/cash-flow" },
       ]
     },
     {
@@ -24,9 +24,9 @@ export default function ReportsPage() {
       icon: Banknote,
       color: "text-secondary",
       reports: [
-        { name: "Active Loans Portfolio", url: "/reports/loans-active" },
-        { name: "Defaulters List (PAR)", url: "/reports/loans-risk" },
-        { name: "Interest Earnings", url: "/reports/loans-interest" },
+        { name: "Active Loans Portfolio", url: "/dashboard/reports/loans-active" },
+        { name: "Defaulters List (PAR)", url: "/dashboard/reports/loans-risk" },
+        { name: "Interest Earnings", url: "/dashboard/reports/loans-interest" },
       ]
     },
     {
@@ -35,9 +35,9 @@ export default function ReportsPage() {
       icon: Users,
       color: "text-accent",
       reports: [
-        { name: "Share Capital Registry", url: "/reports/shares" },
-        { name: "Member Statements", url: "/reports/member-statements" },
-        { name: "New Registrations", url: "/reports/member-growth" },
+        { name: "Share Capital Registry", url: "/dashboard/reports/shares" },
+        { name: "Member Statements", url: "/dashboard/reports/member-statements" },
+        { name: "New Registrations", url: "/dashboard/reports/member-growth" },
       ]
     },
     {
@@ -46,9 +46,9 @@ export default function ReportsPage() {
       icon: Building2,
       color: "text-info",
       reports: [
-        { name: "Project Profitability", url: "/reports/project-performance" },
-        { name: "Payroll Summary", url: "/reports/payroll" },
-        { name: "Expense Breakdown", url: "/reports/expenses" },
+        { name: "Project Profitability", url: "/dashboard/reports/project-performance" },
+        { name: "Payroll Summary", url: "/dashboard/reports/payroll" },
+        { name: "Expense Breakdown", url: "/dashboard/reports/expenses" },
       ]
     }
   ];

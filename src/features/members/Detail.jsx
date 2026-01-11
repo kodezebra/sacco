@@ -2,7 +2,7 @@ import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import { 
   ArrowLeft, Phone, MapPin, User, 
-  Wallet, Banknote, PieChart, History, Plus, Minus
+  Wallet, Banknote, PieChart, History, Plus, Minus, FileText
 } from 'lucide';
 
 const formatUGX = (val) => (val || 0).toLocaleString() + ' UGX';
@@ -242,6 +242,14 @@ export default function MemberDetailPage({ member, stats, loans = [], savings = 
                 <span class="badge badge-primary badge-sm badge-soft">{member.memberNumber}</span> • <span>Joined {member.createdAt}</span> • <span class={`badge badge-sm badge-soft uppercase text-[10px] font-bold tracking-wider ${member.status === 'active' ? 'badge-success' : 'badge-error'}`}>{member.status}</span>
               </div>
             </div>
+          </div>
+          <div class="flex gap-2">
+            <a 
+              href={`/dashboard/reports/member-statement/${member.id}`} 
+              class="btn btn-outline btn-sm gap-2"
+            >
+               <Icon icon={FileText} size={16} /> Statement
+            </a>
           </div>
         </div>
 
