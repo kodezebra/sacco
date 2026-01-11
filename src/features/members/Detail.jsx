@@ -94,6 +94,31 @@ export function MemberDetailLoansTab({ id, loans = [] }) {
   );
 }
 
+// Partial component for shares history (OOB Swap)
+export function MemberDetailSharesTab({ id, shares = [] }) {
+  return (
+    <ul id={id} hx-swap-oob={id ? "true" : "false"} class="list bg-base-100 rounded-box shadow-sm border border-base-200">
+      <li class="p-4 pb-2 text-xs opacity-60 tracking-wide uppercase font-bold border-b border-base-200">Investment History (UGX)</li>
+      {shares.length > 0 ? shares.map(s => (
+        <li key={s.id} class="list-row items-center">
+          <div class="grow">
+            <div class="font-bold text-lg">{(s.amount || 0).toLocaleString()}</div>
+            <div class="text-xs opacity-40 italic">Date: {s.date}</div>
+          </div>
+          <div class="min-w-24 text-center">
+             <span class="badge badge-sm badge-soft badge-primary uppercase text-[10px] font-bold tracking-wider">Equity</span>
+          </div>
+          <div class="min-w-32 flex justify-end">
+             <div class="p-2 bg-primary/10 text-primary rounded-lg"><Icon icon={PieChart} size={16} /></div>
+          </div>
+        </li>
+      )) : (
+        <li class="p-10 text-center text-slate-400 italic">No shares history</li>
+      )}
+    </ul>
+  );
+}
+
 export function MemberDetailProfileForm({ id, member }) {
   return (
     <form 
@@ -172,6 +197,15 @@ export default function MemberDetailPage({ member, stats, loans = [], savings = 
             >
                <Icon icon={Plus} size={16} /> Deposit
             </button>
+            <button 
+              class="btn btn-outline btn-sm gap-2"
+              hx-get={`/dashboard/members/${member.id}/shares/new`}
+              hx-target="#htmx-modal-content"
+              hx-swap="innerHTML"
+              onClick="document.getElementById('htmx-modal').showModal()"
+            >
+               <Icon icon={PieChart} size={16} /> Buy Shares
+            </button>
             {loans.some(l => l.status === 'active') ? (
               <div class="tooltip tooltip-bottom" data-tip="Member has an active loan">
                 <button class="btn btn-primary btn-sm gap-2 btn-disabled">
@@ -221,16 +255,7 @@ export default function MemberDetailPage({ member, stats, loans = [], savings = 
                   {/* Shares Tab */}
                   <input type="radio" name="member_tabs" role="tab" class="tab" aria-label="Shares" />
                   <div role="tabpanel" class="tab-content bg-base-100 border-base-200 p-6">
-                     <div class="overflow-x-auto">
-                      <table class="table table-sm">
-                        <thead><tr><th>Date</th><th class="text-right">Investment</th></tr></thead>
-                        <tbody>
-                          {shares.length > 0 ? shares.map(s => (
-                            <tr key={s.id}><td>{s.date}</td><td class="text-right font-medium">{formatUGX(s.amount)}</td></tr>
-                          )) : <tr><td colspan="2" class="text-center py-4 text-slate-400">No shares history</td></tr>}
-                        </tbody>
-                      </table>
-                    </div>
+                     <MemberDetailSharesTab id="member-shares-history" shares={shares} />
                   </div>
 
                 </div>

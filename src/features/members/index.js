@@ -7,12 +7,14 @@ import MemberDetailPage, {
   MemberDetailStats, 
   MemberDetailSavingsTab, 
   MemberDetailLoansTab, 
+  MemberDetailSharesTab,
   MemberDetailProfileForm 
 } from './Detail';
 import { Toast } from '../../components/Toast';
 import DepositForm from './DepositForm';
 import LoanForm from './LoanForm';
 import LoanRepaymentForm from './LoanRepaymentForm';
+import SharePurchaseForm from './SharePurchaseForm';
 
 const app = new Hono();
 
@@ -285,6 +287,52 @@ app.post('/:id/loans/:loanId/pay', async (c) => {
       <MemberDetailStats id="member-stats-container" stats={stats} />
       <MemberDetailLoansTab id="member-loans-history" loans={updatedLoans} />
       <Toast message={totalPaid >= totalDue ? "Payment recorded & Loan Closed!" : "Payment recorded successfully!"} />
+    </>
+  );
+});
+
+// GET /:id/shares/new ... Serve Share Purchase Form
+app.get('/:id/shares/new', (c) => {
+  const memberId = c.req.param('id');
+  return c.html(<SharePurchaseForm memberId={memberId} />);
+});
+
+// POST /:id/shares ... Handle Share Purchase
+app.post('/:id/shares', async (c) => {
+  const db = c.get('db');
+  const memberId = c.req.param('id');
+  const body = await c.req.parseBody();
+  const amount = parseInt(body.amount);
+
+  // 1. Record Share Investment
+  await db.insert(shares).values({
+    id: `shr_${Math.random().toString(36).substring(2, 9)}`,
+    memberId: memberId,
+    amount: amount,
+    date: body.date,
+  }).execute();
+
+  // 2. Record Transaction
+  await db.insert(transactions).values({
+    id: `txn_${Math.random().toString(36).substring(2, 9)}`,
+    associationId: 'sacco-01',
+    type: 'income',
+    category: 'Share Capital',
+    amount: amount,
+    description: `Share capital purchase from member ${memberId}`,
+    date: body.date,
+  }).execute();
+
+  // 3. Update UI
+  const stats = await getMemberStats(db, memberId);
+  const updatedShares = await db.select().from(shares).where(eq(shares.memberId, memberId)).orderBy(desc(shares.date)).execute();
+
+  c.header('HX-Trigger', 'closeModal');
+  return c.html(
+    <>
+      <MemberDetailStats id="member-stats-container" stats={stats} />
+      <MemberDetailSharesTab id="member-shares-history" shares={updatedShares} />
+      <Toast message="Shares purchased successfully!" />
     </>
   );
 });
