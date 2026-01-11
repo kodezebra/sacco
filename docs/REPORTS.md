@@ -1,28 +1,39 @@
-# SACCO Reporting Requirements
+# Reports & Financial Statements
 
-This document outlines the key reports required for the SACCO management system.
+This document outlines the reporting engine requirements for the SACCO management system.
 
-## 1. Financial Reports
-*   **Income Statement (P&L):** Summary of Income (Interest, Fees, Association Sales) vs. Expenses (Salaries, Supplies, Utilities).
-*   **Balance Sheet:** Overview of Assets (Cash, Outstanding Loans) vs. Liabilities (Member Shares/Savings).
-*   **Cash Flow Statement:** Monthly tracking of liquid cash movements.
+## 1. Core Reports
 
-## 2. Member Reports
-*   **Member Statement:** Individual ledger showing a member's full history (Shares, Loans, Payments).
-*   **Share Capital Registry:** List of all members and their total share holdings (Current share price: UGX 50,000).
-*   **Membership Growth:** Tracking new member registrations over time.
+### A. Member Statement
+*   **Purpose:** Provide a member with their full financial history.
+*   **Scope:** Single member.
+*   **Data:** All savings, shares, and loan payments associated with the member ID.
+*   **Columns:** Date, Transaction Type, Debit, Credit, Running Balance.
 
-## 3. Loan Reports
-*   **Portfolio Overview:** List of all active loans, principal issued, interest rates, and current balances.
-*   **Repayment Schedule:** Upcoming payments for the week/month.
-*   **Portfolio at Risk (PAR):** List of overdue loans and defaulters.
-*   **Interest Revenue:** Total interest earned from loan products.
+### B. Loan Portfolio Report
+*   **Purpose:** Assess the total lending risk.
+*   **Scope:** Global.
+*   **Data:** All loans where `status = 'active'`.
+*   **Calculations:** Total Principal, Total Interest Due, Total Paid, Remaining Balance.
 
-## 4. Association / Project Reports
-*   **Unit Profitability:** Comparative performance analysis of different associations (e.g., Bakery vs. Hatchery).
-*   **Operational Expenses:** Detailed breakdown of expenses per project.
-*   **Payroll Summary:** Total monthly staff salary expenditure per association.
+### C. Cash Flow Statement (Income Statement)
+*   **Purpose:** Track profitability over a period.
+*   **Scope:** Global (Date Range).
+*   **Data:** Transactions grouped by category.
+*   **Output:** Total Income (Deposits, Interest, Share Capital) vs Total Expenses (Withdrawals, Disbursements).
 
-## 5. Export Requirements
-*   All reports should be downloadable in **Excel (CSV)** format.
-*   Official statements (like Member Statements) should eventually be exportable as **PDF**.
+## 2. Implementation Strategy
+
+### Routing
+*   `/dashboard/reports`: Home center with links to specific report parameters.
+*   `/dashboard/reports/[type]`: The generated report view.
+
+### Format
+*   **HTML:** Default view (Responsive table).
+*   **Print:** CSS-optimized for A4 paper.
+*   **CSV:** For Excel export.
+
+## 3. Data Flow
+1.  Admin selects Report Type and Parameters (e.g., Member ID or Date Range).
+2.  Backend executes aggregate SQL queries using Drizzle.
+3.  Frontend renders a "Printable" view using a specialized layout.
