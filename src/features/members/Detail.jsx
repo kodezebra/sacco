@@ -2,7 +2,7 @@ import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import { 
   ArrowLeft, Phone, MapPin, User, 
-  Wallet, Banknote, PieChart, History, Plus
+  Wallet, Banknote, PieChart, History, Plus, Minus
 } from 'lucide';
 
 const formatUGX = (val) => (val || 0).toLocaleString() + ' UGX';
@@ -196,6 +196,15 @@ export default function MemberDetailPage({ member, stats, loans = [], savings = 
               onClick="document.getElementById('htmx-modal').showModal()"
             >
                <Icon icon={Plus} size={16} /> Deposit
+            </button>
+            <button 
+              class="btn btn-outline btn-sm gap-2"
+              hx-get={`/dashboard/members/${member.id}/withdraw`}
+              hx-target="#htmx-modal-content"
+              hx-swap="innerHTML"
+              onClick="document.getElementById('htmx-modal').showModal()"
+            >
+               <Icon icon={Minus} size={16} /> Withdraw
             </button>
             <button 
               class="btn btn-outline btn-sm gap-2"

@@ -15,6 +15,7 @@ import DepositForm from './DepositForm';
 import LoanForm from './LoanForm';
 import LoanRepaymentForm from './LoanRepaymentForm';
 import SharePurchaseForm from './SharePurchaseForm';
+import WithdrawForm from './WithdrawForm';
 
 const app = new Hono();
 
@@ -163,6 +164,62 @@ app.post('/:id/savings', async (c) => {
       <MemberDetailStats id="member-stats-container" stats={stats} />
       <MemberDetailSavingsTab id="member-savings-history" savings={memberSavings} />
       <Toast message="Deposit recorded successfully!" />
+    </>
+  );
+});
+
+// GET /:id/withdraw ... Serve Withdrawal Form
+app.get('/:id/withdraw', async (c) => {
+  const db = c.get('db');
+  const memberId = c.req.param('id');
+  
+  const stats = await getMemberStats(db, memberId);
+  return c.html(<WithdrawForm memberId={memberId} maxAmount={stats.savingsBalance} />);
+});
+
+// POST /:id/withdraw ... Handle Withdrawal
+app.post('/:id/withdraw', async (c) => {
+  const db = c.get('db');
+  const memberId = c.req.param('id');
+  const body = await c.req.parseBody();
+  const amount = parseInt(body.amount);
+
+  // 1. Check Balance
+  const stats = await getMemberStats(db, memberId);
+  if (amount > stats.savingsBalance) {
+    return c.html(<Toast message="Insufficient savings balance!" type="error" />);
+  }
+
+  // 2. Record Withdrawal
+  await db.insert(savings).values({
+    id: `sav_${Math.random().toString(36).substring(2, 9)}`,
+    memberId: memberId,
+    type: 'withdrawal',
+    amount: amount,
+    date: body.date,
+  }).execute();
+
+  // 3. Record Transaction
+  await db.insert(transactions).values({
+    id: `txn_${Math.random().toString(36).substring(2, 9)}`,
+    associationId: 'sacco-01',
+    type: 'expense',
+    category: 'Savings Withdrawal',
+    amount: amount,
+    description: `Savings withdrawal by member ${memberId}`,
+    date: body.date,
+  }).execute();
+
+  // 4. Update UI
+  const newStats = await getMemberStats(db, memberId);
+  const memberSavings = await db.select().from(savings).where(eq(savings.memberId, memberId)).orderBy(desc(savings.date)).execute();
+
+  c.header('HX-Trigger', 'closeModal');
+  return c.html(
+    <>
+      <MemberDetailStats id="member-stats-container" stats={newStats} />
+      <MemberDetailSavingsTab id="member-savings-history" savings={memberSavings} />
+      <Toast message="Withdrawal processed successfully!" />
     </>
   );
 });
