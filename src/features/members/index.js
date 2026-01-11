@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { like, or, eq, desc, sql } from 'drizzle-orm';
-import { members, shares, savings, loans, loanPayments, transactions } from '../../db/schema';
+import { members, shares, savings, loans, loanPayments, transactions, sacco } from '../../db/schema';
 import MembersPage, { MembersList, MemberRow } from './List';
 import NewMemberForm from './NewForm';
 import MemberDetailPage, { 
@@ -225,9 +225,14 @@ app.post('/:id/withdraw', async (c) => {
 });
 
 // GET /:id/loans/new ... Serve Loan Form
-app.get('/:id/loans/new', (c) => {
+app.get('/:id/loans/new', async (c) => {
+  const db = c.get('db');
   const memberId = c.req.param('id');
-  return c.html(<LoanForm memberId={memberId} />);
+  
+  const settingsResult = await db.select().from(sacco).limit(1);
+  const settings = settingsResult[0] || {};
+
+  return c.html(<LoanForm memberId={memberId} defaults={settings} />);
 });
 
 // POST /:id/loans ... Create Loan

@@ -4,7 +4,7 @@ import {
   real,
   integer,
 } from "drizzle-orm/sqlite-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 /* =========================
    SACCO
@@ -13,6 +13,21 @@ import { relations } from "drizzle-orm";
 export const sacco = sqliteTable("sacco", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
+  
+  // Organization Profile
+  email: text("email"),
+  phone: text("phone"),
+  address: text("address"),
+  logo: text("logo"),
+
+  // Financial Policy
+  currency: text("currency").default("UGX"),
+  defaultInterestRate: real("default_interest_rate").default(5.0),
+  defaultLoanDuration: integer("default_loan_duration").default(6),
+  
+  sharePrice: integer("share_price").default(20000),
+  registrationFee: integer("registration_fee").default(10000),
+
   createdAt: text("created_at").notNull(),
 });
 
@@ -67,6 +82,7 @@ export const transactions = sqliteTable("transactions", {
 
   description: text("description"),
   date: text("date").notNull(),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
 /* =========================
@@ -79,6 +95,7 @@ export const shares = sqliteTable("shares", {
 
   amount: integer("amount").notNull(),
   date: text("date").notNull(),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
 /* =========================
@@ -92,6 +109,7 @@ export const savings = sqliteTable("savings", {
   type: text("type").notNull(), // deposit | withdrawal
   amount: integer("amount").notNull(),
   date: text("date").notNull(),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
 /* =========================
@@ -108,6 +126,7 @@ export const loans = sqliteTable("loans", {
 
   issuedDate: text("issued_date").notNull(),
   status: text("status").default("active"),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
 /* =========================
@@ -120,6 +139,7 @@ export const loanPayments = sqliteTable("loan_payments", {
 
   amount: integer("amount").notNull(),
   date: text("date").notNull(),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
 /* =========================

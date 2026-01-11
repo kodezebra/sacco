@@ -30,10 +30,7 @@ export default function SharePurchaseForm({ memberId }) {
 
         <div class="form-control">
           <label class="label"><span class="label-text font-semibold">Transaction Date</span></label>
-          <div class="relative">
-            <input type="date" name="date" value={new Date().toISOString().split('T')[0]} class="input input-bordered w-full" required />
-            <div class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400"><Icon icon={Calendar} size={16} /></div>
-          </div>
+          <input type="date" name="date" value={new Date().toISOString().split('T')[0]} class="input input-bordered w-full" required />
         </div>
 
         <div class="modal-action mt-8">

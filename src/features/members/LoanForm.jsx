@@ -1,7 +1,7 @@
 import Icon from '../../components/Icon.jsx';
 import { Banknote, Calendar, Percent, Clock } from 'lucide';
 
-export default function LoanForm({ memberId }) {
+export default function LoanForm({ memberId, defaults = {} }) {
   return (
     <div class="p-2">
       <div class="flex items-center gap-3 mb-6">
@@ -32,7 +32,7 @@ export default function LoanForm({ memberId }) {
           <div class="form-control">
             <label class="label"><span class="label-text font-semibold">Interest Rate (%)</span></label>
             <div class="relative">
-              <input type="number" step="0.1" name="interestRate" placeholder="5" class="input input-bordered w-full" required />
+              <input type="number" step="0.1" name="interestRate" value={defaults.defaultInterestRate || 5} class="input input-bordered w-full" required />
               <div class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400"><Icon icon={Percent} size={16} /></div>
             </div>
             <label class="label"><span class="label-text-alt text-slate-400">Monthly flat rate</span></label>
@@ -41,7 +41,7 @@ export default function LoanForm({ memberId }) {
           <div class="form-control">
             <label class="label"><span class="label-text font-semibold">Duration (Months)</span></label>
             <div class="relative">
-              <input type="number" name="durationMonths" placeholder="6" class="input input-bordered w-full" required />
+              <input type="number" name="durationMonths" value={defaults.defaultLoanDuration || 6} class="input input-bordered w-full" required />
               <div class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400"><Icon icon={Clock} size={16} /></div>
             </div>
           </div>
@@ -49,10 +49,7 @@ export default function LoanForm({ memberId }) {
 
         <div class="form-control">
           <label class="label"><span class="label-text font-semibold">Disbursement Date</span></label>
-          <div class="relative">
-            <input type="date" name="issuedDate" value={new Date().toISOString().split('T')[0]} class="input input-bordered w-full" required />
-            <div class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400"><Icon icon={Calendar} size={16} /></div>
-          </div>
+          <input type="date" name="issuedDate" value={new Date().toISOString().split('T')[0]} class="input input-bordered w-full" required />
         </div>
 
         <div class="modal-action mt-8">
