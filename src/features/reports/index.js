@@ -1,15 +1,31 @@
 import { Hono } from 'hono';
-import { eq, desc, sql } from 'drizzle-orm';
+import { eq, desc, sql, like, or } from 'drizzle-orm';
 import { loans, members, loanPayments, shares, savings, transactions } from '../../db/schema';
-import ReportsPage from './Page';
+import ReportsPage, { MemberSearchList } from './Page';
 import LoanPortfolioReport from './LoanPortfolioReport';
 import MemberStatement from './MemberStatement';
 import CashFlowReport from './CashFlowReport';
 
 const app = new Hono();
 
-app.get('/', (c) => {
-  return c.html(<ReportsPage />);
+app.get('/', async (c) => {
+  const db = c.get('db');
+  const search = c.req.query('search') || '';
+  
+  let searchedMembers = [];
+  if (search) {
+    searchedMembers = await db.select()
+      .from(members)
+      .where(or(like(members.fullName, `%${search}%`), like(members.memberNumber, `%${search}%`)))
+      .limit(5)
+      .execute();
+  }
+
+  if (c.req.header('hx-request')) {
+    return c.html(<MemberSearchList members={searchedMembers} />);
+  }
+
+  return c.html(<ReportsPage searchedMembers={searchedMembers} search={search} />);
 });
 
 // GET /cash-flow ... Cash Flow Statement

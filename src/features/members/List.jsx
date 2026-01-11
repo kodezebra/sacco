@@ -1,6 +1,6 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
-import { Plus, Search, FileSpreadsheet, Trash2, ChevronLeft, ChevronRight } from 'lucide';
+import { Plus, Search, FileSpreadsheet, Trash2, ChevronLeft, ChevronRight, Eye } from 'lucide';
 
 export function MemberRow({ member }) {
   return (
@@ -14,22 +14,24 @@ export function MemberRow({ member }) {
           </div>
           <div>
             <div class="font-bold">{member.fullName}</div>
-            <div class="text-xs opacity-50">{member.memberNumber}</div>
+            <div class="text-[10px] opacity-50 font-mono">{member.memberNumber}</div>
           </div>
         </div>
       </td>
-      <td>{member.phone}</td>
-      <td>
-        <span class={`badge badge-sm ${member.status === 'active' ? 'badge-success' : 'badge-ghost'}`}>
+      <td class="font-mono text-xs">{member.phone}</td>
+      <td class="text-center">
+        <span class={`badge badge-sm badge-soft uppercase text-[10px] font-bold tracking-wider ${member.status === 'active' ? 'badge-success' : 'badge-ghost'}`}>
           {member.status}
         </span>
       </td>
-      <td>{member.createdAt}</td>
+      <td class="text-xs opacity-60">{member.createdAt}</td>
       <td class="text-right">
-        <div class="flex gap-1 justify-end">
-          <a href={`/dashboard/members/${member.id}`} class="btn btn-ghost btn-xs">View</a>
+        <div class="flex gap-2 justify-end items-center">
+          <a href={`/dashboard/members/${member.id}`} class="btn btn-outline btn-sm gap-2 font-medium">
+            <Icon icon={Eye} size={16} /> View
+          </a>
           <button 
-            class="btn btn-ghost btn-xs text-error"
+            class="btn btn-ghost btn-sm text-error btn-square"
             hx-delete={`/dashboard/members/${member.id}`}
             hx-target="closest tr"
             hx-swap="outerHTML"
@@ -79,12 +81,12 @@ export function MembersList({ members = [], page = 1, totalPages = 1, search = "
   return (
     <div id="members-list-container">
       <div class="overflow-x-auto min-h-[400px]">
-        <table class="table table-zebra">
-          <thead>
+        <table class="table table-sm table-zebra w-full">
+          <thead class="bg-base-200">
             <tr>
               <th>Member</th>
               <th>Contact</th>
-              <th>Status</th>
+              <th class="text-center">Status</th>
               <th>Joined</th>
               <th class="text-right">Actions</th>
             </tr>

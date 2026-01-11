@@ -1,6 +1,8 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
-import { Search, Filter, User, ChevronLeft, ChevronRight, ArrowDownLeft, ArrowUpRight } from 'lucide';
+import { Search, Filter, User, Eye, ChevronLeft, ChevronRight, ArrowDownLeft, ArrowUpRight } from 'lucide';
+
+const formatUGX = (val) => (val || 0).toLocaleString() + ' UGX';
 
 export function Pagination({ page, totalPages, search }) {
   if (totalPages <= 1) return null;
@@ -43,8 +45,8 @@ export function SavingsList({ savings = [], page = 1, totalPages = 1, search = "
             <p>No savings records found.</p>
           </div>
         ) : (
-          <table class="table table-zebra">
-            <thead>
+          <table class="table table-sm table-zebra w-full">
+            <thead class="bg-base-200">
               <tr>
                 <th>Member</th>
                 <th>Type</th>
@@ -57,16 +59,9 @@ export function SavingsList({ savings = [], page = 1, totalPages = 1, search = "
               {savings.map((s) => (
                 <tr key={s.id} class="hover">
                   <td>
-                    <div class="flex items-center gap-3">
-                      <div class="avatar placeholder">
-                          <div class="bg-neutral text-neutral-content rounded-full w-8">
-                            <Icon icon={User} size={14} />
-                          </div>
-                      </div>
-                      <div>
-                        <div class="font-bold">{s.memberName}</div>
-                        <div class="text-xs opacity-50">ID: {s.id.substring(0,8)}</div>
-                      </div>
+                    <div>
+                      <div class="font-bold">{s.memberName}</div>
+                      <div class="text-[10px] opacity-50">ID: {s.id.substring(0,8)}</div>
                     </div>
                   </td>
                   <td>
@@ -75,10 +70,14 @@ export function SavingsList({ savings = [], page = 1, totalPages = 1, search = "
                        {s.type}
                     </span>
                   </td>
-                  <td class="text-right font-medium text-slate-700">{(s.amount || 0).toLocaleString()}</td>
+                  <td class="text-right font-mono font-medium tracking-tight text-slate-700">{(s.amount || 0).toLocaleString()}</td>
                   <td class="text-xs opacity-60">{s.date}</td>
                   <td class="text-right">
-                    <a href={`/dashboard/members/${s.memberId}`} class="btn btn-ghost btn-xs">View Member</a>
+                    <div class="flex justify-end gap-2">
+                      <a href={`/dashboard/members/${s.memberId}`} class="btn btn-outline btn-sm gap-2 font-medium">
+                        <Icon icon={Eye} size={16} /> View
+                      </a>
+                    </div>
                   </td>
                 </tr>
               ))}

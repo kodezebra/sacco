@@ -1,6 +1,6 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
-import { Plus, Search, Filter, User, ChevronLeft, ChevronRight } from 'lucide';
+import { Plus, Search, Filter, User, Eye, ChevronLeft, ChevronRight } from 'lucide';
 
 const formatUGX = (val) => (val || 0).toLocaleString() + ' UGX';
 
@@ -45,8 +45,8 @@ export function SharesList({ shares = [], page = 1, totalPages = 1, search = "" 
             <p>No share records found.</p>
           </div>
         ) : (
-          <table class="table table-zebra">
-            <thead>
+          <table class="table table-sm table-zebra w-full">
+            <thead class="bg-base-200">
               <tr>
                 <th>Member</th>
                 <th class="text-right">Amount (UGX)</th>
@@ -58,22 +58,19 @@ export function SharesList({ shares = [], page = 1, totalPages = 1, search = "" 
               {shares.map((share) => (
                 <tr key={share.id} class="hover">
                   <td>
-                    <div class="flex items-center gap-3">
-                      <div class="avatar placeholder">
-                          <div class="bg-neutral text-neutral-content rounded-full w-8">
-                            <Icon icon={User} size={14} />
-                          </div>
-                      </div>
-                      <div>
-                        <div class="font-bold">{share.memberName}</div>
-                        <div class="text-xs opacity-50">ID: {share.id.substring(0,8)}</div>
-                      </div>
+                    <div>
+                      <div class="font-bold">{share.memberName}</div>
+                      <div class="text-[10px] opacity-50">ID: {share.id.substring(0,8)}</div>
                     </div>
                   </td>
-                  <td class="text-right font-medium text-slate-700">{(share.amount || 0).toLocaleString()}</td>
+                  <td class="text-right font-mono font-medium tracking-tight text-slate-700">{(share.amount || 0).toLocaleString()}</td>
                   <td class="text-xs opacity-60">{share.date}</td>
                   <td class="text-right">
-                    <a href={`/dashboard/members/${share.memberId}`} class="btn btn-ghost btn-xs">View Member</a>
+                    <div class="flex justify-end gap-2">
+                      <a href={`/dashboard/members/${share.memberId}`} class="btn btn-outline btn-sm gap-2 font-medium">
+                        <Icon icon={Eye} size={16} /> View
+                      </a>
+                    </div>
                   </td>
                 </tr>
               ))}

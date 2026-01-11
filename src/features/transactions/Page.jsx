@@ -15,8 +15,8 @@ export function TransactionsTable({ transactions = [] }) {
 
   return (
     <div class="overflow-x-auto">
-      <table class="table table-zebra">
-        <thead>
+      <table class="table table-sm table-zebra w-full">
+        <thead class="bg-base-200">
           <tr>
             <th>Date</th>
             <th>Type</th>
@@ -37,7 +37,7 @@ export function TransactionsTable({ transactions = [] }) {
               </td>
               <td>{t.category}</td>
               <td class="max-w-xs truncate" title={t.description}>{t.description}</td>
-              <td class={`text-right font-medium ${t.type === 'income' ? 'text-success' : 'text-error'}`}>
+              <td class={`text-right font-mono font-bold tracking-tight ${t.type === 'income' ? 'text-success' : 'text-error'}`}>
                 {t.type === 'expense' ? '-' : '+'}{(t.amount || 0).toLocaleString()}
               </td>
             </tr>

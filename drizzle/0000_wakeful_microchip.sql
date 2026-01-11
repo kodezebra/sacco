@@ -11,7 +11,8 @@ CREATE TABLE `loan_payments` (
 	`id` text PRIMARY KEY NOT NULL,
 	`loan_id` text NOT NULL,
 	`amount` integer NOT NULL,
-	`date` text NOT NULL
+	`date` text NOT NULL,
+	`created_at` text DEFAULT CURRENT_TIMESTAMP
 );
 --> statement-breakpoint
 CREATE TABLE `loans` (
@@ -21,7 +22,8 @@ CREATE TABLE `loans` (
 	`interest_rate` real NOT NULL,
 	`duration_months` integer DEFAULT 6,
 	`issued_date` text NOT NULL,
-	`status` text DEFAULT 'active'
+	`status` text DEFAULT 'active',
+	`created_at` text DEFAULT CURRENT_TIMESTAMP
 );
 --> statement-breakpoint
 CREATE TABLE `members` (
@@ -49,6 +51,15 @@ CREATE TABLE `payroll` (
 CREATE TABLE `sacco` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
+	`email` text,
+	`phone` text,
+	`address` text,
+	`logo` text,
+	`currency` text DEFAULT 'UGX',
+	`default_interest_rate` real DEFAULT 5,
+	`default_loan_duration` integer DEFAULT 6,
+	`share_price` integer DEFAULT 20000,
+	`registration_fee` integer DEFAULT 10000,
 	`created_at` text NOT NULL
 );
 --> statement-breakpoint
@@ -57,14 +68,16 @@ CREATE TABLE `savings` (
 	`member_id` text NOT NULL,
 	`type` text NOT NULL,
 	`amount` integer NOT NULL,
-	`date` text NOT NULL
+	`date` text NOT NULL,
+	`created_at` text DEFAULT CURRENT_TIMESTAMP
 );
 --> statement-breakpoint
 CREATE TABLE `shares` (
 	`id` text PRIMARY KEY NOT NULL,
 	`member_id` text NOT NULL,
 	`amount` integer NOT NULL,
-	`date` text NOT NULL
+	`date` text NOT NULL,
+	`created_at` text DEFAULT CURRENT_TIMESTAMP
 );
 --> statement-breakpoint
 CREATE TABLE `staff` (
@@ -83,5 +96,6 @@ CREATE TABLE `transactions` (
 	`category` text NOT NULL,
 	`amount` integer NOT NULL,
 	`description` text,
-	`date` text NOT NULL
+	`date` text NOT NULL,
+	`created_at` text DEFAULT CURRENT_TIMESTAMP
 );

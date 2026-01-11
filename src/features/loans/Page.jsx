@@ -1,6 +1,6 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
-import { Search, Filter, User, ChevronLeft, ChevronRight } from 'lucide';
+import { Search, Filter, Banknote, User, Eye, ChevronLeft, ChevronRight } from 'lucide';
 
 const formatUGX = (val) => (val || 0).toLocaleString() + ' UGX';
 
@@ -45,55 +45,53 @@ export function LoansList({ loans = [], page = 1, totalPages = 1, search = "" })
             <p>No loans found.</p>
           </div>
         ) : (
-          <table class="table table-zebra">
-                      <thead>
-                        <tr>
-                          <th>Member</th>
-                          <th class="text-right">Principal (UGX)</th>
-                          <th>Interest</th>
-                          <th>Term</th>
-                          <th>Status</th>
-                          <th>Issued</th>
-                          <th class="text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {loans.map((loan) => (
-                          <tr key={loan.id} class="hover">
-                            <td>
-                              <div class="flex items-center gap-3">
-                                <div class="avatar placeholder">
-                                    <div class="bg-neutral text-neutral-content rounded-full w-8">
-                                      <Icon icon={User} size={14} />
-                                    </div>
-                                </div>
-                                <div>
-                                  <div class="font-bold">{loan.memberName}</div>
-                                  <div class="text-xs opacity-50">ID: {loan.id.substring(0,8)}</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td class="text-right font-medium text-slate-700">{(loan.principal || 0).toLocaleString()}</td>
-                            <td>{loan.interestRate}%</td>                  <td>{loan.durationMonths} Mo</td>
+          <table class="table table-sm table-zebra w-full">
+            <thead class="bg-base-200">
+              <tr>
+                <th>Member</th>
+                <th class="text-right">Principal (UGX)</th>
+                <th class="text-right">Interest</th>
+                <th class="text-right">Term</th>
+                <th class="text-center">Status</th>
+                <th>Issued</th>
+                <th class="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loans.map((loan) => (
+                <tr key={loan.id} class="hover">
                   <td>
+                    <div>
+                      <div class="font-bold">{loan.memberName}</div>
+                      <div class="text-[10px] opacity-50">ID: {loan.id.substring(0,8)}</div>
+                    </div>
+                  </td>
+                  <td class="text-right font-mono font-medium tracking-tight text-slate-700">{(loan.principal || 0).toLocaleString()}</td>
+                  <td class="text-right">{loan.interestRate}%</td>
+                  <td class="text-right">{loan.durationMonths} Mo</td>
+                  <td class="text-center">
                     <span class={`badge badge-sm badge-soft uppercase text-[10px] font-bold tracking-wider ${loan.status === 'active' ? 'badge-info' : 'badge-success'}`}>
                       {loan.status}
                     </span>
                   </td>
                   <td class="text-xs opacity-60">{loan.issuedDate}</td>
-                  <td class="text-right flex justify-end gap-2">
-                    {loan.status === 'active' && (
-                      <button 
-                        class="btn btn-ghost btn-xs text-success"
-                        hx-get={`/dashboard/members/${loan.memberId}/loans/${loan.id}/pay`}
-                        hx-target="#htmx-modal-content"
-                        hx-swap="innerHTML"
-                        onClick="document.getElementById('htmx-modal').showModal()"
-                      >
-                        Pay
-                      </button>
-                    )}
-                    <a href={`/dashboard/members/${loan.memberId}`} class="btn btn-ghost btn-xs">View Member</a>
+                  <td class="text-right">
+                    <div class="flex justify-end gap-2">
+                      {loan.status === 'active' && (
+                        <button 
+                          class="btn btn-sm btn-outline btn-success gap-2 font-medium"
+                          hx-get={`/dashboard/members/${loan.memberId}/loans/${loan.id}/pay`}
+                          hx-target="#htmx-modal-content"
+                          hx-swap="innerHTML"
+                          onClick="document.getElementById('htmx-modal').showModal()"
+                        >
+                          <Icon icon={Banknote} size={16} /> Pay
+                        </button>
+                      )}
+                      <a href={`/dashboard/members/${loan.memberId}`} class="btn btn-outline btn-sm gap-2 font-medium">
+                        <Icon icon={Eye} size={16} /> View
+                      </a>
+                    </div>
                   </td>
                 </tr>
               ))}
