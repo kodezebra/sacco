@@ -31,7 +31,7 @@ export default function DashboardLayout({ title, children }) {
         <div class="drawer-content flex flex-col min-h-screen">
           {/* Navbar */}
           <nav class="navbar w-full bg-base-100 border-b border-base-200 sticky top-0 z-10 h-16">
-            <div class="flex-none md:hidden">
+            <div class="flex-none">
               <label for="dashboard-drawer" aria-label="open sidebar" class="btn btn-square btn-ghost">
                 <Icon icon={PanelLeft} size={20} />
               </label>

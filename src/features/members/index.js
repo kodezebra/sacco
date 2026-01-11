@@ -3,7 +3,7 @@ import { like, or, eq, desc } from 'drizzle-orm';
 import { members, shares, savings, loans } from '../../db/schema';
 import MembersPage, { MembersTable, MemberRow } from './List';
 import NewMemberForm from './NewForm';
-import MemberDetailPage, { MemberDetailStats, MemberDetailSavingsTab } from './Detail'; // Updated to export OOB components
+import MemberDetailPage, { MemberDetailStats, MemberDetailSavingsTab, MemberDetailProfileForm } from './Detail';
 import { Toast } from '../../components/Toast';
 import DepositForm from './DepositForm';
 
@@ -145,6 +145,35 @@ app.delete('/:id', async (c) => {
     return c.text('Failed to delete member', 500);
   }
   return c.body(null, 200);
+});
+
+// PUT /:id - Update member details
+app.put('/:id', async (c) => {
+  const db = c.get('db');
+  const id = c.req.param('id');
+  const body = await c.req.parseBody();
+
+  const updatedMember = {
+    fullName: body.fullName,
+    phone: body.phone,
+    address: body.address,
+    nextOfKinName: body.nextOfKinName,
+    nextOfKinPhone: body.nextOfKinPhone,
+  };
+
+  await db.update(members).set(updatedMember).where(eq(members.id, id)).execute();
+
+  // Re-fetch the member to return updated data
+  const result = await db.select().from(members).where(eq(members.id, id)).limit(1);
+  const member = result[0];
+
+  c.header('HX-Trigger', 'memberUpdated'); // Optional: trigger a custom event
+  return c.html(
+    <>
+      <MemberDetailProfileForm id="member-profile-form" member={member} />
+      <Toast message={`${member.fullName} updated successfully!`} />
+    </>
+  );
 });
 
 export default app;

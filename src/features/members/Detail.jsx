@@ -58,6 +58,49 @@ export function MemberDetailSavingsTab({ id, savings = [] }) {
     );
 }
 
+export function MemberDetailProfileForm({ id, member }) {
+  return (
+    <form 
+      id={id}
+      hx-put={`/dashboard/members/${member.id}`}
+      hx-target={`#${id}`}
+      hx-swap="outerHTML"
+    >
+      <div class="card bg-base-100 border border-base-200 shadow-sm">
+        <div class="card-body">
+          <h3 class="font-bold text-lg border-b pb-2 mb-4">Personal Profile</h3>
+          <div class="space-y-4 text-sm">
+            <div class="form-control">
+                <label class="label"><span class="label-text font-medium">Full Name</span></label>
+                <input type="text" name="fullName" value={member.fullName} class="input input-bordered w-full input-sm" required />
+            </div>
+            <div class="form-control">
+                <label class="label"><span class="label-text font-medium">Phone Number</span></label>
+                <input type="tel" name="phone" value={member.phone || ''} class="input input-bordered w-full input-sm" />
+            </div>
+            <div class="form-control">
+                <label class="label"><span class="label-text font-medium">Address</span></label>
+                <input type="text" name="address" value={member.address || ''} class="input input-bordered w-full input-sm" />
+            </div>
+            <div class="divider my-1"></div>
+            <div class="form-control">
+                <label class="label"><span class="label-text font-medium">Next of Kin Name</span></label>
+                <input type="text" name="nextOfKinName" value={member.nextOfKinName || ''} class="input input-bordered w-full input-sm" />
+            </div>
+            <div class="form-control">
+                <label class="label"><span class="label-text font-medium">Next of Kin Phone</span></label>
+                <input type="tel" name="nextOfKinPhone" value={member.nextOfKinPhone || ''} class="input input-bordered w-full input-sm" />
+            </div>
+          </div>
+          <div class="card-actions justify-end mt-6">
+            <button type="submit" class="btn btn-primary btn-sm">Save Profile</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  );
+}
+
 
 export default function MemberDetailPage({ member, stats, loans = [], savings = [], shares = [] }) {
   if (!member) {
@@ -103,20 +146,8 @@ export default function MemberDetailPage({ member, stats, loans = [], savings = 
         <MemberDetailStats id="member-stats-container" stats={stats} />
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Sidebar - Personal Info */}
           <div class="lg:col-span-1 space-y-6">
-             <div class="card bg-base-100 border border-base-200 shadow-sm">
-              <div class="card-body">
-                <h3 class="font-bold text-lg border-b pb-2 mb-4">Personal Profile</h3>
-                <div class="space-y-4 text-sm">
-                  <div class="flex items-start gap-3"><Icon icon={Phone} size={18} class="text-slate-400 mt-0.5" /><div><div class="font-semibold">Phone</div><div class="text-slate-600">{member.phone}</div></div></div>
-                  <div class="flex items-start gap-3"><Icon icon={MapPin} size={18} class="text-slate-400 mt-0.5" /><div><div class="font-semibold">Address</div><div class="text-slate-600">{member.address || 'N/A'}</div></div></div>
-                  <div class="divider my-1"></div>
-                  <div class="flex items-start gap-3"><Icon icon={User} size={18} class="text-slate-400 mt-0.5" /><div><div class="font-semibold text-xs uppercase tracking-wider opacity-60">Next of Kin</div><div class="font-medium">{member.nextOfKinName || 'N/A'}</div><div class="text-slate-600 text-xs">{member.nextOfKinPhone || ''}</div></div></div>
-                </div>
-                <div class="card-actions mt-6"><button class="btn btn-outline btn-block btn-sm">Edit Profile</button></div>
-              </div>
-            </div>
+            <MemberDetailProfileForm id="member-profile-form" member={member} />
           </div>
 
           {/* Main Content - History Tabs */}
