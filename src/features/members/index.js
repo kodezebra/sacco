@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { like, or, eq, desc, sql } from 'drizzle-orm';
-import { members, shares, savings, loans, loanPayments } from '../../db/schema';
+import { members, shares, savings, loans, loanPayments, transactions } from '../../db/schema';
 import MembersPage, { MembersList, MemberRow } from './List';
 import NewMemberForm from './NewForm';
 import MemberDetailPage, { 
@@ -178,6 +178,17 @@ app.post('/:id/loans', async (c) => {
 
   await db.insert(loans).values(newLoan).execute();
 
+  // Record Transaction (Disbursement)
+  await db.insert(transactions).values({
+    id: `txn_${Math.random().toString(36).substring(2, 9)}`,
+    associationId: 'sacco-01', // Using default SACCO ID for now
+    type: 'expense',
+    category: 'Loan Disbursement',
+    amount: parseInt(body.principal),
+    description: `Loan disbursement to member ${memberId}`,
+    date: body.issuedDate,
+  }).execute();
+
   const stats = await getMemberStats(db, memberId);
   const updatedLoans = await db.select().from(loans).where(eq(loans.memberId, memberId)).orderBy(desc(loans.issuedDate)).execute();
 
@@ -222,6 +233,17 @@ app.post('/:id/loans/:loanId/pay', async (c) => {
     id: `pay_${Math.random().toString(36).substring(2, 9)}`,
     loanId: loanId,
     amount: paymentAmount,
+    date: body.date,
+  }).execute();
+
+  // Record Transaction (Repayment)
+  await db.insert(transactions).values({
+    id: `txn_${Math.random().toString(36).substring(2, 9)}`,
+    associationId: 'sacco-01',
+    type: 'income',
+    category: 'Loan Repayment',
+    amount: paymentAmount,
+    description: `Loan repayment from member ${memberId}`,
     date: body.date,
   }).execute();
 
