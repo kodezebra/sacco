@@ -1,7 +1,6 @@
 import { 
   Users, Banknote, ArrowRightLeft, PieChart, 
-  Building2, Briefcase, Wallet, Settings,
-  PanelLeft, LayoutDashboard, FileText
+  Settings, PanelLeft, LayoutDashboard, FileText
 } from 'lucide';
 import Icon from '../components/Icon.jsx';
 import MainLayout from './MainLayout.jsx';
@@ -9,18 +8,11 @@ import MainLayout from './MainLayout.jsx';
 export default function DashboardLayout({ title, children }) {
   const menuItems = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { label: "SACCO", href: "/dashboard/sacco", icon: Building2 },
     { label: "Members", href: "/dashboard/members", icon: Users },
     { label: "Loans", href: "/dashboard/loans", icon: Banknote },
-    { label: "Transactions", href: "/dashboard/transactions", icon: ArrowRightLeft },
     { label: "Shares", href: "/dashboard/shares", icon: PieChart },
-    { isDivider: true }, 
-    { label: "Associations", href: "/dashboard/associations", icon: Building2 },
-    { label: "Staff", href: "/dashboard/staff", icon: Briefcase },
-    { label: "Payroll", href: "/dashboard/payroll", icon: Wallet },
+    { label: "Transactions", href: "/dashboard/transactions", icon: ArrowRightLeft },
     { label: "Reports", href: "/dashboard/reports", icon: FileText },
-    { isDivider: true },
-    { label: "Settings", href: "/dashboard/sacco", icon: Settings },
   ];
 
   return (
@@ -82,7 +74,7 @@ export default function DashboardLayout({ title, children }) {
               <div class="mt-auto"></div>
               <div class="divider my-1 px-2"></div>
               <li>
-                <a href="/dashboard/sacco" class="flex gap-3 text-error">
+                <a href="/dashboard/sacco" class="flex gap-3">
                   <Icon icon={Settings} size={20} class="shrink-0" />
                   <span>Settings</span>
                 </a>
