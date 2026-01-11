@@ -1,15 +1,22 @@
 import { Hono } from 'hono';
 import { like, or, eq, desc, sql } from 'drizzle-orm';
-import { members, shares, savings, loans } from '../../db/schema';
+import { members, shares, savings, loans, loanPayments } from '../../db/schema';
 import MembersPage, { MembersList, MemberRow } from './List';
 import NewMemberForm from './NewForm';
-import MemberDetailPage, { MemberDetailStats, MemberDetailSavingsTab, MemberDetailProfileForm } from './Detail';
+import MemberDetailPage, { 
+  MemberDetailStats, 
+  MemberDetailSavingsTab, 
+  MemberDetailLoansTab, 
+  MemberDetailProfileForm 
+} from './Detail';
 import { Toast } from '../../components/Toast';
 import DepositForm from './DepositForm';
+import LoanForm from './LoanForm';
+import LoanRepaymentForm from './LoanRepaymentForm';
 
 const app = new Hono();
 
-// Helper function to get members with pagination
+// Helper to get members with pagination
 const getMembers = async (db, search = '', page = 1, limit = 10) => {
   const offset = (page - 1) * limit;
   let query = db.select().from(members);
@@ -28,6 +35,35 @@ const getMembers = async (db, search = '', page = 1, limit = 10) => {
   const totalPages = Math.ceil(total / limit);
 
   return { data, total, page, totalPages };
+};
+
+// Helper to calculate member stats correctly
+const getMemberStats = async (db, memberId) => {
+  const memberShares = await db.select().from(shares).where(eq(shares.memberId, memberId)).execute();
+  const memberSavings = await db.select().from(savings).where(eq(savings.memberId, memberId)).execute();
+  const memberLoans = await db.select().from(loans).where(eq(loans.memberId, memberId)).execute();
+  
+  // Get all payments for all loans of this member
+  const loanIds = memberLoans.map(l => l.id);
+  let allPayments = [];
+  if (loanIds.length > 0) {
+    // For simplicity in SQLite/D1 without complex joins in one go:
+    allPayments = await db.select().from(loanPayments).execute();
+    allPayments = allPayments.filter(p => loanIds.includes(p.loanId));
+  }
+
+  const totalShares = memberShares.reduce((acc, s) => acc + s.amount, 0);
+  const savingsBalance = memberSavings.reduce((acc, s) => s.type === 'deposit' ? acc + s.amount : acc - s.amount, 0);
+  
+  // Calculate Loan Balance: (Principal + Flat Interest) - Payments
+  const loanBalance = memberLoans.filter(l => l.status === 'active').reduce((acc, l) => {
+    const totalInterest = l.principal * (l.interestRate / 100) * l.durationMonths;
+    const totalDue = l.principal + totalInterest;
+    const paidForThisLoan = allPayments.filter(p => p.loanId === l.id).reduce((sum, p) => sum + p.amount, 0);
+    return acc + (totalDue - paidForThisLoan);
+  }, 0);
+
+  return { totalShares, savingsBalance, loanBalance };
 };
 
 // GET / ... Main members list
@@ -105,15 +141,8 @@ app.post('/:id/savings', async (c) => {
     date: body.date,
   }).execute();
 
-  // Re-fetch all data to return updated components
-  const memberSavings = await db.select().from(savings).where(eq(savings.memberId, memberId)).execute();
-  const memberLoans = await db.select().from(loans).where(eq(loans.memberId, memberId)).execute();
-  const memberShares = await db.select().from(shares).where(eq(shares.memberId, memberId)).execute();
-
-  const savingsBalance = memberSavings.reduce((acc, s) => s.type === 'deposit' ? acc + s.amount : acc - s.amount, 0);
-  const loanBalance = memberLoans.filter(l => l.status === 'active').reduce((acc, l) => acc + l.principal, 0);
-  const totalShares = memberShares.reduce((acc, s) => acc + s.amount, 0);
-  const stats = { totalShares, savingsBalance, loanBalance };
+  const stats = await getMemberStats(db, memberId);
+  const memberSavings = await db.select().from(savings).where(eq(savings.memberId, memberId)).orderBy(desc(savings.date)).execute();
 
   c.header('HX-Trigger', 'closeModal');
   return c.html(
@@ -121,6 +150,108 @@ app.post('/:id/savings', async (c) => {
       <MemberDetailStats id="member-stats-container" stats={stats} />
       <MemberDetailSavingsTab id="member-savings-history" savings={memberSavings} />
       <Toast message="Deposit recorded successfully!" />
+    </>
+  );
+});
+
+// GET /:id/loans/new ... Serve Loan Form
+app.get('/:id/loans/new', (c) => {
+  const memberId = c.req.param('id');
+  return c.html(<LoanForm memberId={memberId} />);
+});
+
+// POST /:id/loans ... Create Loan
+app.post('/:id/loans', async (c) => {
+  const db = c.get('db');
+  const memberId = c.req.param('id');
+  const body = await c.req.parseBody();
+
+  const newLoan = {
+    id: `loan_${Math.random().toString(36).substring(2, 9)}`,
+    memberId: memberId,
+    principal: parseInt(body.principal),
+    interestRate: parseFloat(body.interestRate),
+    durationMonths: parseInt(body.durationMonths),
+    issuedDate: body.issuedDate,
+    status: 'active',
+  };
+
+  await db.insert(loans).values(newLoan).execute();
+
+  const stats = await getMemberStats(db, memberId);
+  const updatedLoans = await db.select().from(loans).where(eq(loans.memberId, memberId)).orderBy(desc(loans.issuedDate)).execute();
+
+  c.header('HX-Trigger', 'closeModal');
+  return c.html(
+    <>
+      <MemberDetailStats id="member-stats-container" stats={stats} />
+      <MemberDetailLoansTab id="member-loans-history" loans={updatedLoans} />
+      <Toast message="Loan issued successfully!" />
+    </>
+  );
+});
+
+// GET /:id/loans/:loanId/pay ... Serve Repayment Form
+app.get('/:id/loans/:loanId/pay', async (c) => {
+  const db = c.get('db');
+  const memberId = c.req.param('id');
+  const loanId = c.req.param('loanId');
+  
+  const result = await db.select().from(loans).where(eq(loans.id, loanId)).limit(1);
+  const loan = result[0];
+  
+  if (!loan) return c.text('Loan not found', 404);
+
+  // Calculate existing payments
+  const payments = await db.select().from(loanPayments).where(eq(loanPayments.loanId, loanId)).execute();
+  const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+
+  return c.html(<LoanRepaymentForm memberId={memberId} loan={loan} totalPaid={totalPaid} />);
+});
+
+// POST /:id/loans/:loanId/pay ... Handle Repayment
+app.post('/:id/loans/:loanId/pay', async (c) => {
+  const db = c.get('db');
+  const memberId = c.req.param('id');
+  const loanId = c.req.param('loanId');
+  const body = await c.req.parseBody();
+  const paymentAmount = parseInt(body.amount);
+
+  // 1. Record Payment
+  await db.insert(loanPayments).values({
+    id: `pay_${Math.random().toString(36).substring(2, 9)}`,
+    loanId: loanId,
+    amount: paymentAmount,
+    date: body.date,
+  }).execute();
+
+  // 2. Check Balance & Close Loan if paid
+  // Fetch loan details to calculate total due
+  const loanResult = await db.select().from(loans).where(eq(loans.id, loanId)).limit(1);
+  const loan = loanResult[0];
+
+  // Fetch all payments for this loan
+  const payments = await db.select().from(loanPayments).where(eq(loanPayments.loanId, loanId)).execute();
+  const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+
+  // Total Due = Principal + Interest (Flat)
+  const totalInterest = loan.principal * (loan.interestRate / 100) * loan.durationMonths;
+  const totalDue = loan.principal + totalInterest;
+
+  if (totalPaid >= totalDue) {
+    await db.update(loans).set({ status: 'paid' }).where(eq(loans.id, loanId)).execute();
+  }
+
+  // 3. Update UI
+  const stats = await getMemberStats(db, memberId);
+  const updatedLoans = await db.select().from(loans).where(eq(loans.memberId, memberId)).orderBy(desc(loans.issuedDate)).execute();
+
+  c.header('HX-Trigger', 'closeModal');
+  return c.html(
+    <>
+      <MemberDetailStats id="member-stats-container" stats={stats} />
+      <MemberDetailLoansTab id="member-loans-history" loans={updatedLoans} />
+      <Toast message={totalPaid >= totalDue ? "Payment recorded & Loan Closed!" : "Payment recorded successfully!"} />
     </>
   );
 });
@@ -133,15 +264,11 @@ app.get('/:id', async (c) => {
   const member = result[0];
   if (!member) return c.text('Member not found', 404);
 
+  const stats = await getMemberStats(db, id);
   const memberShares = await db.select().from(shares).where(eq(shares.memberId, id)).execute();
   const memberSavings = await db.select().from(savings).where(eq(savings.memberId, id)).execute();
-  const memberLoans = await db.select().from(loans).where(eq(loans.memberId, id)).execute();
+  const memberLoans = await db.select().from(loans).where(eq(loans.memberId, id)).orderBy(desc(loans.issuedDate)).execute();
   
-  const totalShares = memberShares.reduce((acc, s) => acc + s.amount, 0);
-  const savingsBalance = memberSavings.reduce((acc, s) => s.type === 'deposit' ? acc + s.amount : acc - s.amount, 0);
-  const loanBalance = memberLoans.filter(l => l.status === 'active').reduce((acc, l) => acc + l.principal, 0);
-  const stats = { totalShares, savingsBalance, loanBalance };
-
   return c.html(<MemberDetailPage member={member} stats={stats} loans={memberLoans} savings={memberSavings} shares={memberShares} />);
 });
 

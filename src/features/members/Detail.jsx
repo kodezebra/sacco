@@ -46,7 +46,7 @@ export function MemberDetailSavingsTab({ id, savings = [] }) {
                     {savings.length > 0 ? savings.map(s => (
                         <tr key={s.id}>
                             <td>{s.date}</td>
-                            <td><span class={`badge badge-xs ${s.type === 'deposit' ? 'badge-success' : 'badge-error'}`}>{s.type}</span></td>
+                            <td><span class={`badge badge-xs badge-soft uppercase font-bold tracking-wider ${s.type === 'deposit' ? 'badge-success' : 'badge-error'}`}>{s.type}</span></td>
                             <td class="text-right font-medium">{formatUGX(s.amount)}</td>
                         </tr>
                     )) : (
@@ -56,6 +56,42 @@ export function MemberDetailSavingsTab({ id, savings = [] }) {
             </table>
         </div>
     );
+}
+
+// Partial component for loans history (OOB Swap)
+export function MemberDetailLoansTab({ id, loans = [] }) {
+  return (
+    <ul id={id} hx-swap-oob={id ? "true" : "false"} class="list bg-base-100 rounded-box shadow-sm border border-base-200">
+      <li class="p-4 pb-2 text-xs opacity-60 tracking-wide uppercase font-bold">Loans History</li>
+      {loans.length > 0 ? loans.map(l => (
+        <li key={l.id} class="list-row items-center">
+          <div class="grow">
+            <div class="font-bold text-lg">{formatUGX(l.principal)}</div>
+            <div class="text-xs uppercase font-semibold opacity-60">{l.durationMonths} Months • {l.interestRate}% Interest</div>
+            <div class="text-xs opacity-40 italic">Issued: {l.issuedDate}</div>
+          </div>
+          <div class="min-w-24 text-center">
+            <span class={`badge badge-sm badge-soft uppercase text-[10px] font-bold tracking-wider ${l.status === 'active' ? 'badge-info' : 'badge-success'}`}>{l.status}</span>
+          </div>
+          <div class="min-w-32 flex justify-end">
+            {l.status === 'active' && (
+              <button 
+                class="btn btn-sm btn-success text-white gap-2 px-4"
+                hx-get={`/dashboard/members/${l.memberId}/loans/${l.id}/pay`}
+                hx-target="#htmx-modal-content"
+                hx-swap="innerHTML"
+                onClick="document.getElementById('htmx-modal').showModal()"
+              >
+                <Icon icon={Banknote} size={16} /> Pay
+              </button>
+            )}
+          </div>
+        </li>
+      )) : (
+        <li class="p-10 text-center text-slate-400 italic">No loans recorded</li>
+      )}
+    </ul>
+  );
 }
 
 export function MemberDetailProfileForm({ id, member }) {
@@ -122,7 +158,7 @@ export default function MemberDetailPage({ member, stats, loans = [], savings = 
             <div>
               <h1 class="text-3xl font-bold tracking-tight">{member.fullName}</h1>
               <div class="flex items-center gap-2 text-slate-500 text-sm">
-                <span class="badge badge-primary badge-sm">{member.memberNumber}</span> • <span>Joined {member.createdAt}</span> • <span class={`capitalize ${member.status === 'active' ? 'text-success' : 'text-error'}`}>{member.status}</span>
+                <span class="badge badge-primary badge-sm badge-soft">{member.memberNumber}</span> • <span>Joined {member.createdAt}</span> • <span class={`badge badge-sm badge-soft uppercase text-[10px] font-bold tracking-wider ${member.status === 'active' ? 'badge-success' : 'badge-error'}`}>{member.status}</span>
               </div>
             </div>
           </div>
@@ -132,13 +168,27 @@ export default function MemberDetailPage({ member, stats, loans = [], savings = 
               hx-get={`/dashboard/members/${member.id}/deposit`}
               hx-target="#htmx-modal-content"
               hx-swap="innerHTML"
-              onClick="htmx-modal.showModal()"
+              onClick="document.getElementById('htmx-modal').showModal()"
             >
                <Icon icon={Plus} size={16} /> Deposit
             </button>
-            <button class="btn btn-primary btn-sm gap-2">
-               <Icon icon={Banknote} size={16} /> New Loan
-            </button>
+            {loans.some(l => l.status === 'active') ? (
+              <div class="tooltip tooltip-bottom" data-tip="Member has an active loan">
+                <button class="btn btn-primary btn-sm gap-2 btn-disabled">
+                  <Icon icon={Banknote} size={16} /> New Loan
+                </button>
+              </div>
+            ) : (
+              <button 
+                class="btn btn-primary btn-sm gap-2"
+                hx-get={`/dashboard/members/${member.id}/loans/new`}
+                hx-target="#htmx-modal-content"
+                hx-swap="innerHTML"
+                onClick="document.getElementById('htmx-modal').showModal()"
+              >
+                <Icon icon={Banknote} size={16} /> New Loan
+              </button>
+            )}
           </div>
         </div>
 
@@ -165,14 +215,7 @@ export default function MemberDetailPage({ member, stats, loans = [], savings = 
                   {/* Loans Tab */}
                   <input type="radio" name="member_tabs" role="tab" class="tab" aria-label="Loans" />
                    <div role="tabpanel" class="tab-content bg-base-100 border-base-200 p-6">
-                    <div class="space-y-4">
-                       {loans.length > 0 ? loans.map(l => (
-                         <div key={l.id} class="p-4 border rounded-lg flex justify-between items-center">
-                            <div><div class="font-bold">{formatUGX(l.principal)}</div><div class="text-xs text-slate-500">Issued: {l.issuedDate} • {l.interestRate}% Interest</div></div>
-                            <div class="text-right"><span class={`badge ${l.status === 'active' ? 'badge-info' : 'badge-success'}`}>{l.status}</span><div class="text-xs mt-1">Months: {l.durationMonths}</div></div>
-                         </div>
-                       )) : <div class="text-center py-10 text-slate-400 italic">No loans recorded</div>}
-                    </div>
+                    <MemberDetailLoansTab id="member-loans-history" loans={loans} />
                   </div>
 
                   {/* Shares Tab */}
