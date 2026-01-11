@@ -1,6 +1,9 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
-import { Users, Banknote, PieChart, TrendingUp, ArrowUpRight, ArrowDownLeft } from 'lucide';
+import { 
+  Users, Banknote, PieChart, TrendingUp, 
+  ArrowUpRight, ArrowDownLeft, Plus, ArrowRightLeft 
+} from 'lucide';
 
 const formatCompact = (val) => {
   if (!val) return '0';
@@ -63,6 +66,35 @@ export default function DashboardHome({ stats, recentActivity = [] }) {
               <div class="stat-desc">Liquid capital</div>
             </div>
           </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <button 
+            class="btn btn-lg h-auto py-6 bg-primary/10 text-primary border-primary/20 hover:bg-primary hover:text-white transition-all flex flex-col gap-2"
+            hx-get="/dashboard/members/new"
+            hx-target="#htmx-modal-content"
+            hx-swap="innerHTML"
+            onClick="document.getElementById('htmx-modal').showModal()"
+          >
+            <Icon icon={Plus} size={24} />
+            <div class="text-sm font-bold uppercase tracking-wider">New Member</div>
+          </button>
+
+          <a href="/dashboard/members" class="btn btn-lg h-auto py-6 bg-secondary/10 text-secondary border-secondary/20 hover:bg-secondary hover:text-white transition-all flex flex-col gap-2">
+            <Icon icon={Users} size={24} />
+            <div class="text-sm font-bold uppercase tracking-wider">Manage Members</div>
+          </a>
+
+          <a href="/dashboard/loans" class="btn btn-lg h-auto py-6 bg-accent/10 text-accent border-accent/20 hover:bg-accent hover:text-white transition-all flex flex-col gap-2">
+            <Icon icon={Banknote} size={24} />
+            <div class="text-sm font-bold uppercase tracking-wider">View Loans</div>
+          </a>
+
+          <a href="/dashboard/transactions" class="btn btn-lg h-auto py-6 bg-info/10 text-info border-info/20 hover:bg-info hover:text-white transition-all flex flex-col gap-2">
+            <Icon icon={ArrowRightLeft} size={24} />
+            <div class="text-sm font-bold uppercase tracking-wider">Accounting</div>
+          </a>
         </div>
 
         {/* Recent Activity */}
