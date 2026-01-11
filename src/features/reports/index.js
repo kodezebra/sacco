@@ -1,14 +1,45 @@
 import { Hono } from 'hono';
 import { eq, desc, sql } from 'drizzle-orm';
-import { loans, members, loanPayments, shares, savings } from '../../db/schema';
+import { loans, members, loanPayments, shares, savings, transactions } from '../../db/schema';
 import ReportsPage from './Page';
 import LoanPortfolioReport from './LoanPortfolioReport';
 import MemberStatement from './MemberStatement';
+import CashFlowReport from './CashFlowReport';
 
 const app = new Hono();
 
 app.get('/', (c) => {
   return c.html(<ReportsPage />);
+});
+
+// GET /cash-flow ... Cash Flow Statement
+app.get('/cash-flow', async (c) => {
+  const db = c.get('db');
+  
+  const allTransactions = await db.select().from(transactions).orderBy(desc(transactions.date)).execute();
+
+  const income = allTransactions.filter(t => t.type === 'income');
+  const expense = allTransactions.filter(t => t.type === 'expense');
+
+  const totalIncome = income.reduce((sum, t) => sum + t.amount, 0);
+  const totalExpense = expense.reduce((sum, t) => sum + t.amount, 0);
+  const netCashFlow = totalIncome - totalExpense;
+
+  // Group by category
+  const breakdown = allTransactions.reduce((acc, t) => {
+    if (!acc[t.category]) acc[t.category] = { name: t.category, type: t.type, amount: 0, count: 0 };
+    acc[t.category].amount += t.amount;
+    acc[t.category].count += 1;
+    return acc;
+  }, {});
+
+  const categories = Object.values(breakdown).sort((a, b) => b.amount - a.amount);
+
+  return c.html(<CashFlowReport 
+    transactions={allTransactions} 
+    stats={{ totalIncome, totalExpense, netCashFlow }}
+    categories={categories}
+  />);
 });
 
 // GET /loans-active ... Active Loan Portfolio Report
