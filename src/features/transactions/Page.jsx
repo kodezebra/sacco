@@ -1,83 +1,106 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
-import { Plus, ArrowUpRight, ArrowDownLeft, Search, Filter } from 'lucide';
-
-const formatUGX = (val) => (val || 0).toLocaleString() + ' UGX';
-
-export function TransactionsTable({ transactions = [] }) {
-  if (transactions.length === 0) {
-    return (
-      <div class="p-12 text-center text-slate-400">
-        <p>No transactions found.</p>
-      </div>
-    );
-  }
-
-  return (
-    <div class="overflow-x-auto">
-      <table class="table table-sm table-zebra w-full">
-        <thead class="bg-base-200">
-          <tr>
-            <th>Date</th>
-            <th>Type</th>
-            <th>Category</th>
-            <th>Description</th>
-            <th class="text-right">Amount (UGX)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((t) => (
-            <tr key={t.id} class="hover">
-              <td class="whitespace-nowrap opacity-70 text-xs font-mono">{t.date}</td>
-              <td>
-                <span class={`badge badge-sm badge-soft uppercase font-bold tracking-wider ${t.type === 'income' ? 'badge-success' : 'badge-error'}`}>
-                   {t.type === 'income' ? <Icon icon={ArrowDownLeft} size={12} class="mr-1" /> : <Icon icon={ArrowUpRight} size={12} class="mr-1" />}
-                   {t.type}
-                </span>
-              </td>
-              <td>{t.category}</td>
-              <td class="max-w-xs truncate" title={t.description}>{t.description}</td>
-              <td class={`text-right font-mono font-bold tracking-tight ${t.type === 'income' ? 'text-success' : 'text-error'}`}>
-                {t.type === 'expense' ? '-' : '+'}{(t.amount || 0).toLocaleString()}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
+import { ArrowRightLeft, ArrowUpRight, ArrowDownLeft, Plus, Filter, Download } from 'lucide';
 
 export default function TransactionsPage({ transactions = [] }) {
+  const totalIncome = transactions
+    .filter(t => t.type === 'income')
+    .reduce((sum, t) => sum + t.amount, 0);
+    
+  const totalExpense = transactions
+    .filter(t => t.type === 'expense')
+    .reduce((sum, t) => sum + t.amount, 0);
+
   return (
-    <DashboardLayout title="Transactions">
+    <DashboardLayout title="Accounting">
        <div class="flex flex-col gap-8">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 class="text-3xl font-bold tracking-tight">Transactions</h1>
-            <p class="text-slate-500">View and manage financial transactions.</p>
+            <p class="text-slate-500">Master ledger for all business units.</p>
           </div>
-          <button class="btn btn-primary gap-2">
-            <Icon icon={Plus} size={20} />
-            Add Transaction
-          </button>
+          <div class="flex gap-2">
+            <button class="btn btn-ghost gap-2">
+              <Icon icon={Download} size={20} />
+              Export
+            </button>
+            <button 
+              class="btn btn-primary gap-2"
+              hx-get="/dashboard/transactions/new"
+              hx-target="#htmx-modal-content"
+              hx-swap="innerHTML"
+              onClick="document.getElementById('htmx-modal').showModal()"
+            >
+              <Icon icon={Plus} size={20} />
+              Record Entry
+            </button>
+          </div>
         </div>
 
-        <div class="card bg-base-100 border border-base-200 shadow-sm">
-           <div class="p-4 border-b border-base-200 flex flex-col md:flex-row justify-between gap-4 items-center">
-            <div class="flex gap-2 w-full max-w-sm">
-              <label class="input w-full">
-                <Icon icon={Search} size={16} class="opacity-50" strokeWidth={2.5} />
-                <input type="search" placeholder="Search transactions..." />
-              </label>
-            </div>
-            <div class="flex gap-2">
-               <button class="btn btn-ghost btn-sm gap-2 border-base-300">
-                  <Icon icon={Filter} size={16} /> Filter
-               </button>
+        {/* Financial Summary */}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="stats shadow border border-base-200">
+            <div class="stat">
+              <div class="stat-title">Total Income</div>
+              <div class="stat-value text-success">+{totalIncome.toLocaleString()}</div>
             </div>
           </div>
-          <TransactionsTable transactions={transactions} />
+          <div class="stats shadow border border-base-200">
+             <div class="stat">
+              <div class="stat-title">Total Expenses</div>
+              <div class="stat-value text-error">-{totalExpense.toLocaleString()}</div>
+            </div>
+          </div>
+          <div class="stats shadow border border-base-200">
+             <div class="stat">
+              <div class="stat-title">Net Position</div>
+              <div class={`stat-value ${(totalIncome - totalExpense) >= 0 ? 'text-primary' : 'text-warning'}`}>
+                {(totalIncome - totalExpense).toLocaleString()}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Ledger Table */}
+        <div class="card bg-base-100 border border-base-200 shadow-sm">
+          <div class="card-body p-0">
+             <div class="overflow-x-auto">
+               <table class="table">
+                 <thead>
+                   <tr>
+                     <th>Date</th>
+                     <th>Business Unit</th>
+                     <th>Description</th>
+                     <th>Category</th>
+                     <th class="text-right">Amount (UGX)</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   {transactions.length === 0 ? (
+                     <tr><td colspan="5" class="text-center py-12 text-slate-400">No transactions recorded.</td></tr>
+                   ) : transactions.map(t => (
+                     <tr key={t.id} class="hover">
+                       <td class="font-mono text-xs opacity-60">{t.date}</td>
+                       <td>
+                         <span class="badge badge-outline text-xs font-bold">
+                           {t.unitName}
+                         </span>
+                       </td>
+                       <td>{t.description}</td>
+                       <td>
+                         <span class={`badge badge-sm uppercase font-bold tracking-wider ${t.type === 'income' ? 'badge-success badge-soft' : 'badge-error badge-soft'}`}>
+                            {t.category}
+                         </span>
+                       </td>
+                       <td class={`text-right font-bold ${t.type === 'income' ? 'text-success' : 'text-error'}`}>
+                         {t.type === 'income' ? '+' : '-'}{t.amount.toLocaleString()}
+                       </td>
+                     </tr>
+                   ))}
+                 </tbody>
+               </table>
+             </div>
+          </div>
         </div>
       </div>
     </DashboardLayout>

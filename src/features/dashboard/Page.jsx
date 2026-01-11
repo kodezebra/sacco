@@ -12,12 +12,12 @@ const formatCompact = (val) => {
   return val.toLocaleString();
 };
 
-export default function DashboardHome({ stats, recentActivity = [] }) {
+export default function DashboardHome({ stats, recentActivity = [], sacco }) {
   return (
     <DashboardLayout title="Overview">
       <div class="flex flex-col gap-8">
         <div>
-           <h1 class="text-3xl font-bold tracking-tight">Dashboard</h1>
+           <h1 class="text-3xl font-bold tracking-tight">{sacco?.name || 'Dashboard'}</h1>
            <p class="text-slate-500">Welcome back, Administrator.</p>
         </div>
 

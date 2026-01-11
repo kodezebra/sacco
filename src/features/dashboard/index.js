@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { sql, eq, desc } from 'drizzle-orm';
-import { members, loans, transactions, shares, savings } from '../../db/schema';
+import { members, loans, transactions, shares, savings, sacco } from '../../db/schema';
 import DashboardHome from './Page';
 import membersApp from '../members';
 import loansApp from '../loans';
@@ -18,6 +18,10 @@ const app = new Hono();
 // Dashboard Home
 app.get('/', async (c) => {
   const db = c.get('db');
+
+  // 0. SACCO Details
+  const saccoResult = await db.select().from(sacco).limit(1).execute();
+  const saccoInfo = saccoResult[0] || { name: 'My SACCO' };
 
   // 1. Total Members
   const membersResult = await db.select({ count: sql`count(*)` }).from(members).execute();
@@ -58,7 +62,7 @@ app.get('/', async (c) => {
     cashOnHand
   };
 
-  return c.html(<DashboardHome stats={stats} recentActivity={recentActivity} />);
+  return c.html(<DashboardHome stats={stats} recentActivity={recentActivity} sacco={saccoInfo} />);
 });
 
 // Mount Sub-features

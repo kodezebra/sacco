@@ -1,6 +1,6 @@
 import { 
   Users, Banknote, ArrowRightLeft, PieChart, Wallet,
-  Settings, PanelLeft, LayoutDashboard, FileText
+  Settings, PanelLeft, LayoutDashboard, FileText, Layers, Briefcase
 } from 'lucide';
 import Icon from '../components/Icon.jsx';
 import MainLayout from './MainLayout.jsx';
@@ -9,6 +9,9 @@ export default function DashboardLayout({ title, children }) {
   const menuItems = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { label: "Members", href: "/dashboard/members", icon: Users },
+    { label: "Business Units", href: "/dashboard/associations", icon: Layers },
+    { label: "Staff / HR", href: "/dashboard/staff", icon: Briefcase },
+    { label: "Payroll", href: "/dashboard/payroll", icon: Wallet },
     { label: "Loans", href: "/dashboard/loans", icon: Banknote },
     { label: "Shares", href: "/dashboard/shares", icon: PieChart },
     { label: "Savings", href: "/dashboard/savings", icon: Wallet },

@@ -1,24 +1,85 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
-import { Plus } from 'lucide';
+import { Plus, Wallet, History, User } from 'lucide';
 
-export default function PayrollPage() {
+export default function PayrollPage({ history = [] }) {
+  const totalPaid = history.reduce((sum, h) => sum + h.amount, 0);
+
   return (
     <DashboardLayout title="Payroll">
        <div class="flex flex-col gap-8">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 class="text-3xl font-bold tracking-tight">Payroll</h1>
-            <p class="text-slate-500">Manage staff salaries and payments.</p>
+            <h1 class="text-3xl font-bold tracking-tight">Payroll Management</h1>
+            <p class="text-slate-500">Automated salary processing and history.</p>
           </div>
-          <button class="btn btn-primary gap-2">
-            <Icon icon={Plus} size={20} />
-            Add Payroll Entry
+          <button 
+            class="btn btn-primary gap-2"
+            hx-get="/dashboard/payroll/run"
+            hx-target="#htmx-modal-content"
+            hx-swap="innerHTML"
+            onClick="document.getElementById('htmx-modal').showModal()"
+          >
+            <Icon icon={Wallet} size={20} />
+            Run Payroll
           </button>
         </div>
 
-        <div class="card bg-base-100 border border-base-200 shadow-sm p-12 text-center text-slate-400">
-           <p>No payroll records found.</p>
+        {/* Stats */}
+        <div class="stats shadow border border-base-200">
+          <div class="stat">
+            <div class="stat-figure text-secondary">
+              <Icon icon={History} size={32} />
+            </div>
+            <div class="stat-title">Recent Disbursements</div>
+            <div class="stat-value text-secondary">{totalPaid.toLocaleString()}</div>
+            <div class="stat-desc">UGX (Last {history.length} records)</div>
+          </div>
+        </div>
+
+        {/* History Table */}
+        <div class="card bg-base-100 border border-base-200 shadow-sm">
+          <div class="card-body p-0">
+             <div class="p-4 border-b border-base-200">
+               <h3 class="font-bold flex items-center gap-2">
+                 <Icon icon={History} size={16} /> Payment History
+               </h3>
+             </div>
+             <div class="overflow-x-auto">
+               <table class="table">
+                 <thead>
+                   <tr>
+                     <th>Date</th>
+                     <th>Employee</th>
+                     <th>Description</th>
+                     <th class="text-right">Amount (UGX)</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   {history.length === 0 ? (
+                     <tr><td colspan="4" class="text-center py-12 text-slate-400">No payroll history found. Run a payroll to start.</td></tr>
+                   ) : history.map(p => (
+                     <tr key={p.id} class="hover">
+                       <td class="font-mono text-xs opacity-60">{p.date}</td>
+                       <td>
+                         <div class="flex items-center gap-2">
+                           <Icon icon={User} size={14} class="opacity-50" />
+                           <div>
+                             <div class="font-bold text-sm">{p.staffName}</div>
+                             <div class="text-xs opacity-50">{p.role}</div>
+                           </div>
+                         </div>
+                       </td>
+                       <td class="text-sm opacity-80">{p.txnDescription}</td>
+                       <td class="text-right font-mono font-bold">
+                         {p.amount.toLocaleString()}
+                       </td>
+                     </tr>
+                   ))}
+                 </tbody>
+               </table>
+             </div>
+          </div>
         </div>
       </div>
     </DashboardLayout>
