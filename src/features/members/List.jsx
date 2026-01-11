@@ -1,6 +1,6 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
-import { Plus, Search, FileSpreadsheet, Filter, Trash2, ChevronLeft, ChevronRight } from 'lucide';
+import { Plus, Search, FileSpreadsheet, Trash2, ChevronLeft, ChevronRight } from 'lucide';
 
 export function MemberRow({ member }) {
   return (
@@ -139,9 +139,6 @@ export default function MembersPage({ members = [], page = 1, totalPages = 1, se
                  {/* Reset page to 1 on search */}
                 <input type="hidden" name="page" value="1" />
               </label>
-              <button class="btn btn-square btn-ghost border border-base-300" title="Filter">
-                <Icon icon={Filter} size={20} />
-              </button>
             </div>
             
             <div class="flex gap-2">
