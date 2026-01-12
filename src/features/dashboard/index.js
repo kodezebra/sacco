@@ -18,16 +18,36 @@ const app = new Hono();
 // Dashboard Home
 app.get('/', async (c) => {
   const db = c.get('db');
+  const currentUser = c.get('user');
 
   // 0. SACCO Details
   const saccoResult = await db.select().from(sacco).limit(1).execute();
   const saccoInfo = saccoResult[0] || { name: 'My SACCO' };
 
+  // Dates for Monthly P&L
+  const now = new Date();
+  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+
   // 1. Total Members
   const membersResult = await db.select({ count: sql`count(*)` }).from(members).execute();
   const totalMembers = membersResult[0].count;
 
-  // 2. Total Assets (Shares + Net Savings)
+  // 2. Global Financial Position (This Month)
+  const monthIncomeRes = await db.select({ total: sql`sum(${transactions.amount})` })
+    .from(transactions)
+    .where(sql`${transactions.type} = 'income' AND ${transactions.date} >= ${firstDay} AND ${transactions.date} <= ${lastDay}`)
+    .execute();
+
+  const monthExpenseRes = await db.select({ total: sql`sum(${transactions.amount})` })
+    .from(transactions)
+    .where(sql`${transactions.type} = 'expense' AND ${transactions.date} >= ${firstDay} AND ${transactions.date} <= ${lastDay}`)
+    .execute();
+
+  const monthIncome = monthIncomeRes[0].total || 0;
+  const monthExpense = monthExpenseRes[0].total || 0;
+
+  // 3. Global Assets (Shares + Net Savings)
   const sharesResult = await db.select({ total: sql`sum(${shares.amount})` }).from(shares).execute();
   const totalShares = sharesResult[0].total || 0;
 
@@ -37,32 +57,65 @@ app.get('/', async (c) => {
   
   const totalAssets = totalShares + netSavings;
 
-  // 3. Active Loan Portfolio
+  // 4. Active Loan Portfolio
   const loansResult = await db.select({ total: sql`sum(${loans.principal})` }).from(loans).where(eq(loans.status, 'active')).execute();
   const loanPortfolio = loansResult[0].total || 0;
 
-  // 4. Cash on Hand (Net Transactions)
-  // For simplicity, we can reuse the transaction ledger or recalculate from primary sources.
-  // Using transactions table is faster if it's kept in sync correctly.
+  // 5. Cash on Hand (Net All Transactions)
   const incomeResult = await db.select({ total: sql`sum(${transactions.amount})` }).from(transactions).where(eq(transactions.type, 'income')).execute();
   const expenseResult = await db.select({ total: sql`sum(${transactions.amount})` }).from(transactions).where(eq(transactions.type, 'expense')).execute();
   const cashOnHand = (incomeResult[0].total || 0) - (expenseResult[0].total || 0);
 
-  // 5. Recent Activity
+  // 6. Global 6-Month Trend
+  const trendData = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date();
+    d.setMonth(d.getMonth() - i);
+    const mStart = new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0];
+    const mEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split('T')[0];
+    const label = d.toLocaleString('default', { month: 'short' });
+
+    const inc = await db.select({ total: sql`sum(${transactions.amount})` })
+      .from(transactions)
+      .where(sql`${transactions.type} = 'income' AND ${transactions.date} >= ${mStart} AND ${transactions.date} <= ${mEnd}`)
+      .execute();
+
+    const exp = await db.select({ total: sql`sum(${transactions.amount})` })
+      .from(transactions)
+      .where(sql`${transactions.type} = 'expense' AND ${transactions.date} >= ${mStart} AND ${transactions.date} <= ${mEnd}`)
+      .execute();
+
+    trendData.push({
+      month: label,
+      income: inc[0].total || 0,
+      expense: exp[0].total || 0
+    });
+  }
+
+  // 7. Recent Activity
   const recentActivity = await db.select()
     .from(transactions)
-    .orderBy(desc(transactions.date)) // Secondary sort by ID would be good if schema supported createdAt
-    .limit(5)
+    .orderBy(desc(transactions.date))
+    .limit(8)
     .execute();
 
   const stats = {
     totalMembers,
     totalAssets,
     loanPortfolio,
-    cashOnHand
+    cashOnHand,
+    thisMonthIncome: monthIncome,
+    thisMonthExpense: monthExpense,
+    thisMonthNet: monthIncome - monthExpense
   };
 
-  return c.html(<DashboardHome stats={stats} recentActivity={recentActivity} sacco={saccoInfo} />);
+  return c.html(<DashboardHome 
+    stats={stats} 
+    recentActivity={recentActivity} 
+    sacco={saccoInfo} 
+    trendData={trendData}
+    currentUser={currentUser} 
+  />);
 });
 
 // Mount Sub-features
