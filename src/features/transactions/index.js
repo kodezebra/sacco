@@ -1,9 +1,11 @@
 import { Hono } from 'hono';
 import { desc, eq } from 'drizzle-orm';
+import { zValidator } from '@hono/zod-validator';
 import { transactions, associations } from '../../db/schema';
 import TransactionsPage from './Page';
 import NewTransactionForm from './NewForm';
 import { roleGuard } from '../auth/middleware';
+import { createTransactionSchema } from './validation';
 
 const app = new Hono();
 
@@ -46,45 +48,53 @@ app.get('/new', roleGuard(['super_admin', 'admin', 'manager']), async (c) => {
 });
 
 // 3. Create Transaction
-app.post('/', roleGuard(['super_admin', 'admin', 'manager']), async (c) => {
-  const db = c.get('db');
-  const body = await c.req.parseBody();
-  const id = `txn_${Date.now()}`;
-  const isHTMX = body.is_htmx === 'true' || c.req.header('HX-Request') === 'true';
-  
-  await db.insert(transactions).values({
-    id,
-    associationId: body.associationId,
-    type: body.type, // income | expense
-    category: body.category,
-    amount: parseInt(body.amount),
-    description: body.description,
-    date: body.date,
-    createdAt: new Date().toISOString()
-  }).execute();
-  
-  if (isHTMX) {
-    const activeAssociations = await db.select().from(associations).where(eq(associations.status, 'active')).execute();
+app.post('/', 
+  roleGuard(['super_admin', 'admin', 'manager']), 
+  zValidator('form', createTransactionSchema, (result, c) => {
+    if (!result.success) {
+      return c.text('Validation Error: ' + result.error.issues.map(i => i.message).join(', '), 400);
+    }
+  }),
+  async (c) => {
+    const db = c.get('db');
+    const body = c.req.valid('form');
+    const id = `txn_${Date.now()}`;
+    const isHTMX = body.is_htmx === 'true' || c.req.header('HX-Request') === 'true';
     
-    c.header('HX-Trigger', JSON.stringify({
-      showMessage: {
-        message: `Transaction recorded successfully!`,
-        type: 'success'
-      },
-      refreshTransactions: true
-    }));
+    await db.insert(transactions).values({
+      id,
+      associationId: body.associationId,
+      type: body.type, // income | expense
+      category: body.category,
+      amount: body.amount,
+      description: body.description,
+      date: body.date,
+      createdAt: new Date().toISOString()
+    }).execute();
+    
+    if (isHTMX) {
+      const activeAssociations = await db.select().from(associations).where(eq(associations.status, 'active')).execute();
+      
+      c.header('HX-Trigger', JSON.stringify({
+        showMessage: {
+          message: `Transaction recorded successfully!`,
+          type: 'success'
+        },
+        refreshTransactions: true
+      }));
 
-    // Return a fresh form (pre-filling the association if it was provided)
-    return c.html(
-      <NewTransactionForm 
-        associations={activeAssociations} 
-        selectedId={body.associationId} 
-        initialType={body.type} 
-      />
-    );
+      // Return a fresh form (pre-filling the association if it was provided)
+      return c.html(
+        <NewTransactionForm 
+          associations={activeAssociations} 
+          selectedId={body.associationId} 
+          initialType={body.type} 
+        />
+      );
+    }
+    
+    return c.redirect('/dashboard/transactions');
   }
-  
-  return c.redirect('/dashboard/transactions');
-});
+);
 
 export default app;

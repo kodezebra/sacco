@@ -9,7 +9,7 @@ import UserForm from './UserForm';
 import UserEditForm from './UserEditForm';
 import { roleGuard } from '../auth/middleware';
 import { hashPassword } from '../auth/utils';
-import { createStaffSchema, updateStaffSchema, createUserSchema, updateUserSchema } from './schemas';
+import { createStaffSchema, updateStaffSchema, createUserSchema, updateUserSchema } from './validation';
 
 const app = new Hono();
 
