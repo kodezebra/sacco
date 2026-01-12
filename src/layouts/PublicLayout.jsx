@@ -20,6 +20,8 @@ export default function PublicLayout({ title, children }) {
                 class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow border border-base-200">
                 <li><a href="/">Homepage</a></li>
                 <li><a href="/about">About</a></li>
+                <li><a href="/services">Services</a></li>
+                <li><a href="/contact">Contact</a></li>
                 <li><a href="/auth/login">Login</a></li>
               </ul>
             </div>
@@ -34,6 +36,8 @@ export default function PublicLayout({ title, children }) {
               <ul class="menu menu-horizontal px-1 gap-1">
                 <li><a href="/">Homepage</a></li>
                 <li><a href="/about">About</a></li>
+                <li><a href="/services">Services</a></li>
+                <li><a href="/contact">Contact</a></li>
               </ul>
             </div>
           </div>
