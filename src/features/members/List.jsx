@@ -91,7 +91,7 @@ export function MembersList({ members = [], page = 1, totalPages = 1, search = "
               <th class="text-right">Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="members-table-body">
             {members.length > 0 ? (
               members.map((member) => <MemberRow key={member.id} member={member} />)
             ) : (

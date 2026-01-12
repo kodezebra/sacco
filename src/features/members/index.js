@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
-import { like, or, eq, desc, sql } from 'drizzle-orm';
+import { like, or, eq, desc, sql, and } from 'drizzle-orm';
+import { zValidator } from '@hono/zod-validator';
 import { members, shares, savings, loans, loanPayments, transactions, sacco } from '../../db/schema';
 import MembersPage, { MembersList, MemberRow } from './List';
 import NewMemberForm from './NewForm';
@@ -17,6 +18,7 @@ import LoanRepaymentForm from './LoanRepaymentForm';
 import SharePurchaseForm from './SharePurchaseForm';
 import WithdrawForm from './WithdrawForm';
 import { roleGuard } from '../auth/middleware';
+import { createMemberSchema, updateMemberSchema, memberTransactionSchema, memberLoanSchema } from './validation';
 
 const app = new Hono();
 
@@ -47,11 +49,9 @@ const getMemberStats = async (db, memberId) => {
   const memberSavings = await db.select().from(savings).where(eq(savings.memberId, memberId)).execute();
   const memberLoans = await db.select().from(loans).where(eq(loans.memberId, memberId)).execute();
   
-  // Get all payments for all loans of this member
   const loanIds = memberLoans.map(l => l.id);
   let allPayments = [];
   if (loanIds.length > 0) {
-    // For simplicity in SQLite/D1 without complex joins in one go:
     allPayments = await db.select().from(loanPayments).execute();
     allPayments = allPayments.filter(p => loanIds.includes(p.loanId));
   }
@@ -59,7 +59,6 @@ const getMemberStats = async (db, memberId) => {
   const totalShares = memberShares.reduce((acc, s) => acc + s.amount, 0);
   const savingsBalance = memberSavings.reduce((acc, s) => s.type === 'deposit' ? acc + s.amount : acc - s.amount, 0);
   
-  // Calculate Loan Balance: (Principal + Flat Interest) - Payments
   const loanBalance = memberLoans.filter(l => l.status === 'active').reduce((acc, l) => {
     const totalInterest = l.principal * (l.interestRate / 100) * l.durationMonths;
     const totalDue = l.principal + totalInterest;
@@ -89,29 +88,34 @@ app.get('/new', (c) => {
 });
 
 // POST / ... Create a new member
-app.post('/', async (c) => {
-  const db = c.get('db');
-  const body = await c.req.parseBody();
-  const newMember = {
-    id: `mbr_${Math.random().toString(36).substring(2, 9)}`,
-    saccoId: 'sacco-01',
-    fullName: body.fullName,
-    phone: body.phone,
-    address: body.address,
-    nextOfKinName: body.nextOfKinName,
-    createdAt: new Date().toISOString().split('T')[0],
-    status: 'active',
-    memberNumber: `MBR${Math.floor(1000 + Math.random() * 9000)}`,
-  };
-  await db.insert(members).values(newMember).execute();
-  c.header('HX-Trigger', 'closeModal');
-  return c.html(
-    <>
-      <MemberRow member={newMember} />
-      <Toast message={`${newMember.fullName} added successfully`} />
-    </>
-  );
-});
+app.post('/', 
+  zValidator('form', createMemberSchema, (result, c) => {
+    if (!result.success) return c.text('Validation Error: ' + result.error.issues.map(i => i.message).join(', '), 400);
+  }),
+  async (c) => {
+    const db = c.get('db');
+    const body = c.req.valid('form');
+    const newMember = {
+      id: `mbr_${Math.random().toString(36).substring(2, 9)}`,
+      saccoId: 'sacco-01',
+      fullName: body.fullName,
+      phone: body.phone,
+      address: body.address,
+      nextOfKinName: body.nextOfKinName,
+      createdAt: new Date().toISOString().split('T')[0],
+      status: 'active',
+      memberNumber: `MBR${Math.floor(1000 + Math.random() * 9000)}`,
+    };
+    await db.insert(members).values(newMember).execute();
+    c.header('HX-Trigger', JSON.stringify({ closeModal: true }));
+    return c.html(
+      <>
+        <MemberRow member={newMember} />
+        <Toast message={`${newMember.fullName} added successfully`} />
+      </>
+    );
+  }
+);
 
 // GET /export ... CSV export
 app.get('/export', roleGuard(['super_admin', 'admin', 'manager', 'auditor']), async (c) => {
@@ -133,41 +137,46 @@ app.get('/:id/deposit', (c) => {
 });
 
 // POST /:id/savings ... Handles the savings deposit
-app.post('/:id/savings', async (c) => {
-  const db = c.get('db');
-  const memberId = c.req.param('id');
-  const body = await c.req.parseBody();
-  await db.insert(savings).values({
-    id: `sav_${Math.random().toString(36).substring(2, 9)}`,
-    memberId: memberId,
-    type: 'deposit',
-    amount: parseInt(body.amount),
-    date: body.date,
-  }).execute();
+app.post('/:id/savings', 
+  zValidator('form', memberTransactionSchema, (result, c) => {
+    if (!result.success) return c.text('Validation Error: ' + result.error.issues.map(i => i.message).join(', '), 400);
+  }),
+  async (c) => {
+    const db = c.get('db');
+    const memberId = c.req.param('id');
+    const body = c.req.valid('form');
+    await db.insert(savings).values({
+      id: `sav_${Math.random().toString(36).substring(2, 9)}`,
+      memberId: memberId,
+      type: 'deposit',
+      amount: body.amount,
+      date: body.date,
+    }).execute();
 
-  // Record Transaction (Savings Deposit)
-  await db.insert(transactions).values({
-    id: `txn_${Math.random().toString(36).substring(2, 9)}`,
-    associationId: 'sacco-01',
-    type: 'income',
-    category: 'Savings Deposit',
-    amount: parseInt(body.amount),
-    description: `Savings deposit from member ${memberId}`,
-    date: body.date,
-  }).execute();
+    // Record Transaction (Savings Deposit)
+    await db.insert(transactions).values({
+      id: `txn_${Math.random().toString(36).substring(2, 9)}`,
+      associationId: 'sacco-01',
+      type: 'income',
+      category: 'Savings Deposit',
+      amount: body.amount,
+      description: `Savings deposit from member ${memberId}`,
+      date: body.date,
+    }).execute();
 
-  const stats = await getMemberStats(db, memberId);
-  const memberSavings = await db.select().from(savings).where(eq(savings.memberId, memberId)).orderBy(desc(savings.date)).execute();
+    const stats = await getMemberStats(db, memberId);
+    const memberSavings = await db.select().from(savings).where(eq(savings.memberId, memberId)).orderBy(desc(savings.date)).execute();
 
-  c.header('HX-Trigger', 'closeModal');
-  return c.html(
-    <>
-      <MemberDetailStats id="member-stats-container" stats={stats} />
-      <MemberDetailSavingsTab id="member-savings-history" savings={memberSavings} />
-      <Toast message="Deposit recorded successfully!" />
-    </>
-  );
-});
+    c.header('HX-Trigger', JSON.stringify({ closeModal: true }));
+    return c.html(
+      <>
+        <MemberDetailStats id="member-stats-container" stats={stats} />
+        <MemberDetailSavingsTab id="member-savings-history" memberId={memberId} savings={memberSavings} />
+        <Toast message="Deposit recorded successfully!" />
+      </>
+    );
+  }
+);
 
 // GET /:id/withdraw ... Serve Withdrawal Form
 app.get('/:id/withdraw', async (c) => {
@@ -179,51 +188,53 @@ app.get('/:id/withdraw', async (c) => {
 });
 
 // POST /:id/withdraw ... Handle Withdrawal
-app.post('/:id/withdraw', roleGuard(['super_admin', 'admin', 'manager']), async (c) => {
-  const db = c.get('db');
-  const memberId = c.req.param('id');
-  const body = await c.req.parseBody();
-  const amount = parseInt(body.amount);
+app.post('/:id/withdraw', 
+  roleGuard(['super_admin', 'admin', 'manager']), 
+  zValidator('form', memberTransactionSchema, (result, c) => {
+    if (!result.success) return c.text('Validation Error: ' + result.error.issues.map(i => i.message).join(', '), 400);
+  }),
+  async (c) => {
+    const db = c.get('db');
+    const memberId = c.req.param('id');
+    const body = c.req.valid('form');
+    const amount = body.amount;
 
-  // 1. Check Balance
-  const stats = await getMemberStats(db, memberId);
-  if (amount > stats.savingsBalance) {
-    return c.html(<Toast message="Insufficient savings balance!" type="error" />);
+    const stats = await getMemberStats(db, memberId);
+    if (amount > stats.savingsBalance) {
+      return c.html(<Toast message="Insufficient savings balance!" type="error" />);
+    }
+
+    await db.insert(savings).values({
+      id: `sav_${Math.random().toString(36).substring(2, 9)}`,
+      memberId: memberId,
+      type: 'withdrawal',
+      amount: amount,
+      date: body.date,
+    }).execute();
+
+    await db.insert(transactions).values({
+      id: `txn_${Math.random().toString(36).substring(2, 9)}`,
+      associationId: 'sacco-01',
+      type: 'expense',
+      category: 'Savings Withdrawal',
+      amount: amount,
+      description: `Savings withdrawal by member ${memberId}`,
+      date: body.date,
+    }).execute();
+
+    const newStats = await getMemberStats(db, memberId);
+    const memberSavings = await db.select().from(savings).where(eq(savings.memberId, memberId)).orderBy(desc(savings.date)).execute();
+
+    c.header('HX-Trigger', JSON.stringify({ closeModal: true }));
+    return c.html(
+      <>
+        <MemberDetailStats id="member-stats-container" stats={newStats} />
+        <MemberDetailSavingsTab id="member-savings-history" memberId={memberId} savings={memberSavings} />
+        <Toast message="Withdrawal processed successfully!" />
+      </>
+    );
   }
-
-  // 2. Record Withdrawal
-  await db.insert(savings).values({
-    id: `sav_${Math.random().toString(36).substring(2, 9)}`,
-    memberId: memberId,
-    type: 'withdrawal',
-    amount: amount,
-    date: body.date,
-  }).execute();
-
-  // 3. Record Transaction
-  await db.insert(transactions).values({
-    id: `txn_${Math.random().toString(36).substring(2, 9)}`,
-    associationId: 'sacco-01',
-    type: 'expense',
-    category: 'Savings Withdrawal',
-    amount: amount,
-    description: `Savings withdrawal by member ${memberId}`,
-    date: body.date,
-  }).execute();
-
-  // 4. Update UI
-  const newStats = await getMemberStats(db, memberId);
-  const memberSavings = await db.select().from(savings).where(eq(savings.memberId, memberId)).orderBy(desc(savings.date)).execute();
-
-  c.header('HX-Trigger', 'closeModal');
-  return c.html(
-    <>
-      <MemberDetailStats id="member-stats-container" stats={newStats} />
-      <MemberDetailSavingsTab id="member-savings-history" savings={memberSavings} />
-      <Toast message="Withdrawal processed successfully!" />
-    </>
-  );
-});
+);
 
 // GET /:id/loans/new ... Serve Loan Form
 app.get('/:id/loans/new', async (c) => {
@@ -237,46 +248,51 @@ app.get('/:id/loans/new', async (c) => {
 });
 
 // POST /:id/loans ... Create Loan
-app.post('/:id/loans', roleGuard(['super_admin', 'admin', 'manager']), async (c) => {
-  const db = c.get('db');
-  const memberId = c.req.param('id');
-  const body = await c.req.parseBody();
+app.post('/:id/loans', 
+  roleGuard(['super_admin', 'admin', 'manager']), 
+  zValidator('form', memberLoanSchema, (result, c) => {
+    if (!result.success) return c.text('Validation Error: ' + result.error.issues.map(i => i.message).join(', '), 400);
+  }),
+  async (c) => {
+    const db = c.get('db');
+    const memberId = c.req.param('id');
+    const body = c.req.valid('form');
 
-  const newLoan = {
-    id: `loan_${Math.random().toString(36).substring(2, 9)}`,
-    memberId: memberId,
-    principal: parseInt(body.principal),
-    interestRate: parseFloat(body.interestRate),
-    durationMonths: parseInt(body.durationMonths),
-    issuedDate: body.issuedDate,
-    status: 'active',
-  };
+    const newLoan = {
+      id: `loan_${Math.random().toString(36).substring(2, 9)}`,
+      memberId: memberId,
+      principal: body.principal,
+      interestRate: body.interestRate,
+      durationMonths: body.durationMonths,
+      issuedDate: body.issuedDate,
+      status: 'active',
+    };
 
-  await db.insert(loans).values(newLoan).execute();
+    await db.insert(loans).values(newLoan).execute();
 
-  // Record Transaction (Disbursement)
-  await db.insert(transactions).values({
-    id: `txn_${Math.random().toString(36).substring(2, 9)}`,
-    associationId: 'sacco-01', // Using default SACCO ID for now
-    type: 'expense',
-    category: 'Loan Disbursement',
-    amount: parseInt(body.principal),
-    description: `Loan disbursement to member ${memberId}`,
-    date: body.issuedDate,
-  }).execute();
+    await db.insert(transactions).values({
+      id: `txn_${Math.random().toString(36).substring(2, 9)}`,
+      associationId: 'sacco-01',
+      type: 'expense',
+      category: 'Loan Disbursement',
+      amount: body.principal,
+      description: `Loan disbursement to member ${memberId}`,
+      date: body.issuedDate,
+    }).execute();
 
-  const stats = await getMemberStats(db, memberId);
-  const updatedLoans = await db.select().from(loans).where(eq(loans.memberId, memberId)).orderBy(desc(loans.issuedDate)).execute();
+    const stats = await getMemberStats(db, memberId);
+    const updatedLoans = await db.select().from(loans).where(eq(loans.memberId, memberId)).orderBy(desc(loans.issuedDate)).execute();
 
-  c.header('HX-Trigger', 'closeModal');
-  return c.html(
-    <>
-      <MemberDetailStats id="member-stats-container" stats={stats} />
-      <MemberDetailLoansTab id="member-loans-history" loans={updatedLoans} />
-      <Toast message="Loan issued successfully!" />
-    </>
-  );
-});
+    c.header('HX-Trigger', JSON.stringify({ closeModal: true }));
+    return c.html(
+      <>
+        <MemberDetailStats id="member-stats-container" stats={stats} />
+        <MemberDetailLoansTab id="member-loans-history" memberId={memberId} loans={updatedLoans} />
+        <Toast message="Loan issued successfully!" />
+      </>
+    );
+  }
+);
 
 // GET /:id/loans/:loanId/pay ... Serve Repayment Form
 app.get('/:id/loans/:loanId/pay', async (c) => {
@@ -289,7 +305,6 @@ app.get('/:id/loans/:loanId/pay', async (c) => {
   
   if (!loan) return c.text('Loan not found', 404);
 
-  // Calculate existing payments
   const payments = await db.select().from(loanPayments).where(eq(loanPayments.loanId, loanId)).execute();
   const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
 
@@ -297,62 +312,61 @@ app.get('/:id/loans/:loanId/pay', async (c) => {
 });
 
 // POST /:id/loans/:loanId/pay ... Handle Repayment
-app.post('/:id/loans/:loanId/pay', roleGuard(['super_admin', 'admin', 'manager']), async (c) => {
-  const db = c.get('db');
-  const memberId = c.req.param('id');
-  const loanId = c.req.param('loanId');
-  const body = await c.req.parseBody();
-  const paymentAmount = parseInt(body.amount);
+app.post('/:id/loans/:loanId/pay', 
+  roleGuard(['super_admin', 'admin', 'manager']), 
+  zValidator('form', memberTransactionSchema, (result, c) => {
+    if (!result.success) return c.text('Validation Error: ' + result.error.issues.map(i => i.message).join(', '), 400);
+  }),
+  async (c) => {
+    const db = c.get('db');
+    const memberId = c.req.param('id');
+    const loanId = c.req.param('loanId');
+    const body = c.req.valid('form');
+    const paymentAmount = body.amount;
 
-  // 1. Record Payment
-  await db.insert(loanPayments).values({
-    id: `pay_${Math.random().toString(36).substring(2, 9)}`,
-    loanId: loanId,
-    amount: paymentAmount,
-    date: body.date,
-  }).execute();
+    await db.insert(loanPayments).values({
+      id: `pay_${Math.random().toString(36).substring(2, 9)}`,
+      loanId: loanId,
+      amount: paymentAmount,
+      date: body.date,
+    }).execute();
 
-  // Record Transaction (Repayment)
-  await db.insert(transactions).values({
-    id: `txn_${Math.random().toString(36).substring(2, 9)}`,
-    associationId: 'sacco-01',
-    type: 'income',
-    category: 'Loan Repayment',
-    amount: paymentAmount,
-    description: `Loan repayment from member ${memberId}`,
-    date: body.date,
-  }).execute();
+    await db.insert(transactions).values({
+      id: `txn_${Math.random().toString(36).substring(2, 9)}`,
+      associationId: 'sacco-01',
+      type: 'income',
+      category: 'Loan Repayment',
+      amount: paymentAmount,
+      description: `Loan repayment from member ${memberId}`,
+      date: body.date,
+    }).execute();
 
-  // 2. Check Balance & Close Loan if paid
-  // Fetch loan details to calculate total due
-  const loanResult = await db.select().from(loans).where(eq(loans.id, loanId)).limit(1);
-  const loan = loanResult[0];
+    const loanResult = await db.select().from(loans).where(eq(loans.id, loanId)).limit(1);
+    const loan = loanResult[0];
 
-  // Fetch all payments for this loan
-  const payments = await db.select().from(loanPayments).where(eq(loanPayments.loanId, loanId)).execute();
-  const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+    const payments = await db.select().from(loanPayments).where(eq(loanPayments.loanId, loanId)).execute();
+    const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
 
-  // Total Due = Principal + Interest (Flat)
-  const totalInterest = loan.principal * (loan.interestRate / 100) * loan.durationMonths;
-  const totalDue = loan.principal + totalInterest;
+    const totalInterest = loan.principal * (loan.interestRate / 100) * loan.durationMonths;
+    const totalDue = loan.principal + totalInterest;
 
-  if (totalPaid >= totalDue) {
-    await db.update(loans).set({ status: 'paid' }).where(eq(loans.id, loanId)).execute();
+    if (totalPaid >= totalDue) {
+      await db.update(loans).set({ status: 'paid' }).where(eq(loans.id, loanId)).execute();
+    }
+
+    const stats = await getMemberStats(db, memberId);
+    const updatedLoans = await db.select().from(loans).where(eq(loans.memberId, memberId)).orderBy(desc(loans.issuedDate)).execute();
+
+    c.header('HX-Trigger', JSON.stringify({ closeModal: true }));
+    return c.html(
+      <>
+        <MemberDetailStats id="member-stats-container" stats={stats} />
+        <MemberDetailLoansTab id="member-loans-history" memberId={memberId} loans={updatedLoans} />
+        <Toast message={totalPaid >= totalDue ? "Payment recorded & Loan Closed!" : "Payment recorded successfully!"} />
+      </>
+    );
   }
-
-  // 3. Update UI
-  const stats = await getMemberStats(db, memberId);
-  const updatedLoans = await db.select().from(loans).where(eq(loans.memberId, memberId)).orderBy(desc(loans.issuedDate)).execute();
-
-  c.header('HX-Trigger', 'closeModal');
-  return c.html(
-    <>
-      <MemberDetailStats id="member-stats-container" stats={stats} />
-      <MemberDetailLoansTab id="member-loans-history" loans={updatedLoans} />
-      <Toast message={totalPaid >= totalDue ? "Payment recorded & Loan Closed!" : "Payment recorded successfully!"} />
-    </>
-  );
-});
+);
 
 // GET /:id/shares/new ... Serve Share Purchase Form
 app.get('/:id/shares/new', (c) => {
@@ -361,44 +375,47 @@ app.get('/:id/shares/new', (c) => {
 });
 
 // POST /:id/shares ... Handle Share Purchase
-app.post('/:id/shares', roleGuard(['super_admin', 'admin', 'manager']), async (c) => {
-  const db = c.get('db');
-  const memberId = c.req.param('id');
-  const body = await c.req.parseBody();
-  const amount = parseInt(body.amount);
+app.post('/:id/shares', 
+  roleGuard(['super_admin', 'admin', 'manager']), 
+  zValidator('form', memberTransactionSchema, (result, c) => {
+    if (!result.success) return c.text('Validation Error: ' + result.error.issues.map(i => i.message).join(', '), 400);
+  }),
+  async (c) => {
+    const db = c.get('db');
+    const memberId = c.req.param('id');
+    const body = c.req.valid('form');
+    const amount = body.amount;
 
-  // 1. Record Share Investment
-  await db.insert(shares).values({
-    id: `shr_${Math.random().toString(36).substring(2, 9)}`,
-    memberId: memberId,
-    amount: amount,
-    date: body.date,
-  }).execute();
+    await db.insert(shares).values({
+      id: `shr_${Math.random().toString(36).substring(2, 9)}`,
+      memberId: memberId,
+      amount: amount,
+      date: body.date,
+    }).execute();
 
-  // 2. Record Transaction
-  await db.insert(transactions).values({
-    id: `txn_${Math.random().toString(36).substring(2, 9)}`,
-    associationId: 'sacco-01',
-    type: 'income',
-    category: 'Share Capital',
-    amount: amount,
-    description: `Share capital purchase from member ${memberId}`,
-    date: body.date,
-  }).execute();
+    await db.insert(transactions).values({
+      id: `txn_${Math.random().toString(36).substring(2, 9)}`,
+      associationId: 'sacco-01',
+      type: 'income',
+      category: 'Share Capital',
+      amount: amount,
+      description: `Share capital purchase from member ${memberId}`,
+      date: body.date,
+    }).execute();
 
-  // 3. Update UI
-  const stats = await getMemberStats(db, memberId);
-  const updatedShares = await db.select().from(shares).where(eq(shares.memberId, memberId)).orderBy(desc(shares.date)).execute();
+    const stats = await getMemberStats(db, memberId);
+    const updatedShares = await db.select().from(shares).where(eq(shares.memberId, memberId)).orderBy(desc(shares.date)).execute();
 
-  c.header('HX-Trigger', 'closeModal');
-  return c.html(
-    <>
-      <MemberDetailStats id="member-stats-container" stats={stats} />
-      <MemberDetailSharesTab id="member-shares-history" shares={updatedShares} />
-      <Toast message="Shares purchased successfully!" />
-    </>
-  );
-});
+    c.header('HX-Trigger', JSON.stringify({ closeModal: true }));
+    return c.html(
+      <>
+        <MemberDetailStats id="member-stats-container" stats={stats} />
+        <MemberDetailSharesTab id="member-shares-history" memberId={memberId} shares={updatedShares} />
+        <Toast message="Shares purchased successfully!" />
+      </>
+    );
+  }
+);
 
 // GET /:id ... Member detail view
 app.get('/:id', async (c) => {
@@ -413,7 +430,46 @@ app.get('/:id', async (c) => {
   const memberSavings = await db.select().from(savings).where(eq(savings.memberId, id)).execute();
   const memberLoans = await db.select().from(loans).where(eq(loans.memberId, id)).orderBy(desc(loans.issuedDate)).execute();
   
-  return c.html(<MemberDetailPage member={member} stats={stats} loans={memberLoans} savings={memberSavings} shares={memberShares} />);
+  // Calculate 6-Month Trend for this member
+  const trendData = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date();
+    d.setMonth(d.getMonth() - i);
+    const mStart = new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0];
+    const mEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split('T')[0];
+    const label = d.toLocaleString('default', { month: 'short' });
+
+    // Savings Net for the month
+    const savInc = await db.select({ total: sql`sum(${savings.amount})` })
+      .from(savings)
+      .where(and(eq(savings.memberId, id), eq(savings.type, 'deposit'), sql`${savings.date} >= ${mStart} AND ${savings.date} <= ${mEnd}`))
+      .execute();
+    const savExp = await db.select({ total: sql`sum(${savings.amount})` })
+      .from(savings)
+      .where(and(eq(savings.memberId, id), eq(savings.type, 'withdrawal'), sql`${savings.date} >= ${mStart} AND ${savings.date} <= ${mEnd}`))
+      .execute();
+
+    // Loan Principle issued in the month
+    const loanAmt = await db.select({ total: sql`sum(${loans.principal})` })
+      .from(loans)
+      .where(and(eq(loans.memberId, id), sql`${loans.issuedDate} >= ${mStart} AND ${loans.issuedDate} <= ${mEnd}`))
+      .execute();
+
+    trendData.push({
+      month: label,
+      savings: (savInc[0].total || 0) - (savExp[0].total || 0),
+      loans: loanAmt[0].total || 0
+    });
+  }
+
+  return c.html(<MemberDetailPage 
+    member={member} 
+    stats={stats} 
+    loans={memberLoans} 
+    savings={memberSavings} 
+    shares={memberShares} 
+    trendData={trendData}
+  />);
 });
 
 // DELETE /:id ... Delete a member
@@ -430,32 +486,37 @@ app.delete('/:id', roleGuard(['super_admin', 'admin']), async (c) => {
 });
 
 // PUT /:id - Update member details
-app.put('/:id', roleGuard(['super_admin', 'admin', 'manager']), async (c) => {
-  const db = c.get('db');
-  const id = c.req.param('id');
-  const body = await c.req.parseBody();
+app.put('/:id', 
+  roleGuard(['super_admin', 'admin', 'manager']), 
+  zValidator('form', updateMemberSchema, (result, c) => {
+    if (!result.success) return c.text('Validation Error: ' + result.error.issues.map(i => i.message).join(', '), 400);
+  }),
+  async (c) => {
+    const db = c.get('db');
+    const id = c.req.param('id');
+    const body = c.req.valid('form');
 
-  const updatedMember = {
-    fullName: body.fullName,
-    phone: body.phone,
-    address: body.address,
-    nextOfKinName: body.nextOfKinName,
-    nextOfKinPhone: body.nextOfKinPhone,
-  };
+    const updatedMember = {
+      fullName: body.fullName,
+      phone: body.phone,
+      address: body.address,
+      nextOfKinName: body.nextOfKinName,
+      nextOfKinPhone: body.nextOfKinPhone,
+    };
 
-  await db.update(members).set(updatedMember).where(eq(members.id, id)).execute();
+    await db.update(members).set(updatedMember).where(eq(members.id, id)).execute();
 
-  // Re-fetch the member to return updated data
-  const result = await db.select().from(members).where(eq(members.id, id)).limit(1);
-  const member = result[0];
+    const result = await db.select().from(members).where(eq(members.id, id)).limit(1);
+    const member = result[0];
 
-  c.header('HX-Trigger', 'memberUpdated'); // Optional: trigger a custom event
-  return c.html(
-    <>
-      <MemberDetailProfileForm id="member-profile-form" member={member} />
-      <Toast message={`${member.fullName} updated successfully!`} />
-    </>
-  );
-});
+    c.header('HX-Trigger', JSON.stringify({ memberUpdated: true })); 
+    return c.html(
+      <>
+        <MemberDetailProfileForm id="member-profile-form" member={member} />
+        <Toast message={`${member.fullName} updated successfully!`} />
+      </>
+    );
+  }
+);
 
 export default app;
