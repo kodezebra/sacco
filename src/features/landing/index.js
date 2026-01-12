@@ -23,5 +23,3 @@ app.get('/contact', (c) => {
 });
 
 export default app;
-
-export default app;
