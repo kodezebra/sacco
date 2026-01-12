@@ -1,0 +1,46 @@
+import Icon from './Icon.jsx';
+import { ArrowUpRight, ArrowDownLeft, Calendar } from 'lucide';
+
+/**
+ * Modern Activity Timeline
+ */
+export default function Timeline({ items = [] }) {
+  if (items.length === 0) {
+    return (
+      <div class="p-12 text-center text-slate-400 italic text-sm">
+        No recent activities found.
+      </div>
+    );
+  }
+
+  return (
+    <div class="flex flex-col">
+      {items.map((item, i) => (
+        <div key={item.id} class={`p-4 flex items-start gap-4 hover:bg-slate-50 transition-colors group ${i !== items.length - 1 ? 'border-b border-slate-50' : ''}`}>
+          <div class={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+            item.type === 'income' 
+            ? 'bg-success/10 text-success' 
+            : 'bg-error/10 text-error'
+          }`}>
+            <Icon icon={item.type === 'income' ? ArrowDownLeft : ArrowUpRight} size={18} />
+          </div>
+          <div class="flex-grow min-w-0">
+            <div class="flex justify-between items-start gap-2">
+              <h4 class="text-sm font-bold text-slate-700 truncate group-hover:text-primary transition-colors">
+                {item.category}
+              </h4>
+              <span class={`font-mono text-sm font-black shrink-0 ${item.type === 'income' ? 'text-success' : 'text-error'}`}>
+                {item.type === 'income' ? '+' : '-'}{item.amount?.toLocaleString()}
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 truncate mt-0.5">{item.description}</p>
+            <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-300 uppercase tracking-widest mt-2">
+               <Icon icon={Calendar} size={10} />
+               {item.date}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
