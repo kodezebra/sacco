@@ -1,6 +1,6 @@
 import { 
   Users, Banknote, ArrowRightLeft, PieChart, Wallet,
-  Settings, PanelLeft, LayoutDashboard, FileText, Layers, Briefcase
+  Settings, PanelLeft, LayoutDashboard, FileText, Layers, Briefcase, LogOut
 } from 'lucide';
 import Icon from '../components/Icon.jsx';
 import MainLayout from './MainLayout.jsx';
@@ -34,6 +34,12 @@ export default function DashboardLayout({ title, children }) {
             </div>
             <div class="flex-1 px-4 text-xl font-bold truncate">
               {title}
+            </div>
+            <div class="flex-none px-4">
+               <a href="/auth/logout" class="btn btn-ghost btn-sm gap-2 text-error hover:bg-error/10">
+                 <Icon icon={LogOut} size={16} />
+                 <span class="hidden sm:inline">Log Out</span>
+               </a>
             </div>
           </nav>
           

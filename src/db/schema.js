@@ -172,6 +172,28 @@ export const payroll = sqliteTable("payroll", {
 });
 
 /* =========================
+   AUTH (USERS & SESSIONS)
+========================= */
+
+export const users = sqliteTable("users", {
+  id: text("id").primaryKey(),
+  staffId: text("staff_id"), // Optional: can be a standalone admin or linked to staff
+
+  identifier: text("identifier").unique().notNull(), // phone or email
+  password: text("password").notNull(), // Hashed
+  role: text("role").default("staff"), // super_admin | manager | staff | auditor
+  
+  status: text("status").default("active"),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const sessions = sqliteTable("sessions", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  expiresAt: integer("expires_at").notNull(),
+});
+
+/* =========================
    RELATIONS
 ========================= */
 
@@ -201,4 +223,19 @@ export const staffRelations = relations(staff, ({ many }) => ({
 
 export const transactionRelations = relations(transactions, ({ many }) => ({
   payroll: many(payroll),
+}));
+
+export const userRelations = relations(users, ({ one, many }) => ({
+  staff: one(staff, {
+    fields: [users.staffId],
+    references: [staff.id],
+  }),
+  sessions: many(sessions),
+}));
+
+export const sessionRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id],
+  }),
 }));

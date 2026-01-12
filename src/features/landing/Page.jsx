@@ -6,7 +6,7 @@ export default function LandingPage() {
   const stats = [
     { label: "Community Members", value: "250+", icon: Users },
     { label: "Youth Empowered", value: "200+", icon: Zap },
-    { label: "Local Jobs Created", value: "15+", icon: TrendingUp },
+    { label: "Local Jobs Created", value: "50+", icon: TrendingUp },
     { label: "Active Enterprises", value: "3", icon: Banknote }
   ];
 
