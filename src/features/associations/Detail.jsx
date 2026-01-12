@@ -2,7 +2,7 @@ import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import { 
   ArrowLeft, Users, Banknote, History, 
-  TrendingUp, TrendingDown, Calendar, Receipt 
+  TrendingUp, TrendingDown, Calendar, Receipt
 } from 'lucide';
 
 export default function AssociationDetail({ association, transactions = [], staff = [] }) {
@@ -68,46 +68,77 @@ export default function AssociationDetail({ association, transactions = [], staf
             <div class="card bg-base-100 border border-base-200 shadow-sm">
               <div class="card-body p-0">
                 <div class="p-6 border-b border-base-200 flex justify-between items-center">
-                  <h3 class="card-title text-lg flex items-center gap-2">
-                    <Icon icon={History} size={20} class="text-slate-400" />
-                    Recent Transactions
-                  </h3>
-                  <button class="btn btn-xs btn-outline">Add Entry</button>
+                  <div class="flex items-center gap-3">
+                    <h3 class="card-title text-lg flex items-center gap-2">
+                      <Icon icon={History} size={20} class="text-slate-400" />
+                      Recent Transactions
+                    </h3>
+                  </div>
+                  <div class="flex gap-2">
+                    <button 
+                      class="btn btn-xs btn-success text-white gap-1"
+                      hx-get={`/dashboard/transactions/new?associationId=${association.id}&type=income`}
+                      hx-target="#htmx-modal-content"
+                      hx-swap="innerHTML"
+                      onClick="document.getElementById('htmx-modal').showModal()"
+                    >
+                      <Icon icon={TrendingUp} size={14} />
+                      Income
+                    </button>
+                    <button 
+                      class="btn btn-xs btn-error text-white gap-1"
+                      hx-get={`/dashboard/transactions/new?associationId=${association.id}&type=expense`}
+                      hx-target="#htmx-modal-content"
+                      hx-swap="innerHTML"
+                      onClick="document.getElementById('htmx-modal').showModal()"
+                    >
+                      <Icon icon={TrendingDown} size={14} />
+                      Expense
+                    </button>
+                  </div>
                 </div>
                 
-                <div class="overflow-x-auto">
-                  <table class="table">
-                    <thead>
-                      <tr>
-                        <th>Date</th>
-                        <th>Details</th>
-                        <th class="text-right">Amount</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {transactions.length === 0 ? (
-                        <tr><td colspan="3" class="text-center py-12 text-slate-400">No transactions recorded yet.</td></tr>
-                      ) : transactions.map(t => (
-                        <tr key={t.id} class="hover">
-                          <td class="text-xs opacity-60 font-mono">{t.date}</td>
-                          <td>
-                            <div class="flex flex-col">
-                              <span class="font-bold text-sm uppercase tracking-tight">{t.category}</span>
-                              <span class="text-xs text-slate-500">{t.description}</span>
-                            </div>
-                          </td>
-                          <td class={`text-right font-bold ${t.type === 'income' ? 'text-success' : 'text-error'}`}>
-                            {t.type === 'income' ? '+' : '-'}{t.amount.toLocaleString()}
-                          </td>
+                <div 
+                  id="transaction-ledger-container"
+                  hx-get={`/dashboard/associations/${association.id}`}
+                  hx-select="#transaction-ledger-table"
+                  hx-target="#transaction-ledger-table"
+                  hx-swap="outerHTML"
+                  hx-trigger="refreshTransactions from:body"
+                >
+                  <div class="overflow-x-auto" id="transaction-ledger-table">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Date</th>
+                          <th>Details</th>
+                          <th class="text-right">Amount</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {transactions.length === 0 ? (
+                          <tr><td colspan="3" class="text-center py-12 text-slate-400">No transactions recorded yet.</td></tr>
+                        ) : transactions.map(t => (
+                          <tr key={t.id} class="hover">
+                            <td class="text-xs opacity-60 font-mono">{t.date}</td>
+                            <td>
+                              <div class="flex flex-col">
+                                <span class="font-bold text-sm uppercase tracking-tight">{t.category}</span>
+                                <span class="text-xs text-slate-500">{t.description}</span>
+                              </div>
+                            </td>
+                            <td class={`text-right font-bold ${t.type === 'income' ? 'text-success' : 'text-error'}`}>
+                              {t.type === 'income' ? '+' : '-'}{t.amount.toLocaleString()}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
-
+                                  </div>
+                                </div>
+                              </div>
           {/* Sidebar: Staff & Info */}
           <div class="flex flex-col gap-6">
              <div class="card bg-base-100 border border-base-200 shadow-sm">

@@ -13,6 +13,12 @@ export default function MainLayout({ title = "kzApp", children }) {
             const modal = document.getElementById('htmx-modal');
             if (modal) modal.close();
           });
+
+          document.body.addEventListener('refreshPage', function() {
+             // We can use HTMX to refresh specific parts, 
+             // but for simplicity and full data consistency, reload the window.
+             window.location.reload();
+          });
         `}}></script>
       </head>
       <body class="min-h-screen bg-base-100 font-sans text-slate-900">

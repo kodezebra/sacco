@@ -13,16 +13,13 @@ export default function PayrollPage({ history = [] }) {
             <h1 class="text-3xl font-bold tracking-tight">Payroll Management</h1>
             <p class="text-slate-500">Automated salary processing and history.</p>
           </div>
-          <button 
+          <a 
+            href="/dashboard/payroll/run"
             class="btn btn-primary gap-2"
-            hx-get="/dashboard/payroll/run"
-            hx-target="#htmx-modal-content"
-            hx-swap="innerHTML"
-            onClick="document.getElementById('htmx-modal').showModal()"
           >
             <Icon icon={Wallet} size={20} />
             Run Payroll
-          </button>
+          </a>
         </div>
 
         {/* Stats */}

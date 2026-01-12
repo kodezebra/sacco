@@ -60,4 +60,5 @@ A grid of cards showing all Active Associations.
 A focused dashboard for a single Association.
 *   **Transaction History:** Specific ledger for this unit.
 *   **Staff Roster:** List of employees.
-*   **Actions:** "Add Income", "Record Expense", "Transfer Staff".
+*   **Actions:** "Record Income" and "Record Expense" buttons that allow logging financial entries directly to the unit's ledger.
+

@@ -1,9 +1,9 @@
 import Icon from '../../components/Icon.jsx';
 import { ArrowRightLeft, X, Building2, Tag } from 'lucide';
 
-export default function NewTransactionForm({ associations = [] }) {
+export default function NewTransactionForm({ associations = [], selectedId = '', initialType = '' }) {
   return (
-    <div class="p-0">
+    <div class="p-0" id="transaction-form-container">
       <div class="bg-base-200 p-8 flex justify-between items-start">
         <div>
           <h2 class="text-2xl font-bold flex items-center gap-2">
@@ -20,8 +20,9 @@ export default function NewTransactionForm({ associations = [] }) {
       </div>
 
       <form 
-        action="/dashboard/transactions" 
-        method="POST" 
+        hx-post="/dashboard/transactions" 
+        hx-target="#transaction-form-container"
+        hx-swap="outerHTML"
         class="p-8 flex flex-col gap-6"
       >
         {/* Transaction Type Selection */}
@@ -30,14 +31,28 @@ export default function NewTransactionForm({ associations = [] }) {
             <span class="label-text font-bold text-success flex items-center gap-2">
                INCOME (+)
             </span>
-            <input type="radio" name="type" value="income" class="radio radio-success" required />
+            <input 
+              type="radio" 
+              name="type" 
+              value="income" 
+              class="radio radio-success" 
+              required 
+              checked={initialType === 'income'}
+            />
           </label>
           
           <label class="cursor-pointer label border border-base-300 rounded-lg p-4 has-[:checked]:border-error has-[:checked]:bg-error/10 transition-all">
             <span class="label-text font-bold text-error flex items-center gap-2">
                EXPENSE (-)
             </span>
-            <input type="radio" name="type" value="expense" class="radio radio-error" required />
+            <input 
+              type="radio" 
+              name="type" 
+              value="expense" 
+              class="radio radio-error" 
+              required 
+              checked={initialType === 'expense'}
+            />
           </label>
         </div>
 
@@ -63,9 +78,9 @@ export default function NewTransactionForm({ associations = [] }) {
             <div class="input-group">
                <span><Icon icon={Building2} size={16} /></span>
                <select name="associationId" class="select select-bordered focus:select-primary w-full" required>
-                 <option value="" disabled selected>Select Unit...</option>
+                 <option value="" disabled selected={!selectedId}>Select Unit...</option>
                  {associations.map(assoc => (
-                   <option key={assoc.id} value={assoc.id}>{assoc.name}</option>
+                   <option key={assoc.id} value={assoc.id} selected={assoc.id === selectedId}>{assoc.name}</option>
                  ))}
                </select>
             </div>
@@ -84,6 +99,7 @@ export default function NewTransactionForm({ associations = [] }) {
                  <option>Maintenance</option>
                  <option>Salary</option>
                  <option>Fuel</option>
+                 <option>Utilities</option>
                  <option>Other</option>
                </select>
                <input 
@@ -97,13 +113,18 @@ export default function NewTransactionForm({ associations = [] }) {
         </div>
         
         <input type="hidden" name="date" value={new Date().toISOString().split('T')[0]} />
+        <input type="hidden" name="is_htmx" value="true" />
 
         <div class="flex justify-end gap-3 mt-4">
-          <form method="dialog">
-            <button class="btn btn-ghost">Cancel</button>
-          </form>
+          <button 
+            type="button" 
+            class="btn btn-ghost" 
+            onClick="document.getElementById('htmx-modal').close()"
+          >
+            Done
+          </button>
           <button type="submit" class="btn btn-neutral px-8">
-            Save Record
+            Save & Add Another
           </button>
         </div>
       </form>

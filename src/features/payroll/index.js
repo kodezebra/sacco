@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
 import { eq, desc, inArray } from 'drizzle-orm';
-import { payroll, staff, transactions } from '../../db/schema';
+import { payroll, staff, transactions, associations } from '../../db/schema';
 import PayrollPage from './Page';
-import RunForm from './RunForm';
+import RunPage from './RunPage';
 
 const app = new Hono();
 
@@ -10,22 +10,18 @@ const app = new Hono();
 app.get('/', async (c) => {
   const db = c.get('db');
   
-  // Fetch latest payroll entries
   const history = await db.select()
     .from(payroll)
-    .orderBy(desc(payroll.date)) // timestamp would be better but date is text
+    .orderBy(desc(payroll.date))
     .limit(50)
     .execute();
     
-  // Manual Join Logic
   let enrichedHistory = [];
   
   if (history.length > 0) {
     const staffIds = [...new Set(history.map(p => p.staffId))];
     const txnIds = [...new Set(history.map(p => p.transactionId))];
     
-    // Fetch related entities
-    // Note: Drizzle's inArray requires a non-empty array
     const staffList = staffIds.length ? await db.select().from(staff).where(inArray(staff.id, staffIds)).execute() : [];
     const txnList = txnIds.length ? await db.select().from(transactions).where(inArray(transactions.id, txnIds)).execute() : [];
     
@@ -43,40 +39,54 @@ app.get('/', async (c) => {
   return c.html(<PayrollPage history={enrichedHistory} />);
 });
 
-// 2. Form - Prepare Run
+// 2. Full-Page Payroll Wizard
 app.get('/run', async (c) => {
   const db = c.get('db');
   
-  // Fetch active staff to populate the worksheet
-  const activeStaff = await db.select().from(staff).where(eq(staff.status, 'active')).execute();
+  // Fetch active staff with their unit names
+  const allAssociations = await db.select().from(associations).execute();
+  const assocMap = new Map(allAssociations.map(a => [a.id, a]));
+
+  const staffRaw = await db.select().from(staff).where(eq(staff.status, 'active')).execute();
   
-  return c.html(<RunForm staffList={activeStaff} />);
+  const staffWithUnit = staffRaw.map(s => ({
+    ...s,
+    unitName: assocMap.get(s.associationId)?.name || 'Unknown Unit'
+  }));
+  
+  return c.html(<RunPage staffList={staffWithUnit} />);
 });
 
 // 3. Execute Run
 app.post('/run', async (c) => {
   const db = c.get('db');
-  
-  // { all: true } ensures we get arrays for fields with multiple values
   const body = await c.req.parseBody({ all: true }); 
   const date = body.date || new Date().toISOString().split('T')[0];
   
-  // Ensure we handle both single entry (string) and multiple (array)
-  const staffIds = Array.isArray(body.staffIds) ? body.staffIds : [body.staffIds].filter(Boolean);
-  const amounts = Array.isArray(body.amounts) ? body.amounts : [body.amounts].filter(Boolean);
-  // notes if added
-  
-  if (staffIds.length === 0) {
-    return c.text('No staff selected', 400);
+  let staffIdsToProcess = [];
+  if (typeof body.staffIds === 'string') {
+    staffIdsToProcess = [body.staffIds];
+  } else if (Array.isArray(body.staffIds)) {
+    staffIdsToProcess = [...new Set(body.staffIds)]; // Ensure uniqueness
+  } else {
+    staffIdsToProcess = []; 
   }
   
-  // Fetch staff details to get Association IDs (trusted source)
-  // Optimization: Fetch all active staff to map
+  if (staffIdsToProcess.length === 0) {
+    return c.redirect('/dashboard/payroll');
+  }
+  
   const allStaff = await db.select().from(staff).execute();
   const staffMap = new Map(allStaff.map(s => [s.id, s]));
   
-  await Promise.all(staffIds.map(async (id, index) => {
-    const amount = parseInt(amounts[index]);
+  await Promise.all(staffIdsToProcess.map(async (id) => {
+    // Fetch specific amount for this staff ID from the body
+    // Hono parseBody puts it in body[`amount_${id}`]
+    // Since we used { all: true }, it might be an array if multiple inputs had same name (unlikely here) or string
+    const rawAmount = body[`amount_${id}`];
+    const amountVal = Array.isArray(rawAmount) ? rawAmount[0] : rawAmount;
+    const amount = parseInt(amountVal) || 0; // Fallback to 0 if NaN
+
     const employee = staffMap.get(id);
     
     if (!employee || amount <= 0) return;
@@ -84,13 +94,11 @@ app.post('/run', async (c) => {
     const txnId = `txn_pay_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
     const payId = `pay_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
     
-    // Determine description based on partial vs full
     const isPartial = amount < (employee.salary || 0);
     const description = isPartial 
       ? `Partial Salary: ${employee.fullName}` 
       : `Salary Payment: ${employee.fullName}`;
     
-    // 1. Create Transaction (Expense)
     await db.insert(transactions).values({
       id: txnId,
       associationId: employee.associationId,
@@ -102,7 +110,6 @@ app.post('/run', async (c) => {
       createdAt: new Date().toISOString()
     }).execute();
     
-    // 2. Create Payroll Record
     await db.insert(payroll).values({
       id: payId,
       staffId: employee.id,

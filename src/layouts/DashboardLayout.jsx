@@ -44,6 +44,48 @@ export default function DashboardLayout({ title, children }) {
           
           {/* Toast/Alert container for HTMX */}
           <div id="htmx-toast-container" class="toast toast-top toast-end"></div>
+
+          {/* HTMX Event Listeners */}
+          <script>
+            {`
+            document.addEventListener('htmx:afterSwap', function (evt) {
+              const hxTrigger = evt.detail.xhr.getResponseHeader('HX-Trigger');
+              if (hxTrigger) {
+                const triggers = JSON.parse(hxTrigger);
+
+                // Handle showMessage (toast)
+                if (triggers.showMessage) {
+                  const { message, type } = triggers.showMessage;
+                  const toastContainer = document.getElementById('htmx-toast-container');
+                  if (toastContainer) {
+                    const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+                    const icon = type === 'success' ? '✔' : '✖';
+                    const toast = document.createElement('div');
+                    toast.className = 'alert ' + alertClass;
+                    toast.innerHTML = \`<span>\${icon} \${message}</span>\`;
+                    toastContainer.appendChild(toast);
+                    setTimeout(() => toast.remove(), 5000); // Remove after 5 seconds
+                  }
+                }
+
+                // Handle refreshList
+                if (triggers.refreshList) {
+                  // This will cause the page to reload,
+                  // or you could target a specific element to hx-get refresh
+                  window.location.reload(); 
+                }
+
+                // Handle closeModal
+                if (triggers.closeModal) {
+                  const modal = document.getElementById('htmx-modal');
+                  if (modal) {
+                    modal.close();
+                  }
+                }
+              }
+            });
+            `}
+          </script>
         </div>
 
         <div class="drawer-side z-20">

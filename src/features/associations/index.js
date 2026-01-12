@@ -4,6 +4,7 @@ import { associations, transactions, staff } from '../../db/schema';
 import AssociationsList from './Page';
 import AssociationDetail from './Detail';
 import NewForm from './NewForm';
+import NewTransactionForm from '../transactions/NewForm';
 
 const app = new Hono();
 
@@ -54,18 +55,35 @@ app.post('/', async (c) => {
   const body = await c.req.parseBody();
   const id = `assoc_${Date.now()}`;
   
-  await db.insert(associations).values({
-    id,
-    saccoId: 'sacco-01', // Defaulting for now
-    name: body.name,
-    type: body.type,
-    status: 'active',
-    createdAt: new Date().toISOString()
-  }).execute();
-  
-  // Return to list or redirect
-  c.header('HX-Trigger', 'refresh-list'); // Trigger HTMX refresh if needed
-  return c.redirect('/dashboard/associations');
+  try {
+    await db.insert(associations).values({
+      id,
+      saccoId: 'sacco-01', // Defaulting for now
+      name: body.name,
+      type: body.type,
+      status: 'active',
+      createdAt: new Date().toISOString()
+    }).execute();
+    
+    c.header('HX-Trigger', JSON.stringify({
+      showMessage: {
+        message: `Association '${body.name}' created successfully!`,
+        type: 'success'
+      },
+      refreshList: true, // Custom event for list refresh
+      closeModal: true
+    }));
+    return c.redirect('/dashboard/associations');
+  } catch (error) {
+    console.error("Error creating association:", error);
+    c.header('HX-Trigger', JSON.stringify({
+      showMessage: {
+        message: `Error creating association: ${error.message}`,
+        type: 'error'
+      }
+    }));
+    return c.redirect('/dashboard/associations');
+  }
 });
 
 // 4. Detail View

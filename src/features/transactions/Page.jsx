@@ -82,13 +82,13 @@ export default function TransactionsPage({ transactions = [] }) {
                      <tr key={t.id} class="hover">
                        <td class="font-mono text-xs opacity-60">{t.date}</td>
                        <td>
-                         <span class="badge badge-outline text-xs font-bold">
+                         <span class="badge badge-outline badge-sm text-xs font-bold">
                            {t.unitName}
                          </span>
                        </td>
                        <td>{t.description}</td>
                        <td>
-                         <span class={`badge badge-sm uppercase font-bold tracking-wider ${t.type === 'income' ? 'badge-success badge-soft' : 'badge-error badge-soft'}`}>
+                         <span class={`badge badge-sm text-xs uppercase font-bold tracking-wider ${t.type === 'income' ? 'badge-success badge-soft' : 'badge-error badge-soft'}`}>
                             {t.category}
                          </span>
                        </td>
