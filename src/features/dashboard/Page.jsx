@@ -2,7 +2,7 @@ import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import { 
   Users, Banknote, PieChart, TrendingUp, 
-  ArrowUpRight, ArrowDownLeft, Plus, ArrowRightLeft 
+  ArrowUpRight, ArrowDownLeft, Plus, ArrowRightLeft, HelpCircle, Mail, Phone
 } from 'lucide';
 
 const formatCompact = (val) => {
@@ -97,44 +97,95 @@ export default function DashboardHome({ stats, recentActivity = [], sacco }) {
           </a>
         </div>
 
-        {/* Recent Activity */}
-        <div class="card bg-base-100 border border-base-200 shadow-sm">
-          <div class="card-body p-0">
-             <div class="p-4 border-b border-base-200 flex justify-between items-center">
-                <h3 class="card-title text-lg">Recent Activity</h3>
-                <a href="/dashboard/transactions" class="btn btn-xs btn-ghost">View All</a>
-             </div>
-             
-             <div class="overflow-x-auto">
-               <table class="table">
-                 <thead>
-                   <tr>
-                     <th>Type</th>
-                     <th>Description</th>
-                     <th>Date</th>
-                     <th class="text-right">Amount (UGX)</th>
-                   </tr>
-                 </thead>
-                 <tbody>
-                   {recentActivity.length > 0 ? recentActivity.map(t => (
-                     <tr key={t.id} class="hover">
-                       <td>
-                         <span class={`badge badge-sm badge-soft uppercase font-bold tracking-wider ${t.type === 'income' ? 'badge-success' : 'badge-error'}`}>
-                            {t.type === 'income' ? <Icon icon={ArrowDownLeft} size={12} class="mr-1" /> : <Icon icon={ArrowUpRight} size={12} class="mr-1" />}
-                            {t.category}
-                         </span>
-                       </td>
-                       <td>{t.description}</td>
-                       <td class="text-xs opacity-60 font-mono">{t.date}</td>
-                       <td class={`text-right font-medium ${t.type === 'income' ? 'text-success' : 'text-error'}`}>
-                         {t.type === 'expense' ? '-' : '+'}{(t.amount || 0).toLocaleString()}
-                       </td>
+        {/* Bottom Section: Activity & Support */}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Recent Activity */}
+          <div class="lg:col-span-2 card bg-base-100 border border-base-200 shadow-sm">
+            <div class="card-body p-0">
+               <div class="p-4 border-b border-base-200 flex justify-between items-center">
+                  <h3 class="card-title text-lg">Recent Activity</h3>
+                  <a href="/dashboard/transactions" class="btn btn-xs btn-ghost">View All</a>
+               </div>
+               
+               <div class="overflow-x-auto">
+                 <table class="table">
+                   <thead>
+                     <tr>
+                       <th>Type</th>
+                       <th>Description</th>
+                       <th class="text-right">Amount (UGX)</th>
                      </tr>
-                   )) : (
-                     <tr><td colspan="4" class="text-center py-8 text-slate-400">No recent activity</td></tr>
-                   )}
-                 </tbody>
-               </table>
+                   </thead>
+                   <tbody>
+                     {recentActivity.length > 0 ? recentActivity.map(t => (
+                       <tr key={t.id} class="hover">
+                         <td>
+                           <span class={`badge badge-sm badge-soft uppercase font-bold tracking-wider ${t.type === 'income' ? 'badge-success' : 'badge-error'}`}>
+                              {t.type === 'income' ? <Icon icon={ArrowDownLeft} size={12} class="mr-1" /> : <Icon icon={ArrowUpRight} size={12} class="mr-1" />}
+                              {t.category}
+                           </span>
+                         </td>
+                         <td>
+                            <div class="flex flex-col">
+                              <span class="text-sm font-medium">{t.description}</span>
+                              <span class="text-[10px] opacity-40 font-mono uppercase">{t.date}</span>
+                            </div>
+                         </td>
+                         <td class={`text-right font-medium ${t.type === 'income' ? 'text-success' : 'text-error'}`}>
+                           {t.type === 'expense' ? '-' : '+'}{(t.amount || 0).toLocaleString()}
+                         </td>
+                       </tr>
+                     )) : (
+                       <tr><td colspan="3" class="text-center py-8 text-slate-400">No recent activity</td></tr>
+                     )}
+                   </tbody>
+                 </table>
+               </div>
+            </div>
+          </div>
+
+          {/* Help & Support */}
+          <div class="card bg-base-100 border border-base-200 shadow-sm">
+             <div class="card-body">
+                <div class="flex items-center gap-2 mb-4">
+                   <div class="p-2 bg-primary/10 rounded-lg text-primary">
+                      <Icon icon={HelpCircle} size={20} />
+                   </div>
+                   <h3 class="card-title text-lg">System Support</h3>
+                </div>
+                
+                <p class="text-slate-500 text-sm mb-6 leading-relaxed">
+                   For technical issues, system updates, or feature requests, please contact the IT department or system administrator.
+                </p>
+
+                <div class="space-y-4">
+                   <div class="flex items-center gap-3 p-3 bg-base-200/50 rounded-xl">
+                      <div class="w-10 h-10 rounded-full bg-base-100 flex items-center justify-center text-primary shadow-sm border border-base-200">
+                         <Icon icon={Mail} size={18} />
+                      </div>
+                      <div>
+                         <p class="text-[10px] uppercase font-bold tracking-widest opacity-40">SACCO Email</p>
+                         <p class="text-sm font-medium">{sacco?.email || 'N/A'}</p>
+                      </div>
+                   </div>
+
+                   <div class="flex items-center gap-3 p-3 bg-base-200/50 rounded-xl">
+                      <div class="w-10 h-10 rounded-full bg-base-100 flex items-center justify-center text-success shadow-sm border border-base-200">
+                         <Icon icon={Phone} size={18} />
+                      </div>
+                      <div>
+                         <p class="text-[10px] uppercase font-bold tracking-widest opacity-40">Hotline</p>
+                         <p class="text-sm font-medium">{sacco?.phone || 'N/A'}</p>
+                      </div>
+                   </div>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-base-200">
+                   <div class="flex items-center justify-between text-[10px] uppercase font-bold tracking-tighter opacity-30">
+                      <span>System Version</span>
+                      <span>v1.2.0-stable</span>
+                   </div>
+                </div>
              </div>
           </div>
         </div>
