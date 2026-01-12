@@ -1,9 +1,14 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
-import { UserPlus, Users, Building2, Briefcase } from 'lucide';
+import { UserPlus, Users, Building2, Briefcase, Lock, UserCheck, UserCog } from 'lucide';
 
-export default function StaffPage({ staff = [] }) {
+export default function StaffPage({ staff = [], currentUser }) {
   const totalPayroll = staff.reduce((sum, s) => sum + (s.salary || 0), 0);
+  
+  // Permission Logic
+  const role = currentUser?.role;
+  const canManageHR = ['super_admin', 'admin', 'manager'].includes(role);
+  const canManageAuth = ['super_admin', 'admin'].includes(role);
 
   return (
     <DashboardLayout title="Human Resources">
@@ -13,16 +18,18 @@ export default function StaffPage({ staff = [] }) {
             <h1 class="text-3xl font-bold tracking-tight">Staff Directory</h1>
             <p class="text-slate-500">Manage employees across all business units.</p>
           </div>
-          <button 
-            class="btn btn-primary gap-2"
-            hx-get="/dashboard/staff/new"
-            hx-target="#htmx-modal-content"
-            hx-swap="innerHTML"
-            onClick="document.getElementById('htmx-modal').showModal()"
-          >
-            <Icon icon={UserPlus} size={20} />
-            Hire Staff
-          </button>
+          {canManageHR && (
+            <button 
+              class="btn btn-primary gap-2"
+              hx-get="/dashboard/staff/new"
+              hx-target="#htmx-modal-content"
+              hx-swap="innerHTML"
+              onClick="document.getElementById('htmx-modal').showModal()"
+            >
+              <Icon icon={UserPlus} size={20} />
+              Hire Staff
+            </button>
+          )}
         </div>
 
         {/* HR Stats */}
@@ -76,7 +83,14 @@ export default function StaffPage({ staff = [] }) {
                              </div>
                            </div>
                            <div>
-                             <div class="font-bold">{s.fullName}</div>
+                             <div class="font-bold flex items-center gap-2">
+                               {s.fullName}
+                               {s.hasAccount && (
+                                 <div class="badge badge-xs badge-secondary" title="Has Login Access">
+                                   <Icon icon={UserCheck} size={10} />
+                                 </div>
+                               )}
+                             </div>
                              <div class="text-xs opacity-60 flex items-center gap-1">
                                <Icon icon={Briefcase} size={12} />
                                {s.role}
@@ -99,15 +113,48 @@ export default function StaffPage({ staff = [] }) {
                          {s.salary?.toLocaleString()}
                        </td>
                        <td class="text-right">
-                         <button 
-                           class="btn btn-ghost btn-xs"
-                           hx-get={`/dashboard/staff/${s.id}/edit`}
-                           hx-target="#htmx-modal-content"
-                           hx-swap="innerHTML"
-                           onClick="document.getElementById('htmx-modal').showModal()"
-                         >
-                           Edit
-                         </button>
+                         <div class="flex items-center justify-end gap-2">
+                            {/* User Access Controls (Admins Only) */}
+                            {canManageAuth && !s.hasAccount && (
+                              <button 
+                                class="btn btn-xs btn-secondary btn-outline gap-1"
+                                hx-get={`/dashboard/staff/${s.id}/user`}
+                                hx-target="#htmx-modal-content"
+                                hx-swap="innerHTML"
+                                onClick="document.getElementById('htmx-modal').showModal()"
+                                title="Create Login Account"
+                              >
+                                <Icon icon={Lock} size={12} />
+                                Access
+                              </button>
+                            )}
+                            {canManageAuth && s.hasAccount && (
+                              <button 
+                                class="btn btn-xs btn-ghost gap-1"
+                                hx-get={`/dashboard/staff/${s.id}/user/edit`}
+                                hx-target="#htmx-modal-content"
+                                hx-swap="innerHTML"
+                                onClick="document.getElementById('htmx-modal').showModal()"
+                                title="Manage User Account"
+                              >
+                                <Icon icon={UserCog} size={12} />
+                                Auth
+                              </button>
+                            )}
+                            
+                            {/* HR Controls (Managers & Admins) */}
+                            {canManageHR && (
+                              <button 
+                                class="btn btn-ghost btn-xs"
+                                hx-get={`/dashboard/staff/${s.id}/edit`}
+                                hx-target="#htmx-modal-content"
+                                hx-swap="innerHTML"
+                                onClick="document.getElementById('htmx-modal').showModal()"
+                              >
+                                Edit
+                              </button>
+                            )}
+                         </div>
                        </td>
                      </tr>
                    ))}

@@ -3,6 +3,7 @@ import { desc, eq } from 'drizzle-orm';
 import { transactions, associations } from '../../db/schema';
 import TransactionsPage from './Page';
 import NewTransactionForm from './NewForm';
+import { roleGuard } from '../auth/middleware';
 
 const app = new Hono();
 
@@ -35,7 +36,7 @@ app.get('/', async (c) => {
 });
 
 // 2. New Form
-app.get('/new', async (c) => {
+app.get('/new', roleGuard(['super_admin', 'admin', 'manager']), async (c) => {
   const db = c.get('db');
   const associationId = c.req.query('associationId') || '';
   const initialType = c.req.query('type') || '';
@@ -45,7 +46,7 @@ app.get('/new', async (c) => {
 });
 
 // 3. Create Transaction
-app.post('/', async (c) => {
+app.post('/', roleGuard(['super_admin', 'admin', 'manager']), async (c) => {
   const db = c.get('db');
   const body = await c.req.parseBody();
   const id = `txn_${Date.now()}`;

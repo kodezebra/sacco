@@ -7,7 +7,7 @@ import MemberDetailPage, {
   MemberDetailStats, 
   MemberDetailSavingsTab, 
   MemberDetailLoansTab, 
-  MemberDetailSharesTab,
+  MemberDetailSharesTab, 
   MemberDetailProfileForm 
 } from './Detail';
 import { Toast } from '../../components/Toast';
@@ -16,6 +16,7 @@ import LoanForm from './LoanForm';
 import LoanRepaymentForm from './LoanRepaymentForm';
 import SharePurchaseForm from './SharePurchaseForm';
 import WithdrawForm from './WithdrawForm';
+import { roleGuard } from '../auth/middleware';
 
 const app = new Hono();
 
@@ -113,7 +114,7 @@ app.post('/', async (c) => {
 });
 
 // GET /export ... CSV export
-app.get('/export', async (c) => {
+app.get('/export', roleGuard(['super_admin', 'admin', 'manager', 'auditor']), async (c) => {
   const db = c.get('db');
   const data = await db.select().from(members).execute();
   const headers = ['ID', 'Full Name', 'Phone', 'Member Number', 'Status', 'Joined Date', 'Address', 'Next of Kin'];
@@ -178,7 +179,7 @@ app.get('/:id/withdraw', async (c) => {
 });
 
 // POST /:id/withdraw ... Handle Withdrawal
-app.post('/:id/withdraw', async (c) => {
+app.post('/:id/withdraw', roleGuard(['super_admin', 'admin', 'manager']), async (c) => {
   const db = c.get('db');
   const memberId = c.req.param('id');
   const body = await c.req.parseBody();
@@ -236,7 +237,7 @@ app.get('/:id/loans/new', async (c) => {
 });
 
 // POST /:id/loans ... Create Loan
-app.post('/:id/loans', async (c) => {
+app.post('/:id/loans', roleGuard(['super_admin', 'admin', 'manager']), async (c) => {
   const db = c.get('db');
   const memberId = c.req.param('id');
   const body = await c.req.parseBody();
@@ -296,7 +297,7 @@ app.get('/:id/loans/:loanId/pay', async (c) => {
 });
 
 // POST /:id/loans/:loanId/pay ... Handle Repayment
-app.post('/:id/loans/:loanId/pay', async (c) => {
+app.post('/:id/loans/:loanId/pay', roleGuard(['super_admin', 'admin', 'manager']), async (c) => {
   const db = c.get('db');
   const memberId = c.req.param('id');
   const loanId = c.req.param('loanId');
@@ -360,7 +361,7 @@ app.get('/:id/shares/new', (c) => {
 });
 
 // POST /:id/shares ... Handle Share Purchase
-app.post('/:id/shares', async (c) => {
+app.post('/:id/shares', roleGuard(['super_admin', 'admin', 'manager']), async (c) => {
   const db = c.get('db');
   const memberId = c.req.param('id');
   const body = await c.req.parseBody();
@@ -416,7 +417,7 @@ app.get('/:id', async (c) => {
 });
 
 // DELETE /:id ... Delete a member
-app.delete('/:id', async (c) => {
+app.delete('/:id', roleGuard(['super_admin', 'admin']), async (c) => {
   const db = c.get('db');
   const id = c.req.param('id');
   try {
@@ -429,7 +430,7 @@ app.delete('/:id', async (c) => {
 });
 
 // PUT /:id - Update member details
-app.put('/:id', async (c) => {
+app.put('/:id', roleGuard(['super_admin', 'admin', 'manager']), async (c) => {
   const db = c.get('db');
   const id = c.req.param('id');
   const body = await c.req.parseBody();

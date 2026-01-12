@@ -5,10 +5,12 @@ import ReportsPage, { MemberSearchList } from './Page';
 import LoanPortfolioReport from './LoanPortfolioReport';
 import MemberStatement from './MemberStatement';
 import CashFlowReport from './CashFlowReport';
+import { roleGuard } from '../auth/middleware';
 
 const app = new Hono();
 
-app.get('/', async (c) => {
+// List Reports (Restricted to Managers/Admins/Auditors)
+app.get('/', roleGuard(['super_admin', 'admin', 'manager', 'auditor']), async (c) => {
   const db = c.get('db');
   const search = c.req.query('search') || '';
   
@@ -29,7 +31,7 @@ app.get('/', async (c) => {
 });
 
 // GET /cash-flow ... Cash Flow Statement
-app.get('/cash-flow', async (c) => {
+app.get('/cash-flow', roleGuard(['super_admin', 'admin', 'manager', 'auditor']), async (c) => {
   const db = c.get('db');
   
   const allTransactions = await db.select().from(transactions).orderBy(desc(transactions.date)).execute();
@@ -59,7 +61,7 @@ app.get('/cash-flow', async (c) => {
 });
 
 // GET /loans-active ... Active Loan Portfolio Report
-app.get('/loans-active', async (c) => {
+app.get('/loans-active', roleGuard(['super_admin', 'admin', 'manager', 'auditor']), async (c) => {
   const db = c.get('db');
 
   const activeLoans = await db.select({
@@ -102,7 +104,7 @@ app.get('/loans-active', async (c) => {
 });
 
 // GET /member-statement/:id ... Member Detailed Statement
-app.get('/member-statement/:id', async (c) => {
+app.get('/member-statement/:id', roleGuard(['super_admin', 'admin', 'manager', 'auditor']), async (c) => {
   const db = c.get('db');
   const id = c.req.param('id');
 

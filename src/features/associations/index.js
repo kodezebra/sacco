@@ -5,6 +5,7 @@ import AssociationsList from './Page';
 import AssociationDetail from './Detail';
 import NewForm from './NewForm';
 import NewTransactionForm from '../transactions/NewForm';
+import { roleGuard } from '../auth/middleware';
 
 const app = new Hono();
 
@@ -45,12 +46,12 @@ app.get('/', async (c) => {
 });
 
 // 2. New Form (Modal content)
-app.get('/new', (c) => {
+app.get('/new', roleGuard(['super_admin', 'admin', 'manager']), (c) => {
   return c.html(<NewForm />);
 });
 
 // 3. Create Action
-app.post('/', async (c) => {
+app.post('/', roleGuard(['super_admin', 'admin', 'manager']), async (c) => {
   const db = c.get('db');
   const body = await c.req.parseBody();
   const id = `assoc_${Date.now()}`;
