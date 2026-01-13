@@ -75,7 +75,7 @@ export default function WithdrawForm({ memberId, maxAmount = 0 }) {
         <div class="modal-action mt-4 border-t border-slate-100 pt-6">
           <button type="button" class="btn btn-ghost px-8" onClick="document.getElementById('htmx-modal').close()">Cancel</button>
           <button type="submit" class="btn btn-error px-10 rounded-xl shadow-lg shadow-error/20 text-white font-black">
-            Process Withdrawal
+            Withdraw
           </button>
         </div>
       </form>

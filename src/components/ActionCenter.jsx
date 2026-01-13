@@ -16,13 +16,13 @@ export default function ActionCenter() {
       {actions.map((action, i) => (
         <button
           key={i}
-          class="btn btn-sm btn-ghost bg-base-100 border border-base-200 hover:border-primary hover:text-primary transition-all gap-2 rounded-xl px-4 h-10 shadow-sm"
+          class="flex items-center gap-2.5 rounded-lg border border-slate-200 bg-white px-4 py-2 font-medium text-slate-700 shadow-sm hover:text-primary hover:border-primary hover:shadow-md transition-all duration-300"
           hx-get={action.isModal ? action.href : undefined}
           hx-target={action.isModal ? "#htmx-modal-content" : undefined}
           hx-swap={action.isModal ? "innerHTML" : undefined}
           onClick={action.isModal ? () => document.getElementById('htmx-modal').showModal() : () => window.location.href = action.href}
         >
-          <Icon icon={action.icon} size={16} />
+          <Icon icon={action.icon} size={18} />
           <span class="text-xs font-bold uppercase tracking-tight">{action.label}</span>
         </button>
       ))}

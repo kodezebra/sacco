@@ -4,6 +4,7 @@ import ApexChart from '../../components/ApexChart.jsx';
 import StatsCard from '../../components/StatsCard.jsx';
 import ActionCenter from '../../components/ActionCenter.jsx';
 import Timeline from '../../components/Timeline.jsx';
+import Badge from '../../components/Badge.jsx';
 import { 
   Users, Banknote, PieChart, TrendingUp, 
   ArrowUpRight, History, LayoutDashboard, Wallet, 
@@ -23,46 +24,31 @@ export default function DashboardHome({ stats, recentActivity = [], sacco, trend
     ? Math.round((stats.thisMonthNet / stats.thisMonthIncome) * 100) 
     : 0;
 
-  const trendChartOptions = {
-    series: [
-      { name: 'Income', data: trendData.map(d => d.income) },
-      { name: 'Expense', data: trendData.map(d => d.expense) }
-    ],
-    chart: { 
-      type: 'bar', 
-      toolbar: { show: false },
-      sparkline: { enabled: false },
-      fontFamily: 'Inter, sans-serif'
-    },
-    grid: { show: false },
-    colors: ['#10B981', '#F43F5E'], 
-    plotOptions: { 
-      bar: { 
-        horizontal: false, 
-        columnWidth: '45%', 
-        borderRadius: 6,
-      } 
-    },
-    dataLabels: { enabled: false },
-    stroke: { show: true, width: 3, colors: ['transparent'] },
-    xaxis: { 
-      categories: trendData.map(d => d.month),
-      axisBorder: { show: false },
-      axisTicks: { show: false },
-      labels: { style: { colors: '#94a3b8', fontWeight: 600 } }
-    },
-    yaxis: { show: false },
-    fill: { opacity: 1 },
-    legend: { show: false },
-    tooltip: { theme: 'light' }
-  };
-
+    const trendChartOptions = {
+      series: [
+        { name: 'Income', data: trendData.map(d => d.income) },
+        { name: 'Expense', data: trendData.map(d => d.expense) }
+      ],
+      chart: {
+        type: 'bar',
+      },
+      colors: ['#10B981', '#F43F5E'],
+      plotOptions: {
+        bar: {
+          horizontal: false,
+          columnWidth: '45%',
+          borderRadius: 4,
+        }
+      },
+      xaxis: {
+        categories: trendData.map(d => d.month),
+      },
+    };
   const liquidityOptions = {
     series: [stats.totalAssets - stats.loanPortfolio, stats.loanPortfolio],
-    chart: { type: 'donut', height: 250 },
+    chart: { type: 'donut' },
     labels: ['Available Cash', 'Active Loans'],
-    colors: ['#3B82F6', '#F59E0B'],
-    dataLabels: { enabled: false },
+    colors: ['#3C50E0', '#80CAEE'], // TailAdmin Primary/Secondary
     legend: { position: 'bottom' },
     plotOptions: {
       pie: {
@@ -89,10 +75,12 @@ export default function DashboardHome({ stats, recentActivity = [], sacco, trend
                  {sacco?.name || 'Dashboard'}
                </h1>
                <div class="flex items-center gap-2 mt-1">
-                  <div class="badge badge-primary badge-sm gap-1 font-bold h-6 pr-3">
-                     <Icon icon={ShieldCheck} size={12} />
-                     {currentUser?.role.replace('_', ' ').toUpperCase()}
-                  </div>
+                  <Badge type="primary">
+                     <span class="flex items-center gap-1">
+                        <Icon icon={ShieldCheck} size={12} />
+                        {currentUser?.role.replace('_', ' ').toUpperCase()}
+                     </span>
+                  </Badge>
                   <p class="text-slate-400 text-sm font-medium">System operational and secure.</p>
                </div>
             </div>

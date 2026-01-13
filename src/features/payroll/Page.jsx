@@ -35,47 +35,45 @@ export default function PayrollPage({ history = [] }) {
         </div>
 
         {/* History Table */}
-        <div class="card bg-base-100 border border-base-200 shadow-sm">
-          <div class="card-body p-0">
-             <div class="p-4 border-b border-base-200">
-               <h3 class="font-bold flex items-center gap-2">
-                 <Icon icon={History} size={16} /> Payment History
-               </h3>
-             </div>
-             <div class="overflow-x-auto">
-               <table class="table">
-                 <thead>
-                   <tr>
-                     <th>Date</th>
-                     <th>Employee</th>
-                     <th>Description</th>
-                     <th class="text-right">Amount (UGX)</th>
-                   </tr>
-                 </thead>
-                 <tbody>
-                   {history.length === 0 ? (
-                     <tr><td colspan="4" class="text-center py-12 text-slate-400">No payroll history found. Run a payroll to start.</td></tr>
-                   ) : history.map(p => (
-                     <tr key={p.id} class="hover">
-                       <td class="font-mono text-xs opacity-60">{p.date}</td>
-                       <td>
-                         <div class="flex items-center gap-2">
-                           <Icon icon={User} size={14} class="opacity-50" />
-                           <div>
-                             <div class="font-bold text-sm">{p.staffName}</div>
-                             <div class="text-xs opacity-50">{p.role}</div>
-                           </div>
+        <div class="rounded-sm border border-slate-200 bg-white px-5 pt-6 pb-2.5 shadow-sm sm:px-7.5 xl:pb-1">
+          <div class="mb-4">
+             <h3 class="font-bold flex items-center gap-2 text-black text-lg">
+               <Icon icon={History} size={20} /> Payment History
+             </h3>
+          </div>
+          <div class="overflow-x-auto">
+             <table class="table w-full">
+               <thead class="bg-slate-50">
+                 <tr>
+                   <th class="py-4 px-4 text-sm font-bold text-black uppercase">Date</th>
+                   <th class="py-4 px-4 text-sm font-bold text-black uppercase">Employee</th>
+                   <th class="py-4 px-4 text-sm font-bold text-black uppercase">Description</th>
+                   <th class="py-4 px-4 text-right text-sm font-bold text-black uppercase">Amount (UGX)</th>
+                 </tr>
+               </thead>
+               <tbody>
+                 {history.length === 0 ? (
+                   <tr><td colspan="4" class="text-center py-12 text-slate-400">No payroll history found. Run a payroll to start.</td></tr>
+                 ) : history.map(p => (
+                   <tr key={p.id} class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                     <td class="py-4 px-4 text-xs font-mono text-black opacity-60">{p.date}</td>
+                     <td class="py-4 px-4">
+                       <div class="flex items-center gap-2">
+                         <Icon icon={User} size={14} class="text-black opacity-50" />
+                         <div>
+                           <div class="font-bold text-sm text-black">{p.staffName}</div>
+                           <div class="text-xs text-black opacity-50">{p.role}</div>
                          </div>
-                       </td>
-                       <td class="text-sm opacity-80">{p.txnDescription}</td>
-                       <td class="text-right font-mono font-bold">
-                         {p.amount.toLocaleString()}
-                       </td>
-                     </tr>
-                   ))}
-                 </tbody>
-               </table>
-             </div>
+                       </div>
+                     </td>
+                     <td class="py-4 px-4 text-sm text-black opacity-80">{p.txnDescription}</td>
+                     <td class="py-4 px-4 text-right font-mono font-bold text-black">
+                       {p.amount.toLocaleString()}
+                     </td>
+                   </tr>
+                 ))}
+               </tbody>
+             </table>
           </div>
         </div>
       </div>

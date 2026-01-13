@@ -2,6 +2,7 @@ import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import ApexChart from '../../components/ApexChart.jsx';
 import StatsCard from '../../components/StatsCard.jsx';
+import Badge from '../../components/Badge.jsx';
 import { 
   ArrowLeft, Phone, MapPin, User, 
   Wallet, Banknote, PieChart, History, Plus, Minus, FileText,
@@ -67,15 +68,21 @@ export function MemberDetailSavingsTab({ id, memberId, savings = [] }) {
                 </div>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="table table-sm w-full table-zebra">
-                    <thead><tr class="text-slate-400 uppercase text-[10px] tracking-widest border-b border-slate-100"><th>Date</th><th>Type</th><th class="text-right">Amount</th></tr></thead>
+            <div class="overflow-x-auto rounded-sm border border-slate-200 bg-white shadow-sm">
+                <table class="table w-full">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th class="py-4 px-4 text-sm font-bold text-black uppercase">Date</th>
+                            <th class="py-4 px-4 text-sm font-bold text-black uppercase">Type</th>
+                            <th class="py-4 px-4 text-right text-sm font-bold text-black uppercase">Amount</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         {savings.length > 0 ? savings.map(s => (
-                            <tr key={s.id} class="hover group">
-                                <td class="font-mono text-xs text-slate-400">{s.date}</td>
-                                <td><span class={`badge badge-xs badge-outline uppercase font-black text-[9px] tracking-tighter ${s.type === 'deposit' ? 'badge-success text-success' : 'badge-error text-error'}`}>{s.type}</span></td>
-                                <td class={`text-right font-mono font-bold ${s.type === 'deposit' ? 'text-success' : 'text-error'}`}>
+                            <tr key={s.id} class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                <td class="py-4 px-4 font-mono text-xs text-black">{s.date}</td>
+                                <td class="py-4 px-4"><Badge type={s.type === 'deposit' ? 'success' : 'error'}>{s.type}</Badge></td>
+                                <td class={`py-4 px-4 text-right font-mono font-bold ${s.type === 'deposit' ? 'text-success' : 'text-error'}`}>
                                   {s.type === 'deposit' ? '+' : '-'}{(s.amount || 0).toLocaleString()}
                                 </td>
                             </tr>
@@ -115,9 +122,9 @@ export function MemberDetailLoansTab({ id, memberId, loans = [] }) {
                 <div class="text-[9px] text-slate-400 italic">Issued: {l.issuedDate}</div>
               </div>
               <div class="flex items-center gap-4">
-                <span class={`badge badge-sm badge-outline uppercase text-[9px] font-black tracking-tighter ${l.status === 'active' ? 'badge-info text-info' : 'badge-success text-success'}`}>{l.status}</span>
+                <Badge type={l.status === 'active' ? 'info' : 'success'}>{l.status}</Badge>
                 {l.status === 'active' && (
-                  <button 
+                  <button  
                     class="btn btn-xs btn-success text-white gap-1 px-3 shadow-sm shadow-success/20"
                     hx-get={`/dashboard/members/${l.memberId}/loans/${l.id}/pay`}
                     hx-target="#htmx-modal-content"
@@ -161,7 +168,7 @@ export function MemberDetailSharesTab({ id, memberId, shares = [] }) {
                 <div class="font-black text-slate-700">{(s.amount || 0).toLocaleString()} <span class="text-[10px] text-slate-400 font-medium">UGX</span></div>
                 <div class="text-[9px] text-slate-400 italic">Purchased: {s.date}</div>
               </div>
-              <div class="badge badge-sm badge-outline badge-primary uppercase text-[9px] font-black tracking-tighter">Verified</div>
+              <Badge type="primary">Verified</Badge>
             </div>
           )) : (
             <div class="p-16 text-center text-slate-400 italic text-sm">No shares history found</div>
@@ -244,28 +251,17 @@ export default function MemberDetailPage({ member, stats, loans = [], savings = 
       { name: 'Loan Issuance', data: trendData.map(d => d.loans) }
     ],
     chart: { 
-      type: 'area', 
-      toolbar: { show: false },
-      fontFamily: 'Inter, sans-serif',
-      sparkline: { enabled: false }
+      type: 'area',
     },
-    grid: { show: false },
     colors: ['#10B981', '#F59E0B'], // Success Green and Warning Amber
-    dataLabels: { enabled: false },
     stroke: { curve: 'smooth', width: 2 },
     xaxis: { 
       categories: trendData.map(d => d.month),
-      axisBorder: { show: false },
-      axisTicks: { show: false },
-      labels: { style: { colors: '#94a3b8', fontWeight: 600 } }
     },
-    yaxis: { show: false },
     fill: { 
       type: 'gradient',
       gradient: { shadeIntensity: 1, opacityFrom: 0.45, opacityTo: 0.05, stops: [20, 100] }
     },
-    legend: { show: false },
-    tooltip: { theme: 'light' }
   };
 
   return (
@@ -280,12 +276,14 @@ export default function MemberDetailPage({ member, stats, loans = [], savings = 
               <div>
                 <h1 class="text-3xl font-black tracking-tight text-slate-900">{member.fullName}</h1>
                 <div class="flex items-center gap-3 text-slate-500 text-xs mt-1 font-medium">
-                  <div class="badge badge-primary badge-sm gap-1 font-bold h-6 px-3">
-                     <Icon icon={ShieldCheck} size={12} />
-                     {member.memberNumber}
-                  </div>
+                  <Badge type="primary">
+                     <span class="flex items-center gap-1">
+                        <Icon icon={ShieldCheck} size={12} />
+                        {member.memberNumber}
+                     </span>
+                  </Badge>
                   <span>Joined {member.createdAt}</span>
-                  <span class={`badge badge-sm badge-outline uppercase text-[10px] font-black tracking-tighter ${member.status === 'active' ? 'badge-success text-success' : 'badge-error text-error'}`}>{member.status}</span>
+                  <Badge type={member.status === 'active' ? 'success' : 'error'}>{member.status}</Badge>
                 </div>
               </div>
             </div>

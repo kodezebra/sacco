@@ -65,7 +65,7 @@ export default function DepositForm({ memberId }) {
         <div class="modal-action mt-4 border-t border-slate-100 pt-6">
           <button type="button" class="btn btn-ghost px-8" onclick="document.getElementById('htmx-modal').close()">Cancel</button>
           <button type="submit" class="btn btn-success px-10 rounded-xl shadow-lg shadow-success/20 text-white font-black">
-            Record Deposit
+            Deposit
           </button>
         </div>
       </form>

@@ -83,7 +83,7 @@ export default function LoanForm({ memberId, defaults = {} }) {
         <div class="modal-action mt-4 border-t border-slate-100 pt-6">
           <button type="button" class="btn btn-ghost px-8" onClick="document.getElementById('htmx-modal').close()">Cancel</button>
           <button type="submit" class="btn btn-primary px-10 rounded-xl shadow-lg shadow-primary/20 font-black">
-            Issue Loan
+            Issue
           </button>
         </div>
       </form>

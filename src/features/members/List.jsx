@@ -1,6 +1,8 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import StatsCard from '../../components/StatsCard.jsx';
+import Badge from '../../components/Badge.jsx';
+import TableAction from '../../components/TableAction.jsx';
 import { Plus, Search, FileSpreadsheet, Trash2, ChevronLeft, ChevronRight, Eye, Users, Wallet, Banknote, UserPlus } from 'lucide';
 
 const formatCompact = (val) => {
@@ -12,41 +14,37 @@ const formatCompact = (val) => {
 
 export function MemberRow({ member }) {
   return (
-    <tr key={member.id} class="hover group">
-      <td class="py-4">
+    <tr key={member.id} class="border-b border-slate-100 hover:bg-slate-50 transition-colors group">
+      <td class="py-4 px-4">
         <div class="flex items-center gap-3">
-          <div class="avatar placeholder">
-            <div class="bg-primary/10 text-primary font-black rounded-xl w-10 border border-primary/20">
-              <span>{member.fullName[0].toUpperCase()}</span>
-            </div>
-          </div>
           <div>
             <div class="font-black text-slate-700 group-hover:text-primary transition-colors">{member.fullName}</div>
             <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{member.memberNumber}</div>
           </div>
         </div>
       </td>
-      <td class="font-mono text-xs font-bold text-slate-500">{member.phone}</td>
-      <td class="text-center">
-        <span class={`badge badge-sm badge-outline uppercase text-[9px] font-black tracking-tighter ${member.status === 'active' ? 'badge-success text-success' : 'badge-error text-error'}`}>
+      <td class="py-4 px-4 font-mono text-xs font-bold text-slate-500">{member.phone}</td>
+      <td class="py-4 px-4 text-center">
+        <Badge type={member.status === 'active' ? 'success' : 'error'}>
           {member.status}
-        </span>
+        </Badge>
       </td>
-      <td class="text-[11px] font-medium text-slate-400 font-mono italic">{member.createdAt}</td>
-      <td class="text-right">
+      <td class="py-4 px-4 text-[11px] font-medium text-slate-400 font-mono italic">{member.createdAt}</td>
+      <td class="py-4 px-4 text-right">
         <div class="flex gap-2 justify-end items-center transition-opacity">
-          <a href={`/dashboard/members/${member.id}`} class="btn btn-ghost btn-xs text-primary font-bold gap-1 px-3">
-            <Icon icon={Eye} size={14} /> Profile
-          </a>
-          <button 
-            class="btn btn-ghost btn-xs text-error btn-square"
+          <TableAction 
+            label="Profile" 
+            href={`/dashboard/members/${member.id}`} 
+            icon={Eye} 
+          />
+          <TableAction 
+            variant="danger"
+            icon={Trash2}
             hx-delete={`/dashboard/members/${member.id}`}
             hx-target="closest tr"
             hx-swap="outerHTML"
             hx-confirm={`Are you sure you want to delete ${member.fullName}?`}
-          >
-            <Icon icon={Trash2} size={14} />
-          </button>
+          />
         </div>
       </td>
     </tr>
@@ -85,18 +83,64 @@ export function Pagination({ page, totalPages, search }) {
   );
 }
 
-export function MembersList({ members = [], page = 1, totalPages = 1, search = "" }) {
+export function MembersList({ members = [], page = 1, totalPages = 1, search = "", stats }) {
   return (
-    <div id="members-list-container" class="card bg-base-100 border border-base-200 shadow-sm overflow-hidden">
+    <div id="members-list-container" class="rounded-sm border border-slate-200 bg-white shadow-sm">
+      {/* Card Header */}
+      <div class="flex flex-col gap-4 border-b border-slate-100 px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h3 class="text-xl font-bold text-black">Member Directory</h3>
+          <p class="text-sm font-medium text-slate-500 mt-1">Manage KYC profiles and financial accounts.</p>
+        </div>
+        
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="relative">
+            <button class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+              <Icon icon={Search} size={18} />
+            </button>
+            <input 
+              type="search" 
+              name="search"
+              placeholder="Search members..." 
+              class="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pl-10 pr-4 text-sm font-medium text-black focus:border-primary focus:outline-none xl:w-72"
+              value={search}
+              hx-get="/dashboard/members"
+              hx-trigger="keyup changed delay:500ms, search"
+              hx-target="#members-list-container"
+              hx-swap="outerHTML"
+              hx-indicator=".htmx-indicator"
+              hx-include="[name='page']" 
+            />
+            <input type="hidden" name="page" value="1" />
+          </div>
+
+          <a href="/dashboard/members/export" class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:text-primary hover:border-primary" download>
+            <Icon icon={FileSpreadsheet} size={18} />
+            <span class="hidden lg:inline">Export</span>
+          </a>
+
+          <button 
+            class="inline-flex items-center gap-2 rounded-md bg-primary px-6 py-2 text-sm font-medium text-white hover:bg-opacity-90 shadow-md"
+            hx-get="/dashboard/members/new"
+            hx-target="#htmx-modal-content"
+            hx-swap="innerHTML"
+            onClick="document.getElementById('htmx-modal').showModal()"
+          >
+            <Icon icon={UserPlus} size={18} />
+            New
+          </button>
+        </div>
+      </div>
+
       <div class="overflow-x-auto">
-        <table class="table w-full table-zebra">
-          <thead class="bg-slate-50/50">
-            <tr class="text-slate-400 uppercase text-[10px] tracking-widest border-b border-slate-100">
-              <th class="py-4 px-6 font-black">Member Profile</th>
-              <th class="font-black">Contact</th>
-              <th class="text-center font-black">Account Status</th>
-              <th class="font-black">Joined Date</th>
-              <th class="text-right px-6 font-black">Quick Actions</th>
+        <table class="table w-full">
+          <thead class="bg-slate-50">
+            <tr>
+              <th class="py-4 px-4 text-sm font-bold text-black uppercase">Member Profile</th>
+              <th class="py-4 px-4 text-sm font-bold text-black uppercase">Contact</th>
+              <th class="py-4 px-4 text-center text-sm font-bold text-black uppercase">Account Status</th>
+              <th class="py-4 px-4 text-sm font-bold text-black uppercase">Joined Date</th>
+              <th class="py-4 px-4 text-right text-sm font-bold text-black uppercase">Quick Actions</th>
             </tr>
           </thead>
           <tbody id="members-table-body">
@@ -126,30 +170,6 @@ export default function MembersPage({ members = [], page = 1, totalPages = 1, se
       <div class="max-w-full overflow-x-hidden">
         <div class="flex flex-col gap-8 pb-12">
           
-          {/* Header & Main Actions */}
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div>
-               <h1 class="text-3xl font-black tracking-tight text-slate-900">Member Directory</h1>
-               <p class="text-slate-500 text-sm font-medium mt-1">Manage KYC profiles and financial accounts.</p>
-            </div>
-            <div class="flex items-center gap-3">
-               <a href="/dashboard/members/export" class="btn btn-ghost btn-sm gap-2 rounded-xl font-bold text-slate-500 hover:bg-slate-100" download>
-                  <Icon icon={FileSpreadsheet} size={18} />
-                  Export CSV
-               </a>
-               <button 
-                  class="btn btn-primary btn-sm gap-2 rounded-xl shadow-lg shadow-primary/20 h-10 px-5"
-                  hx-get="/dashboard/members/new"
-                  hx-target="#htmx-modal-content"
-                  hx-swap="innerHTML"
-                  onClick="document.getElementById('htmx-modal').showModal()"
-                >
-                  <Icon icon={UserPlus} size={18} />
-                  New Member
-                </button>
-            </div>
-          </div>
-
           {/* Directory Stats Row */}
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatsCard 
@@ -181,31 +201,8 @@ export default function MembersPage({ members = [], page = 1, totalPages = 1, se
               colorClass="text-error" 
             />
           </div>
-
-          {/* Search & Filter Bar */}
-          <div class="flex flex-col md:flex-row gap-4 items-center bg-base-100 p-4 rounded-2xl border border-base-200 shadow-sm">
-            <div class="relative w-full">
-              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                <Icon icon={Search} size={18} />
-              </div>
-              <input 
-                type="search" 
-                name="search"
-                placeholder="Search by name, phone or member number..." 
-                class="input bg-slate-50 border-slate-200 w-full pl-12 focus:bg-white rounded-xl text-sm font-medium"
-                value={search}
-                hx-get="/dashboard/members"
-                hx-trigger="keyup changed delay:500ms, search"
-                hx-target="#members-list-container"
-                hx-swap="outerHTML"
-                hx-indicator=".htmx-indicator"
-                hx-include="[name='page']" 
-              />
-              <input type="hidden" name="page" value="1" />
-            </div>
-          </div>
           
-          <MembersList members={members} page={page} totalPages={totalPages} search={search} />
+          <MembersList members={members} page={page} totalPages={totalPages} search={search} stats={stats} />
         </div>
       </div>
     </DashboardLayout>

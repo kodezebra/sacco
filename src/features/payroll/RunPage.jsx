@@ -1,5 +1,6 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
+import Badge from '../../components/Badge.jsx';
 import { Wallet, CheckCircle, ArrowLeft, Info, AlertCircle } from 'lucide';
 
 export default function RunPayrollPage({ staffList = [] }) {
@@ -36,50 +37,50 @@ export default function RunPayrollPage({ staffList = [] }) {
           class="flex flex-col gap-8"
         >
           {/* Main Worksheet Card */}
-          <div class="card bg-base-100 border border-base-200 shadow-sm overflow-hidden">
+          <div class="rounded-sm border border-slate-200 bg-white px-5 pt-6 pb-2.5 shadow-sm sm:px-7.5 xl:pb-1">
             <div class="overflow-x-auto">
-              <table class="table table-lg">
-                <thead class="bg-slate-50 border-b border-base-200">
+              <table class="table w-full">
+                <thead class="bg-slate-50">
                   <tr>
-                    <th class="w-12">Pay</th>
-                    <th>Employee Details</th>
-                    <th>Business Unit</th>
-                    <th class="text-right">Standard Salary</th>
-                    <th class="w-64 text-right">Actual Payment</th>
+                    <th class="py-4 px-4 text-sm font-bold text-black uppercase w-12">Pay</th>
+                    <th class="py-4 px-4 text-sm font-bold text-black uppercase">Employee Details</th>
+                    <th class="py-4 px-4 text-sm font-bold text-black uppercase">Business Unit</th>
+                    <th class="py-4 px-4 text-right text-sm font-bold text-black uppercase">Standard Salary</th>
+                    <th class="py-4 px-4 text-right text-sm font-bold text-black uppercase w-64">Actual Payment</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-base-100">
+                <tbody>
                   {staffList.map(s => (
-                    <tr key={s.id} class="hover:bg-slate-50/50 transition-colors">
-                      <td>
+                    <tr key={s.id} class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                      <td class="py-4 px-4">
                         <input 
                           type="checkbox" 
                           name="staffIds" 
                           value={s.id} 
-                          class="checkbox checkbox-primary" 
+                          class="checkbox checkbox-primary rounded-sm" 
                           checked 
                         />
                       </td>
-                      <td>
-                        <div class="font-bold">{s.fullName}</div>
-                        <div class="text-xs opacity-50 uppercase tracking-widest font-semibold">{s.role}</div>
+                      <td class="py-4 px-4">
+                        <div class="font-bold text-black">{s.fullName}</div>
+                        <div class="text-xs text-black opacity-50 uppercase tracking-widest font-semibold">{s.role}</div>
                       </td>
-                      <td>
-                        <div class="badge badge-outline badge-sm">{s.unitName}</div>
+                      <td class="py-4 px-4">
+                        <Badge type="ghost">{s.unitName}</Badge>
                       </td>
-                      <td class="text-right font-mono text-slate-400">
+                      <td class="py-4 px-4 text-right font-mono text-black opacity-60">
                         {s.salary?.toLocaleString()}
                       </td>
-                      <td class="text-right">
+                      <td class="py-4 px-4 text-right">
                         <div class="flex justify-end items-center gap-2">
                           <input 
                             type="number" 
                             name={`amount_${s.id}`} 
                             defaultValue={s.salary}
-                            class="input input-bordered input-md w-full max-w-[180px] text-right font-mono font-bold focus:input-primary border-slate-200"
+                            class="input input-bordered input-md w-full max-w-[180px] text-right font-mono font-bold focus:input-primary border-slate-200 rounded-lg"
                             min="0"
                           />
-                          <span class="text-xs font-bold opacity-30">UGX</span>
+                          <span class="text-xs font-bold opacity-30 text-black">UGX</span>
                         </div>
                       </td>
                     </tr>
@@ -120,7 +121,7 @@ export default function RunPayrollPage({ staffList = [] }) {
               <div class="flex flex-col gap-3">
                 <button type="submit" class="btn btn-primary btn-lg w-full gap-2 shadow-md">
                    <Icon icon={CheckCircle} size={20} />
-                   Finalize & Process
+                   Process
                 </button>
                 <a href="/dashboard/payroll" class="btn btn-ghost w-full">Cancel Run</a>
               </div>

@@ -1,5 +1,6 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
+import Badge from '../../components/Badge.jsx';
 import { ArrowLeft, Printer, TrendingUp, TrendingDown, DollarSign } from 'lucide';
 
 export default function CashFlowReport({ transactions, stats, categories }) {
@@ -17,7 +18,7 @@ export default function CashFlowReport({ transactions, stats, categories }) {
             </div>
           </div>
           <button class="btn btn-outline btn-sm gap-2" onClick="window.print()">
-            <Icon icon={Printer} size={16} /> Print Report
+            <Icon icon={Printer} size={16} /> Print
           </button>
         </div>
 
@@ -71,9 +72,9 @@ export default function CashFlowReport({ transactions, stats, categories }) {
                       <div class="text-xs opacity-50">{cat.count} transactions</div>
                     </td>
                     <td class="text-right">
-                      <span class={`badge badge-sm badge-soft uppercase font-bold tracking-wider ${cat.type === 'income' ? 'badge-success' : 'badge-error'}`}>
+                      <Badge type={cat.type === 'income' ? 'success' : 'error'}>
                         {cat.type}
-                      </span>
+                      </Badge>
                     </td>
                     <td class={`text-right font-mono font-bold ${cat.type === 'income' ? 'text-success' : 'text-error'}`}>
                       {cat.type === 'expense' ? '-' : '+'}{cat.amount.toLocaleString()} UGX

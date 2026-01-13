@@ -68,7 +68,7 @@ export default function SharePurchaseForm({ memberId }) {
         <div class="modal-action mt-4 border-t border-slate-100 pt-6">
           <button type="button" class="btn btn-ghost px-8" onClick="document.getElementById('htmx-modal').close()">Cancel</button>
           <button type="submit" class="btn btn-primary px-10 rounded-xl shadow-lg shadow-primary/20 font-black">
-            Confirm Purchase
+            Confirm
           </button>
         </div>
       </form>

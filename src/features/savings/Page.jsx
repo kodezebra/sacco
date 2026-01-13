@@ -1,5 +1,7 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
+import Badge from '../../components/Badge.jsx';
+import TableAction from '../../components/TableAction.jsx';
 import { Search, Filter, User, Eye, ChevronLeft, ChevronRight, ArrowDownLeft, ArrowUpRight } from 'lucide';
 
 const formatUGX = (val) => (val || 0).toLocaleString() + ' UGX';
@@ -8,13 +10,13 @@ export function Pagination({ page, totalPages, search }) {
   if (totalPages <= 1) return null;
 
   return (
-    <div class="flex justify-between items-center p-4 border-t border-base-200 bg-base-100">
-      <div class="text-sm text-slate-500">
+    <div class="flex justify-between items-center p-6 border-t border-slate-100 bg-slate-50/30">
+      <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
         Page {page} of {totalPages}
       </div>
-      <div class="join">
+      <div class="join shadow-sm border border-slate-200 overflow-hidden rounded-xl">
         <button 
-          class="join-item btn btn-sm" 
+          class="join-item btn btn-xs h-10 px-4 bg-base-100 hover:bg-base-200 border-none" 
           disabled={page <= 1}
           hx-get={`/dashboard/savings?page=${page - 1}&search=${search}`}
           hx-target="#savings-list-container"
@@ -23,7 +25,7 @@ export function Pagination({ page, totalPages, search }) {
           <Icon icon={ChevronLeft} size={16} />
         </button>
         <button 
-          class="join-item btn btn-sm"
+          class="join-item btn btn-xs h-10 px-4 bg-base-100 hover:bg-base-200 border-none"
           disabled={page >= totalPages}
           hx-get={`/dashboard/savings?page=${page + 1}&search=${search}`}
           hx-target="#savings-list-container"
@@ -38,45 +40,77 @@ export function Pagination({ page, totalPages, search }) {
 
 export function SavingsList({ savings = [], page = 1, totalPages = 1, search = "" }) {
   return (
-    <div id="savings-list-container">
+    <div id="savings-list-container" class="rounded-sm border border-slate-200 bg-white shadow-sm">
+      {/* Card Header */}
+      <div class="flex flex-col gap-4 border-b border-slate-100 px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h3 class="text-xl font-bold text-black">Savings Ledger</h3>
+          <p class="text-sm font-medium text-slate-500 mt-1">Global overview of all member deposits and withdrawals.</p>
+        </div>
+        
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="relative">
+            <button class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+              <Icon icon={Search} size={18} />
+            </button>
+            <input 
+              type="search" 
+              name="search"
+              placeholder="Search by member..." 
+              class="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pl-10 pr-4 text-sm font-medium text-black focus:border-primary focus:outline-none xl:w-72"
+              value={search}
+              hx-get="/dashboard/savings"
+              hx-trigger="keyup changed delay:500ms, search"
+              hx-target="#savings-list-container"
+              hx-swap="outerHTML"
+              hx-indicator=".htmx-indicator"
+              hx-include="[name='page']"
+            />
+            <input type="hidden" name="page" value="1" />
+          </div>
+        </div>
+      </div>
+
       <div class="overflow-x-auto min-h-[400px]">
         {savings.length === 0 ? (
           <div class="p-12 text-center text-slate-400">
             <p>No savings records found.</p>
           </div>
         ) : (
-          <table class="table table-sm table-zebra w-full">
-            <thead class="bg-base-200">
+          <table class="table w-full">
+            <thead class="bg-slate-50">
               <tr>
-                <th>Member</th>
-                <th>Type</th>
-                <th class="text-right">Amount (UGX)</th>
-                <th>Date</th>
-                <th class="text-right">Actions</th>
+                <th class="py-4 px-4 text-sm font-bold text-black uppercase">Member</th>
+                <th class="py-4 px-4 text-sm font-bold text-black uppercase">Type</th>
+                <th class="py-4 px-4 text-right text-sm font-bold text-black uppercase">Amount (UGX)</th>
+                <th class="py-4 px-4 text-sm font-bold text-black uppercase">Date</th>
+                <th class="py-4 px-4 text-right text-sm font-bold text-black uppercase">Actions</th>
               </tr>
             </thead>
             <tbody>
               {savings.map((s) => (
-                <tr key={s.id} class="hover">
-                  <td>
+                <tr key={s.id} class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                  <td class="py-4 px-4">
                     <div>
-                      <div class="font-bold">{s.memberName}</div>
+                      <div class="font-bold text-black">{s.memberName}</div>
                       <div class="text-[10px] opacity-50">ID: {s.id.substring(0,8)}</div>
                     </div>
                   </td>
-                  <td>
-                    <span class={`badge badge-sm badge-soft uppercase text-[10px] font-bold tracking-wider ${s.type === 'deposit' ? 'badge-success' : 'badge-error'}`}>
+                  <td class="py-4 px-4">
+                    <Badge type={s.type === 'deposit' ? 'success' : 'error'}>
                        {s.type === 'deposit' ? <Icon icon={ArrowDownLeft} size={12} class="mr-1" /> : <Icon icon={ArrowUpRight} size={12} class="mr-1" />}
                        {s.type}
-                    </span>
+                    </Badge>
                   </td>
-                  <td class="text-right font-mono font-medium tracking-tight text-slate-700">{(s.amount || 0).toLocaleString()}</td>
-                  <td class="text-xs opacity-60">{s.date}</td>
-                  <td class="text-right">
+                  <td class="py-4 px-4 text-right font-mono font-medium tracking-tight text-black">{(s.amount || 0).toLocaleString()}</td>
+                  <td class="py-4 px-4 text-xs opacity-60 text-black">{s.date}</td>
+                  <td class="py-4 px-4 text-right">
                     <div class="flex justify-end gap-2">
-                      <a href={`/dashboard/members/${s.memberId}`} class="btn btn-outline btn-sm gap-2 font-medium">
-                        <Icon icon={Eye} size={16} /> View
-                      </a>
+                      <TableAction 
+                        label="View"
+                        icon={Eye}
+                        href={`/dashboard/members/${s.memberId}`}
+                      />
                     </div>
                   </td>
                 </tr>
@@ -93,39 +127,9 @@ export function SavingsList({ savings = [], page = 1, totalPages = 1, search = "
 export default function SavingsPage({ savings = [], page = 1, totalPages = 1, search = "" }) {
   return (
     <DashboardLayout title="Savings">
-       <div class="flex flex-col gap-8">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 class="text-3xl font-bold tracking-tight">Savings</h1>
-            <p class="text-slate-500">Global overview of all member deposits and withdrawals.</p>
-          </div>
-        </div>
-
-        <div class="card bg-base-100 border border-base-200 shadow-sm">
-          <div class="p-4 border-b border-base-200 flex flex-col md:flex-row justify-between gap-4 items-center">
-            <div class="flex gap-2 w-full max-w-sm">
-              <label class="input w-full">
-                <Icon icon={Search} size={16} class="opacity-50" strokeWidth={2.5} />
-                <input 
-                  type="search" 
-                  name="search"
-                  placeholder="Search by member or type..." 
-                  value={search}
-                  hx-get="/dashboard/savings"
-                  hx-trigger="keyup changed delay:500ms, search"
-                  hx-target="#savings-list-container"
-                  hx-swap="outerHTML"
-                  hx-indicator=".htmx-indicator"
-                  hx-include="[name='page']"
-                />
-                 <input type="hidden" name="page" value="1" />
-              </label>
-            </div>
-          </div>
-          
+       <div class="flex flex-col gap-8 pb-12">
           <SavingsList savings={savings} page={page} totalPages={totalPages} search={search} />
-        </div>
-      </div>
+       </div>
     </DashboardLayout>
   );
 }

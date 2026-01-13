@@ -1,5 +1,6 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
+import Badge from '../../components/Badge.jsx';
 import { Plus, Users, TrendingUp, TrendingDown, ArrowRight, Layers } from 'lucide';
 
 export default function AssociationsPage({ associations = [] }) {
@@ -19,7 +20,7 @@ export default function AssociationsPage({ associations = [] }) {
             onClick="document.getElementById('htmx-modal').showModal()"
           >
             <Icon icon={Plus} size={20} />
-            New Unit
+            New
           </button>
         </div>
 
@@ -40,10 +41,10 @@ export default function AssociationsPage({ associations = [] }) {
                 <div key={assoc.id} class="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-shadow">
                   <div class="card-body">
                     <div class="flex justify-between items-start mb-2">
-                      <div class="badge badge-outline badge-sm uppercase font-bold text-[10px] tracking-widest">{assoc.type}</div>
-                      <div class={`badge badge-soft badge-xs ${assoc.status === 'active' ? 'badge-success' : 'badge-ghost'}`}>
+                      <Badge type="ghost">{assoc.type}</Badge>
+                      <Badge type={assoc.status === 'active' ? 'success' : 'ghost'}>
                         {assoc.status}
-                      </div>
+                      </Badge>
                     </div>
                     
                     <h2 class="card-title text-xl mb-4">{assoc.name}</h2>
