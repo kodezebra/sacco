@@ -76,10 +76,30 @@ app.get('/', async (c) => {
   const page = parseInt(c.req.query('page') || '1');
   const { data, totalPages } = await getMembers(db, search, page);
 
+  // Calculate Directory Stats
+  const membersResult = await db.select({ count: sql`count(*)` }).from(members).execute();
+  
+  const now = new Date();
+  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+  const newMembersRes = await db.select({ count: sql`count(*)` }).from(members).where(sql`${members.createdAt} >= ${firstDay}`).execute();
+
+  const savingsDeposits = await db.select({ total: sql`sum(${savings.amount})` }).from(savings).where(eq(savings.type, 'deposit')).execute();
+  const savingsWithdrawals = await db.select({ total: sql`sum(${savings.amount})` }).from(savings).where(eq(savings.type, 'withdrawal')).execute();
+  const totalSavings = (savingsDeposits[0].total || 0) - (savingsWithdrawals[0].total || 0);
+
+  const loansResult = await db.select({ total: sql`sum(${loans.principal})` }).from(loans).where(eq(loans.status, 'active')).execute();
+
+  const directoryStats = {
+    totalMembers: membersResult[0].count,
+    newMembers: newMembersRes[0].count,
+    totalSavings,
+    totalLoans: loansResult[0].total || 0
+  };
+
   if (c.req.header('hx-request')) {
     return c.html(<MembersList members={data} page={page} totalPages={totalPages} search={search} />);
   }
-  return c.html(<MembersPage members={data} page={page} totalPages={totalPages} search={search} />);
+  return c.html(<MembersPage members={data} page={page} totalPages={totalPages} search={search} stats={directoryStats} />);
 });
 
 // GET /new ... Form for creating a new member

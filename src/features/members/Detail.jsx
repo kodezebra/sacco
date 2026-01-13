@@ -1,10 +1,11 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import ApexChart from '../../components/ApexChart.jsx';
+import StatsCard from '../../components/StatsCard.jsx';
 import { 
   ArrowLeft, Phone, MapPin, User, 
   Wallet, Banknote, PieChart, History, Plus, Minus, FileText,
-  TrendingUp, TrendingDown, ArrowUpRight
+  TrendingUp, TrendingDown, ArrowUpRight, ShieldCheck
 } from 'lucide';
 
 const formatUGX = (val) => (val || 0).toLocaleString() + ' UGX';
@@ -12,28 +13,28 @@ const formatUGX = (val) => (val || 0).toLocaleString() + ' UGX';
 // Partial component for stats (OOB Swap)
 export function MemberDetailStats({ id, stats }) {
   return (
-    <div id={id} hx-swap-oob={id ? "true" : "false"} class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="stats shadow border border-base-200">
-        <div class="stat">
-          <div class="stat-figure text-primary/30"><Icon icon={PieChart} size={24} /></div>
-          <div class="stat-title text-[10px] font-bold uppercase tracking-widest text-slate-400">Total Shares</div>
-          <div class="stat-value text-primary text-xl">{formatUGX(stats.totalShares)}</div>
-        </div>
-      </div>
-      <div class="stats shadow border border-base-200">
-        <div class="stat">
-          <div class="stat-figure text-success/30"><Icon icon={Wallet} size={24} /></div>
-          <div class="stat-title text-[10px] font-bold uppercase tracking-widest text-slate-400">Savings</div>
-          <div class="stat-value text-success text-xl">{formatUGX(stats.savingsBalance)}</div>
-        </div>
-      </div>
-      <div class="stats shadow border border-base-200">
-        <div class="stat">
-          <div class="stat-figure text-error/30"><Icon icon={Banknote} size={24} /></div>
-          <div class="stat-title text-[10px] font-bold uppercase tracking-widest text-slate-400">Outstanding Loans</div>
-          <div class="stat-value text-error text-xl">{formatUGX(stats.loanBalance)}</div>
-        </div>
-      </div>
+    <div id={id} hx-swap-oob={id ? "true" : "false"} class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+      <StatsCard 
+        label="Total Shares" 
+        value={formatUGX(stats.totalShares)} 
+        subtitle="Equity investment" 
+        icon={PieChart} 
+        colorClass="text-primary" 
+      />
+      <StatsCard 
+        label="Savings Balance" 
+        value={formatUGX(stats.savingsBalance)} 
+        subtitle="Liquid capital" 
+        icon={Wallet} 
+        colorClass="text-success" 
+      />
+      <StatsCard 
+        label="Loan Balance" 
+        value={formatUGX(stats.loanBalance)} 
+        subtitle="Outstanding credit" 
+        icon={Banknote} 
+        colorClass="text-error" 
+      />
     </div>
   );
 }
@@ -68,10 +69,10 @@ export function MemberDetailSavingsTab({ id, memberId, savings = [] }) {
 
             <div class="overflow-x-auto">
                 <table class="table table-sm w-full table-zebra">
-                    <thead><tr class="text-slate-400 uppercase text-[10px] tracking-widest"><th>Date</th><th>Type</th><th class="text-right">Amount</th></tr></thead>
+                    <thead><tr class="text-slate-400 uppercase text-[10px] tracking-widest border-b border-slate-100"><th>Date</th><th>Type</th><th class="text-right">Amount</th></tr></thead>
                     <tbody>
                         {savings.length > 0 ? savings.map(s => (
-                            <tr key={s.id} class="hover">
+                            <tr key={s.id} class="hover group">
                                 <td class="font-mono text-xs text-slate-400">{s.date}</td>
                                 <td><span class={`badge badge-xs badge-outline uppercase font-black text-[9px] tracking-tighter ${s.type === 'deposit' ? 'badge-success text-success' : 'badge-error text-error'}`}>{s.type}</span></td>
                                 <td class={`text-right font-mono font-bold ${s.type === 'deposit' ? 'text-success' : 'text-error'}`}>
@@ -79,7 +80,7 @@ export function MemberDetailSavingsTab({ id, memberId, savings = [] }) {
                                 </td>
                             </tr>
                         )) : (
-                            <tr><td colspan="3" class="text-center py-12 text-slate-400 italic">No savings history</td></tr>
+                            <tr><td colspan="3" class="text-center py-16 text-slate-400 italic">No savings history recorded</td></tr>
                         )}
                     </tbody>
                 </table>
@@ -129,7 +130,7 @@ export function MemberDetailLoansTab({ id, memberId, loans = [] }) {
               </div>
             </div>
           )) : (
-            <div class="p-16 text-center text-slate-400 italic text-sm">No loans recorded</div>
+            <div class="p-16 text-center text-slate-400 italic text-sm">No active or past loans found</div>
           )}
         </div>
     </div>
@@ -163,7 +164,7 @@ export function MemberDetailSharesTab({ id, memberId, shares = [] }) {
               <div class="badge badge-sm badge-outline badge-primary uppercase text-[9px] font-black tracking-tighter">Verified</div>
             </div>
           )) : (
-            <div class="p-16 text-center text-slate-400 italic text-sm">No shares history</div>
+            <div class="p-16 text-center text-slate-400 italic text-sm">No shares history found</div>
           )}
         </div>
     </div>
@@ -279,7 +280,10 @@ export default function MemberDetailPage({ member, stats, loans = [], savings = 
               <div>
                 <h1 class="text-3xl font-black tracking-tight text-slate-900">{member.fullName}</h1>
                 <div class="flex items-center gap-3 text-slate-500 text-xs mt-1 font-medium">
-                  <span class="badge badge-primary badge-sm badge-soft font-bold">{member.memberNumber}</span>
+                  <div class="badge badge-primary badge-sm gap-1 font-bold h-6 px-3">
+                     <Icon icon={ShieldCheck} size={12} />
+                     {member.memberNumber}
+                  </div>
                   <span>Joined {member.createdAt}</span>
                   <span class={`badge badge-sm badge-outline uppercase text-[10px] font-black tracking-tighter ${member.status === 'active' ? 'badge-success text-success' : 'badge-error text-error'}`}>{member.status}</span>
                 </div>
@@ -288,7 +292,7 @@ export default function MemberDetailPage({ member, stats, loans = [], savings = 
             <div class="flex gap-2">
               <a 
                 href={`/dashboard/reports/member-statement/${member.id}`} 
-                class="btn btn-outline btn-sm gap-2 rounded-xl"
+                class="btn btn-outline btn-sm gap-2 rounded-xl h-10 px-5"
               >
                  <Icon icon={FileText} size={16} /> Member Statement
               </a>
@@ -330,7 +334,7 @@ export default function MemberDetailPage({ member, stats, loans = [], savings = 
                     />
                   </div>
 
-                  {/* Stat Grid */}
+                  {/* Stat Grid using StatsCard */}
                   <MemberDetailStats id="member-stats-container" stats={stats} />
                 </div>
               </div>

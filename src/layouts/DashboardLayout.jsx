@@ -159,7 +159,7 @@ export default function DashboardLayout({ title, children }) {
 
             {/* Sidebar Footer */}
             <div class="w-full p-4 border-t border-base-200 bg-slate-50/30">
-               <div class="p-4 bg-primary/10 rounded-2xl flex items-center gap-3">
+               <div class="p-4 bg-primary/10 rounded-xl flex items-center gap-3">
                   <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-black text-xs">?</div>
                   <div>
                      <p class="text-[10px] font-black text-primary uppercase tracking-wider">Need Help?</p>
@@ -173,7 +173,7 @@ export default function DashboardLayout({ title, children }) {
 
       {/* Generic Modal for HTMX content */}
       <dialog id="htmx-modal" class="modal overflow-hidden">
-        <div id="htmx-modal-content" class="modal-box p-0 rounded-3xl max-w-2xl bg-base-100 overflow-hidden shadow-2xl">
+        <div id="htmx-modal-content" class="modal-box p-0 rounded-2xl max-w-2xl bg-base-100 overflow-hidden shadow-2xl">
           {/* Content will be loaded here by HTMX */}
         </div>
         <form method="dialog" class="modal-backdrop bg-slate-900/40 backdrop-blur-sm">

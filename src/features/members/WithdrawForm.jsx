@@ -1,52 +1,82 @@
 import Icon from '../../components/Icon.jsx';
-import { Wallet, Calendar, Minus } from 'lucide';
+import { Wallet, Calendar, X, AlertCircle } from 'lucide';
 
 export default function WithdrawForm({ memberId, maxAmount = 0 }) {
   return (
-    <div class="p-2">
-      <div class="flex items-center gap-3 mb-6">
-        <div class="p-2 bg-error/10 text-error rounded-lg">
-          <Icon icon={Wallet} size={24} />
-        </div>
+    <div class="p-0">
+      <div class="bg-error p-8 text-error-content flex justify-between items-start">
         <div>
-          <h3 class="text-xl font-bold">Withdraw Savings</h3>
-          <p class="text-sm text-slate-500">Available Balance: {maxAmount.toLocaleString()} UGX</p>
+          <h2 class="text-2xl font-black flex items-center gap-3">
+            <Icon icon={Wallet} size={28} />
+            Withdraw Savings
+          </h2>
+          <p class="text-error-content/70 text-sm mt-1 font-medium">Process a cash withdrawal for this member</p>
         </div>
+        <form method="dialog">
+          <button class="btn btn-circle btn-ghost btn-sm text-error-content">
+             <Icon icon={X} size={20} />
+          </button>
+        </form>
       </div>
 
       <form 
         hx-post={`/dashboard/members/${memberId}/withdraw`}
         hx-target="#htmx-modal-content"
         hx-swap="innerHTML"
-        class="space-y-4"
+        class="p-8 flex flex-col gap-6"
       >
-        <div class="form-control">
-          <label class="label"><span class="label-text font-semibold">Withdrawal Amount (UGX)</span></label>
+        <div class="alert alert-error/10 border-error/20 flex gap-3 p-4 rounded-xl">
+           <div class="text-error"><Icon icon={AlertCircle} size={20} /></div>
+           <div>
+              <p class="text-[10px] font-bold uppercase tracking-widest text-error/60">Available Balance</p>
+              <p class="text-lg font-black text-error">{maxAmount.toLocaleString()} UGX</p>
+           </div>
+        </div>
+
+        <div class="form-control w-full">
+          <label class="label pt-0">
+            <span class="label-text text-[10px] font-bold uppercase tracking-widest text-slate-400">Withdrawal Amount (UGX)</span>
+          </label>
           <div class="relative">
             <input 
               type="number" 
               name="amount" 
-              placeholder="50000" 
-              class="input input-bordered w-full pr-12" 
+              placeholder="0" 
+              class="input input-bordered focus:input-error w-full text-lg font-black" 
               max={maxAmount}
               required 
+              autofocus
             />
-            <div class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 text-sm font-medium">UGX</div>
+            <div class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 font-bold text-xs uppercase">UGX</div>
           </div>
-          <label class="label"><span class="label-text-alt text-error">Cannot exceed available balance</span></label>
+          <label class="label">
+            <span class="label-text-alt text-slate-400 font-medium italic">Amount cannot exceed the member's current balance.</span>
+          </label>
         </div>
 
-        <div class="form-control">
-          <label class="label"><span class="label-text font-semibold">Transaction Date</span></label>
+        <div class="form-control w-full">
+          <label class="label pt-0">
+            <span class="label-text text-[10px] font-bold uppercase tracking-widest text-slate-400">Transaction Date</span>
+          </label>
           <div class="relative">
-            <input type="date" name="date" value={new Date().toISOString().split('T')[0]} class="input input-bordered w-full" required />
-            <div class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400"><Icon icon={Calendar} size={16} /></div>
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+              <Icon icon={Calendar} size={16} />
+            </div>
+            <input 
+              type="date" 
+              name="date" 
+              value={new Date().toISOString().split('T')[0]} 
+              class="input input-bordered focus:input-error w-full pl-12 font-mono" 
+              required 
+            />
           </div>
         </div>
 
-        <div class="modal-action mt-8">
-          <button type="button" class="btn btn-ghost" onClick="document.getElementById('htmx-modal').close()">Cancel</button>
-          <button type="submit" class="btn btn-error px-8 text-white">Confirm Withdrawal</button>
+        <div class="modal-action mt-4 border-t border-slate-100 pt-6">
+          <button type="button" class="btn btn-ghost px-8" onClick="document.getElementById('htmx-modal').close()">Cancel</button>
+          <button type="submit" class="btn btn-error px-10 rounded-xl shadow-lg shadow-error/20 text-white font-black">
+            Process Withdrawal
+          </button>
         </div>
       </form>
     </div>
