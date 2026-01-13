@@ -4,40 +4,175 @@
 
 
 @theme {
+
+
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+
   --font-heading: 'Plus Jakarta Sans', sans-serif;
+
+
   
-  --color-primary: #2563eb;
+
+
+  --color-primary: #3C50E0;
+
+
   --color-primary-content: #ffffff;
-  --color-secondary: #0f172a;
-  --color-accent: #10b981;
-  --color-neutral: #1e293b;
-  --color-base-100: #ffffff;
-  --color-base-200: #f8fafc;
-  --color-base-300: #f1f5f9;
+
+
+  --color-secondary: #1C2434;
+
+
+  --color-accent: #10B981;
+
+
+  --color-neutral: #1E293B;
+
+
+  --color-base-100: #FFFFFF;
+
+
+  --color-base-200: #F8FAFC;
+
+
+  --color-base-300: #F1F5F9;
+
+
+
+
+
+  /* TailAdmin specific colors */
+
+
+  --color-stroke: #E2E8F0;
+
+
+  --color-gray-2: #F7F9FC;
+
+
+  --color-whiten: #F1F5F9;
+
+
+  --color-boxdark: #24303F;
+
+
+  --color-boxdark-2: #1A222C;
+
+
+  --color-body: #64748B;
+
+
+  --color-bodydark: #AEB7C0;
+
+
+  --color-bodydark1: #DEE4EE;
+
+
+  --color-bodydark2: #8A99AF;
+
+
+
+
+
+  --shadow-default: 0px 8px 13px rgba(0, 0, 0, 0.05);
+
+
 }
+
+
+
+
 
 @layer base {
+
+
   body {
-    @apply antialiased text-slate-900 bg-white;
+
+
+    @apply antialiased text-body bg-whiten font-sans;
+
+
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+
+
   }
+
+
   
+
+
   h1, h2, h3, h4 {
-    @apply font-heading tracking-tight;
+
+
+    @apply font-heading tracking-tight text-black;
+
+
   }
+
+
+
+
+
+  .text-title-md {
+
+
+    @apply text-[24px] leading-[30px] font-bold text-black;
+
+
+  }
+
+
+
+
+
+  .text-title-sm {
+
+
+    @apply text-[18px] leading-[24px] font-bold text-black;
+
+
+  }
+
+
 }
+
+
+
+
 
 @layer components {
-  .glass-nav {
-    @apply sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/60;
-  }
-  
-  .btn-premium {
-    @apply rounded-xl font-semibold transition-all duration-300 active:scale-95;
+
+
+  /* TailAdmin Card Style */
+
+
+  .card-default {
+
+
+    @apply rounded-sm border border-stroke bg-white;
+
+
+    box-shadow: var(--shadow-default);
+
+
   }
 
-  .fintech-card {
-    @apply bg-white border border-slate-200/60 rounded-3xl shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all duration-500;
+
+  
+
+
+  /* TailAdmin Table Header Style */
+
+
+  .table-header {
+
+
+    @apply bg-gray-2 text-black font-bold;
+
+
   }
+
+
 }
+

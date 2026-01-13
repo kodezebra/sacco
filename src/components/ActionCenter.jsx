@@ -16,7 +16,7 @@ export default function ActionCenter() {
       {actions.map((action, i) => (
         <button
           key={i}
-          class="flex items-center gap-2.5 rounded-lg border border-slate-200 bg-white px-4 py-2 font-medium text-slate-700 shadow-sm hover:text-primary hover:border-primary hover:shadow-md transition-all duration-300"
+          class="flex items-center gap-2.5 rounded-sm border border-stroke bg-white px-4 py-2 font-medium text-black shadow-default hover:text-primary hover:border-primary transition-all duration-300"
           hx-get={action.isModal ? action.href : undefined}
           hx-target={action.isModal ? "#htmx-modal-content" : undefined}
           hx-swap={action.isModal ? "innerHTML" : undefined}

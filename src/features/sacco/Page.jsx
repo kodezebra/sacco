@@ -4,118 +4,111 @@ import { Settings, Save, Building2, Phone, Mail, MapPin, Banknote, Percent } fro
 
 export function SaccoForm({ sacco, success }) {
     return (
-        <form hx-put="/dashboard/sacco" hx-target="this" hx-swap="outerHTML" class="flex flex-col gap-6 max-w-4xl w-full">
+        <form hx-put="/dashboard/sacco" hx-target="this" hx-swap="outerHTML" class="flex flex-col gap-6">
             {success && (
-                <div role="alert" class="alert alert-success py-3 shadow-sm border-none bg-success/10 text-success font-medium">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    <span>Settings updated successfully!</span>
+                <div class="flex w-full rounded-sm border-l-6 border-success bg-success/10 px-7 py-4 shadow-default">
+                    <div class="mr-5 flex h-9 w-9 items-center justify-center rounded-lg bg-success text-white">
+                        <Icon icon={Save} size={20} />
+                    </div>
+                    <div class="w-full">
+                        <h5 class="mb-1 font-bold text-success">Settings updated</h5>
+                        <p class="text-sm font-medium text-success">Your organization profile has been saved.</p>
+                    </div>
                 </div>
             )}
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                 {/* Organization Profile */}
-                <div class="card bg-base-100 border border-base-200 shadow-sm">
-                    <div class="card-body">
-                        <div class="flex items-center gap-2 mb-4 border-b pb-2">
-                            <Icon icon={Building2} size={20} class="text-primary" />
-                            <h2 class="card-title text-base font-bold">Organization Profile</h2>
+                <div class="rounded-sm border border-stroke bg-white shadow-default">
+                    <div class="border-b border-stroke py-4 px-6.5">
+                        <h3 class="font-medium text-black flex items-center gap-2">
+                            <Icon icon={Building2} size={20} />
+                            Organization Profile
+                        </h3>
+                    </div>
+                    <div class="p-6.5">
+                        <div class="mb-4.5">
+                            <label class="mb-2.5 block text-black font-medium text-sm">SACCO Name</label>
+                            <input type="text" name="name" value={sacco?.name || ''} placeholder="Enter SACCO Name" class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary text-black" required />
+                        </div>
+                        
+                        <div class="mb-4.5 grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="mb-2.5 block text-black font-medium text-sm">Phone Number</label>
+                                <input type="tel" name="phone" value={sacco?.phone || ''} class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary text-black" />
+                            </div>
+                            <div>
+                                <label class="mb-2.5 block text-black font-medium text-sm">Email Address</label>
+                                <input type="email" name="email" value={sacco?.email || ''} class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary text-black" />
+                            </div>
                         </div>
 
-                        <div class="space-y-4">
-                            <div class="form-control w-full">
-                                <label class="label"><span class="label-text font-medium text-xs uppercase tracking-wider opacity-60">SACCO Name</span></label>
-                                <input type="text" name="name" value={sacco?.name || ''} class="input input-bordered w-full" required />
-                            </div>
-                            
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="form-control w-full">
-                                    <label class="label"><span class="label-text font-medium text-xs uppercase tracking-wider opacity-60">Phone Number</span></label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none opacity-40"><Icon icon={Phone} size={16} /></div>
-                                        <input type="tel" name="phone" value={sacco?.phone || ''} class="input input-bordered w-full pl-10" />
-                                    </div>
-                                </div>
-                                <div class="form-control w-full">
-                                    <label class="label"><span class="label-text font-medium text-xs uppercase tracking-wider opacity-60">Email Address</span></label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none opacity-40"><Icon icon={Mail} size={16} /></div>
-                                        <input type="email" name="email" value={sacco?.email || ''} class="input input-bordered w-full pl-10" />
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="mb-4.5">
+                            <label class="mb-2.5 block text-black font-medium text-sm">Physical Address</label>
+                            <input type="text" name="address" value={sacco?.address || ''} class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary text-black" />
+                        </div>
 
-                            <div class="form-control w-full">
-                                <label class="label"><span class="label-text font-medium text-xs uppercase tracking-wider opacity-60">Physical Address</span></label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none opacity-40"><Icon icon={MapPin} size={16} /></div>
-                                    <input type="text" name="address" value={sacco?.address || ''} class="input input-bordered w-full pl-10" />
-                                </div>
-                            </div>
-
-                            <div class="form-control w-full">
-                                <label class="label"><span class="label-text font-medium text-xs uppercase tracking-wider opacity-60">Registration Date</span></label>
-                                <input type="date" name="createdAt" value={sacco?.createdAt || ''} class="input input-bordered w-full" />
-                            </div>
+                        <div>
+                            <label class="mb-2.5 block text-black font-medium text-sm">Registration Date</label>
+                            <input type="date" name="createdAt" value={sacco?.createdAt || ''} class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary text-black" />
                         </div>
                     </div>
                 </div>
 
                 {/* Financial Policies */}
-                <div class="card bg-base-100 border border-base-200 shadow-sm">
-                    <div class="card-body">
-                        <div class="flex items-center gap-2 mb-4 border-b pb-2">
-                            <Icon icon={Banknote} size={20} class="text-secondary" />
-                            <h2 class="card-title text-base font-bold">Financial Policy</h2>
-                        </div>
-
-                        <div class="space-y-4">
-                            <div class="form-control w-full">
-                                <label class="label"><span class="label-text font-medium text-xs uppercase tracking-wider opacity-60">Operational Currency</span></label>
-                                <select name="currency" class="select select-bordered w-full">
+                <div class="rounded-sm border border-stroke bg-white shadow-default">
+                    <div class="border-b border-stroke py-4 px-6.5">
+                        <h3 class="font-medium text-black flex items-center gap-2">
+                            <Icon icon={Banknote} size={20} />
+                            Financial Policy
+                        </h3>
+                    </div>
+                    <div class="p-6.5">
+                        <div class="mb-4.5">
+                            <label class="mb-2.5 block text-black font-medium text-sm">Operational Currency</label>
+                            <div class="relative z-20 bg-transparent">
+                                <select name="currency" class="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary text-black">
                                     <option value="UGX" selected={sacco?.currency === 'UGX'}>UGX - Ugandan Shilling</option>
                                     <option value="USD" selected={sacco?.currency === 'USD'}>USD - US Dollar</option>
                                     <option value="KES" selected={sacco?.currency === 'KES'}>KES - Kenyan Shilling</option>
                                 </select>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="form-control w-full">
-                                    <label class="label"><span class="label-text font-medium text-xs uppercase tracking-wider opacity-60">Interest Rate (%)</span></label>
-                                    <div class="relative">
-                                        <input type="number" step="0.1" name="defaultInterestRate" value={sacco?.defaultInterestRate || 5.0} class="input input-bordered w-full pr-10" />
-                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none opacity-40"><Icon icon={Percent} size={16} /></div>
-                                    </div>
-                                </div>
-                                <div class="form-control w-full">
-                                    <label class="label"><span class="label-text font-medium text-xs uppercase tracking-wider opacity-60">Loan Duration (Months)</span></label>
-                                    <input type="number" name="defaultLoanDuration" value={sacco?.defaultLoanDuration || 6} class="input input-bordered w-full" />
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="form-control w-full">
-                                    <label class="label"><span class="label-text font-medium text-xs uppercase tracking-wider opacity-60">Share Price</span></label>
-                                    <input type="number" name="sharePrice" value={sacco?.sharePrice || 20000} class="input input-bordered w-full" />
-                                </div>
-                                <div class="form-control w-full">
-                                    <label class="label"><span class="label-text font-medium text-xs uppercase tracking-wider opacity-60">Registration Fee</span></label>
-                                    <input type="number" name="registrationFee" value={sacco?.registrationFee || 10000} class="input input-bordered w-full" />
-                                </div>
+                                <span class="absolute top-1/2 right-4 z-30 -translate-y-1/2">
+                                    <Icon icon={Percent} size={16} class="text-body" />
+                                </span>
                             </div>
                         </div>
 
-                        <div class="mt-auto pt-10">
-                            <div class="p-4 bg-info/5 rounded-lg border border-info/10 text-xs text-info leading-relaxed">
-                                <strong>Note:</strong> Policy changes will only apply to new records. Existing loans and transactions will remain unaffected.
+                        <div class="mb-4.5 grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="mb-2.5 block text-black font-medium text-sm">Interest Rate (%)</label>
+                                <input type="number" step="0.1" name="defaultInterestRate" value={sacco?.defaultInterestRate || 5.0} class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary text-black" />
                             </div>
+                            <div>
+                                <label class="mb-2.5 block text-black font-medium text-sm">Loan Duration (Mo)</label>
+                                <input type="number" name="defaultLoanDuration" value={sacco?.defaultLoanDuration || 6} class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary text-black" />
+                            </div>
+                        </div>
+
+                        <div class="mb-4.5 grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="mb-2.5 block text-black font-medium text-sm">Share Price</label>
+                                <input type="number" name="sharePrice" value={sacco?.sharePrice || 20000} class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary text-black" />
+                            </div>
+                            <div>
+                                <label class="mb-2.5 block text-black font-medium text-sm">Reg. Fee</label>
+                                <input type="number" name="registrationFee" value={sacco?.registrationFee || 10000} class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary text-black" />
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-primary/5 rounded-sm border border-primary/10 text-xs text-primary leading-relaxed mt-4">
+                            <strong>Note:</strong> Policy changes will only apply to new records. Existing loans and transactions will remain unaffected.
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="flex justify-end mt-4">
-                <button type="submit" class="btn btn-primary px-10 gap-2 shadow-lg">
-                    <Icon icon={Save} size={18} />
+            <div class="flex justify-end gap-4.5">
+                <button type="submit" class="flex justify-center rounded bg-primary py-2 px-6 font-medium text-white hover:bg-opacity-90 shadow-default">
                     Save All Settings
                 </button>
             </div>
@@ -125,13 +118,8 @@ export function SaccoForm({ sacco, success }) {
 
 export default function SaccoPage({ sacco }) {
   return (
-    <DashboardLayout title="Settings">
-       <div class="flex flex-col gap-8">
-        <div>
-            <h1 class="text-3xl font-bold tracking-tight">Settings</h1>
-            <p class="text-slate-500">Configure SACCO settings and parameters.</p>
-        </div>
-
+    <DashboardLayout title="System Settings">
+       <div class="flex flex-col gap-6">
         <SaccoForm sacco={sacco} />
       </div>
     </DashboardLayout>

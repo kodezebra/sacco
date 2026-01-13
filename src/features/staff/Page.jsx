@@ -1,6 +1,7 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import Badge from '../../components/Badge.jsx';
+import StatsCard from '../../components/StatsCard.jsx';
 import TableAction from '../../components/TableAction.jsx';
 import { UserPlus, Users, Building2, Briefcase, Lock, UserCheck, UserCog } from 'lucide';
 
@@ -14,137 +15,122 @@ export default function StaffPage({ staff = [], currentUser }) {
 
   return (
     <DashboardLayout title="Human Resources">
-       <div class="flex flex-col gap-8">
+       <div class="flex flex-col gap-6">
         {/* HR Stats */}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="stats shadow border border-base-200">
-            <div class="stat">
-              <div class="stat-figure text-primary">
-                <Icon icon={Users} size={32} />
-              </div>
-              <div class="stat-title text-[10px] font-bold uppercase tracking-widest text-slate-400">Total Employees</div>
-              <div class="stat-value text-primary">{staff.length}</div>
-            </div>
-          </div>
-          
-          <div class="stats shadow border border-base-200">
-             <div class="stat">
-              <div class="stat-figure text-secondary">
-                <Icon icon={Building2} size={32} />
-              </div>
-              <div class="stat-title text-[10px] font-bold uppercase tracking-widest text-slate-400">Monthly Payroll</div>
-              <div class="stat-value text-secondary text-2xl">{totalPayroll.toLocaleString()}</div>
-              <div class="stat-desc font-medium text-slate-500">Total salary obligations</div>
-            </div>
-          </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          <StatsCard 
+            label="Total Employees" 
+            value={staff.length} 
+            icon={Users} 
+            colorClass="text-primary" 
+          />
+          <StatsCard 
+            label="Monthly Payroll" 
+            value={totalPayroll.toLocaleString()} 
+            icon={Building2} 
+            colorClass="text-secondary" 
+            subtitle="UGX total obligations"
+          />
         </div>
 
         {/* Staff Table Card */}
-        <div class="rounded-sm border border-slate-200 bg-white shadow-sm">
+        <div class="rounded-sm border border-stroke bg-white shadow-default">
           {/* Card Header */}
-          <div class="flex flex-col gap-4 border-b border-slate-100 px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex flex-col gap-4 border-b border-stroke px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 class="text-xl font-bold text-black">Staff Directory</h3>
-              <p class="text-sm font-medium text-slate-500 mt-1">Manage employees across all business units.</p>
             </div>
             
             {canManageHR && (
               <button 
-                class="inline-flex items-center gap-2 rounded-md bg-primary px-6 py-2 text-sm font-medium text-white hover:bg-opacity-90 shadow-md"
+                class="inline-flex items-center gap-2 rounded-sm bg-primary px-6 py-2 text-sm font-medium text-white hover:bg-opacity-90 shadow-default"
                 hx-get="/dashboard/staff/new"
                 hx-target="#htmx-modal-content"
                 hx-swap="innerHTML"
                 onClick="document.getElementById('htmx-modal').showModal()"
               >
                 <Icon icon={UserPlus} size={20} />
-                New
+                Add Staff
               </button>
             )}
           </div>
 
-          <div class="overflow-x-auto">
-             <table class="table w-full">
-               <thead class="bg-slate-50">
-                 <tr>
-                   <th class="py-4 px-4 text-sm font-bold text-black uppercase">Name / Role</th>
-                   <th class="py-4 px-4 text-sm font-bold text-black uppercase">Business Unit</th>
-                   <th class="py-4 px-4 text-sm font-bold text-black uppercase">Status</th>
-                   <th class="py-4 px-4 text-right text-sm font-bold text-black uppercase">Salary (UGX)</th>
+          <div class="max-w-full overflow-x-auto">
+             <table class="w-full table-auto">
+               <thead>
+                 <tr class="bg-gray-2 text-left">
+                   <th class="min-w-[220px] py-4 px-4 font-bold text-black text-sm uppercase">Employee</th>
+                   <th class="min-w-[150px] py-4 px-4 font-bold text-black text-sm uppercase">Business Unit</th>
+                   <th class="min-w-[120px] py-4 px-4 font-bold text-black text-sm uppercase">Status</th>
+                   <th class="py-4 px-4 text-right font-bold text-black text-sm uppercase">Salary</th>
                    <th class="py-4 px-4"></th>
                  </tr>
                </thead>
                <tbody>
                  {staff.length === 0 ? (
-                   <tr><td colspan="5" class="text-center py-12 text-slate-400">No staff found. Hire someone to get started.</td></tr>
-                 ) : staff.map(s => (
-                   <tr key={s.id} class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                     <td class="py-4 px-4">
-                       <div class="flex items-center gap-3">
-                         <div>
-                           <div class="font-bold flex items-center gap-2 text-black">
-                             {s.fullName}
-                             {s.hasAccount && (
-                               <Badge type="secondary" title="Has Login Access" size="xs">
-                                 <Icon icon={UserCheck} size={10} />
-                               </Badge>
-                             )}
-                           </div>
-                           <div class="text-xs opacity-60 flex items-center gap-1 text-black">
-                             <Icon icon={Briefcase} size={12} />
-                             {s.role}
-                           </div>
-                         </div>
-                       </div>
+                   <tr><td colspan="5" class="text-center py-10 text-body italic">No staff found in directory.</td></tr>
+                 ) : staff.map((s) => (
+                   <tr key={s.id} class="border-b border-stroke hover:bg-whiten transition-colors">
+                     <td class="py-5 px-4">
+                        <div class="flex items-center gap-2">
+                           <h5 class="font-medium text-black">{s.fullName}</h5>
+                           {s.hasAccount && (
+                             <Badge type="secondary" size="xs">
+                               <Icon icon={UserCheck} size={10} />
+                             </Badge>
+                           )}
+                        </div>
+                        <p class="text-xs text-body flex items-center gap-1 mt-0.5">
+                           <Icon icon={Briefcase} size={12} />
+                           {s.role}
+                        </p>
                      </td>
-                     <td class="py-4 px-4">
-                       <Badge type="ghost" className="gap-2">
-                         <Icon icon={Building2} size={12} />
+                     <td class="py-5 px-4">
+                       <Badge type="ghost">
                          {s.unitName}
                        </Badge>
                      </td>
-                     <td class="py-4 px-4">
+                     <td class="py-5 px-4">
                        <Badge type={s.status === 'active' ? 'success' : 'ghost'}>
                          {s.status}
                        </Badge>
                      </td>
-                     <td class="py-4 px-4 text-right font-mono font-bold text-black">
-                       {s.salary?.toLocaleString()}
+                     <td class="py-5 px-4 text-right">
+                        <p class="text-sm font-bold text-black">{s.salary?.toLocaleString()} <span class="text-xs text-body font-normal">UGX</span></p>
                      </td>
-                     <td class="py-4 px-4 text-right">
-                       <div class="flex items-center justify-end gap-2">
-                            {/* User Access Controls (Admins Only) */}
+                     <td class="py-5 px-4">
+                       <div class="flex items-center justify-end space-x-3.5">
+                            {/* User Access Controls */}
                             {canManageAuth && !s.hasAccount && (
                               <TableAction 
-                                label="Access"
                                 icon={Lock}
                                 hx-get={`/dashboard/staff/${s.id}/user`}
                                 hx-target="#htmx-modal-content"
                                 hx-swap="innerHTML"
                                 onClick={() => document.getElementById('htmx-modal').showModal()}
-                                title="Create Login Account"
+                                title="Grant Access"
                               />
                             )}
                             {canManageAuth && s.hasAccount && (
                               <TableAction 
-                                label="Auth"
                                 icon={UserCog}
                                 hx-get={`/dashboard/staff/${s.id}/user/edit`}
                                 hx-target="#htmx-modal-content"
                                 hx-swap="innerHTML"
                                 onClick={() => document.getElementById('htmx-modal').showModal()}
-                                title="Manage User Account"
+                                title="Manage Auth"
                               />
                             )}
                             
-                            {/* HR Controls (Managers & Admins) */}
+                            {/* HR Controls */}
                             {canManageHR && (
                               <TableAction 
-                                label="Edit"
                                 icon={UserCog}
                                 hx-get={`/dashboard/staff/${s.id}/edit`}
                                 hx-target="#htmx-modal-content"
                                 hx-swap="innerHTML"
                                 onClick={() => document.getElementById('htmx-modal').showModal()}
+                                title="Edit Record"
                               />
                             )}
                        </div>

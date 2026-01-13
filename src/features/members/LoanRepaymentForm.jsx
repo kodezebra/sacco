@@ -7,17 +7,14 @@ export default function LoanRepaymentForm({ memberId, loan, totalPaid = 0 }) {
   const outstanding = totalDue - totalPaid;
   
   return (
-    <div class="p-0">
-      <div class="bg-success p-8 text-success-content flex justify-between items-start">
-        <div>
-          <h2 class="text-2xl font-black flex items-center gap-3">
-            <Icon icon={Banknote} size={28} />
-            Loan Repayment
-          </h2>
-          <p class="text-success-content/70 text-sm mt-1 font-medium">Record a payment towards an outstanding loan balance</p>
-        </div>
+    <div class="rounded-sm border border-stroke bg-white shadow-default">
+      <div class="border-b border-stroke py-4 px-6.5 flex justify-between items-center">
+        <h3 class="font-medium text-black flex items-center gap-2">
+           <Icon icon={Banknote} size={20} />
+           Loan Repayment
+        </h3>
         <form method="dialog">
-          <button class="btn btn-circle btn-ghost btn-sm text-success-content">
+          <button class="hover:text-primary">
              <Icon icon={X} size={20} />
           </button>
         </form>
@@ -27,70 +24,68 @@ export default function LoanRepaymentForm({ memberId, loan, totalPaid = 0 }) {
         hx-post={`/dashboard/members/${memberId}/loans/${loan.id}/pay`}
         hx-target="#htmx-modal-content"
         hx-swap="innerHTML"
-        class="p-8 flex flex-col gap-6"
+        class="flex flex-col gap-5.5 p-6.5"
       >
-        <div class="card bg-slate-50 border border-slate-200 shadow-inner overflow-hidden">
-           <div class="p-4 bg-slate-100/50 border-b border-slate-200 flex justify-between items-center">
-              <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Loan Reference</span>
-              <span class="text-xs font-mono font-black text-slate-600">#{loan.id.substring(0,8).toUpperCase()}</span>
+        <div class="rounded-sm border border-stroke bg-gray-2 shadow-inner overflow-hidden">
+           <div class="px-4.5 py-3 border-b border-stroke flex justify-between items-center bg-whiten">
+              <span class="text-xs font-bold uppercase tracking-widest text-body">Loan Reference</span>
+              <span class="text-xs font-mono font-black text-black">#{loan.id.substring(0,8).toUpperCase()}</span>
            </div>
-           <div class="p-4 space-y-2">
+           <div class="p-4.5 space-y-2">
               <div class="flex justify-between text-sm">
-                 <span class="text-slate-500">Total Contract Value</span>
-                 <span class="font-bold text-slate-700">{totalDue.toLocaleString()} UGX</span>
+                 <span class="text-body">Total Contract Value</span>
+                 <span class="font-bold text-black">{totalDue.toLocaleString()} UGX</span>
               </div>
               <div class="flex justify-between text-sm">
-                 <span class="text-slate-500">Total Paid to Date</span>
+                 <span class="text-body">Total Paid to Date</span>
                  <span class="font-bold text-success">-{totalPaid.toLocaleString()} UGX</span>
               </div>
-              <div class="divider my-1 opacity-50"></div>
-              <div class="flex justify-between">
-                 <span class="text-xs font-black uppercase tracking-tighter text-slate-400">Remaining Balance</span>
+              <div class="my-2 border-t border-stroke border-dashed"></div>
+              <div class="flex justify-between items-center">
+                 <span class="text-xs font-bold uppercase tracking-widest text-body">Remaining</span>
                  <span class="text-lg font-black text-error">{outstanding.toLocaleString()} UGX</span>
               </div>
            </div>
         </div>
 
-        <div class="form-control w-full">
-          <label class="label pt-0">
-            <span class="label-text text-[10px] font-bold uppercase tracking-widest text-slate-400">Payment Amount (UGX)</span>
-          </label>
+        <div>
+          <label class="mb-3 block text-black font-medium text-sm">Payment Amount</label>
           <div class="relative">
             <input 
               type="number" 
               name="amount" 
               placeholder="0" 
-              class="input input-bordered focus:input-success w-full text-lg font-black" 
+              class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-bold outline-none transition focus:border-success active:border-success disabled:cursor-default disabled:bg-whiter text-black text-lg" 
               required 
               max={outstanding}
               autofocus
             />
-            <div class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 font-bold text-xs uppercase">UGX</div>
+            <span class="absolute right-4.5 top-3.5 text-sm font-bold text-body">UGX</span>
           </div>
         </div>
 
-        <div class="form-control w-full">
-          <label class="label pt-0">
-            <span class="label-text text-[10px] font-bold uppercase tracking-widest text-slate-400">Payment Date</span>
-          </label>
+        <div>
+          <label class="mb-3 block text-black font-medium text-sm">Payment Date</label>
           <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-              <Icon icon={Calendar} size={16} />
-            </div>
             <input 
               type="date" 
               name="date" 
               value={new Date().toISOString().split('T')[0]} 
-              class="input input-bordered focus:input-success w-full pl-12 font-mono" 
+              class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 pl-12 font-medium outline-none transition focus:border-success active:border-success disabled:cursor-default disabled:bg-whiter text-black" 
               required 
             />
+            <span class="absolute left-4.5 top-3.5">
+                <Icon icon={Calendar} size={20} class="text-body" />
+            </span>
           </div>
         </div>
 
-        <div class="modal-action mt-4 border-t border-slate-100 pt-6">
-          <button type="button" class="btn btn-ghost px-8" onClick="document.getElementById('htmx-modal').close()">Cancel</button>
-          <button type="submit" class="btn btn-success px-10 rounded-xl shadow-lg shadow-success/20 text-white font-black">
-            Pay
+        <div class="flex justify-end gap-4.5 mt-2">
+          <button type="button" class="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 hover:text-primary" onClick="document.getElementById('htmx-modal').close()">
+              Cancel
+          </button>
+          <button type="submit" class="flex justify-center rounded bg-success py-2 px-6 font-medium text-white hover:bg-opacity-90 shadow-default">
+            Confirm Payment
           </button>
         </div>
       </form>

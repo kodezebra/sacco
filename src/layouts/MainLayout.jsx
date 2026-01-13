@@ -21,7 +21,7 @@ export default function MainLayout({ title = "kzApp", children }) {
           });
         `}}></script>
       </head>
-      <body class="min-h-screen bg-base-100 font-sans text-slate-900">
+      <body class="min-h-screen bg-whiten font-sans text-body">
         {children}
       </body>
     </html>

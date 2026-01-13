@@ -55,13 +55,13 @@ export function Pagination({ page, totalPages, search }) {
   if (totalPages <= 1) return null;
 
   return (
-    <div class="flex justify-between items-center p-6 border-t border-slate-100 bg-slate-50/30">
-      <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+    <div class="flex justify-between items-center p-6 border-t border-stroke bg-gray-2">
+      <div class="text-[10px] font-bold text-bodydark2 uppercase tracking-widest">
         Page {page} of {totalPages}
       </div>
-      <div class="join shadow-sm border border-slate-200 overflow-hidden rounded-xl">
+      <div class="join border border-stroke overflow-hidden rounded-sm">
         <button 
-          class="join-item btn btn-xs h-10 px-4 bg-base-100 hover:bg-base-200 border-none" 
+          class="join-item btn btn-xs h-9 px-4 bg-white hover:bg-gray-2 text-black border-none" 
           disabled={page <= 1}
           hx-get={`/dashboard/members?page=${page - 1}&search=${search}`}
           hx-target="#members-list-container"
@@ -70,7 +70,7 @@ export function Pagination({ page, totalPages, search }) {
           <Icon icon={ChevronLeft} size={16} />
         </button>
         <button 
-          class="join-item btn btn-xs h-10 px-4 bg-base-100 hover:bg-base-200 border-none"
+          class="join-item btn btn-xs h-9 px-4 bg-white hover:bg-gray-2 text-black border-none"
           disabled={page >= totalPages}
           hx-get={`/dashboard/members?page=${page + 1}&search=${search}`}
           hx-target="#members-list-container"
@@ -85,24 +85,23 @@ export function Pagination({ page, totalPages, search }) {
 
 export function MembersList({ members = [], page = 1, totalPages = 1, search = "", stats }) {
   return (
-    <div id="members-list-container" class="rounded-sm border border-slate-200 bg-white shadow-sm">
+    <div id="members-list-container" class="rounded-sm border border-stroke bg-white shadow-default">
       {/* Card Header */}
-      <div class="flex flex-col gap-4 border-b border-slate-100 px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex flex-col gap-4 border-b border-stroke px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 class="text-xl font-bold text-black">Member Directory</h3>
-          <p class="text-sm font-medium text-slate-500 mt-1">Manage KYC profiles and financial accounts.</p>
         </div>
         
         <div class="flex flex-wrap items-center gap-3">
           <div class="relative">
-            <button class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+            <button class="absolute left-3 top-1/2 -translate-y-1/2 text-bodydark2">
               <Icon icon={Search} size={18} />
             </button>
             <input 
               type="search" 
               name="search"
               placeholder="Search members..." 
-              class="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pl-10 pr-4 text-sm font-medium text-black focus:border-primary focus:outline-none xl:w-72"
+              class="w-full rounded-sm border border-stroke bg-whiten py-2 pl-10 pr-4 text-sm font-medium text-black focus:border-primary focus:outline-none xl:w-72"
               value={search}
               hx-get="/dashboard/members"
               hx-trigger="keyup changed delay:500ms, search"
@@ -114,41 +113,75 @@ export function MembersList({ members = [], page = 1, totalPages = 1, search = "
             <input type="hidden" name="page" value="1" />
           </div>
 
-          <a href="/dashboard/members/export" class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:text-primary hover:border-primary" download>
+          <a href="/dashboard/members/export" class="inline-flex items-center gap-2 rounded-sm border border-stroke bg-white px-4 py-2 text-sm font-medium text-black hover:text-primary hover:border-primary" download>
             <Icon icon={FileSpreadsheet} size={18} />
             <span class="hidden lg:inline">Export</span>
           </a>
 
           <button 
-            class="inline-flex items-center gap-2 rounded-md bg-primary px-6 py-2 text-sm font-medium text-white hover:bg-opacity-90 shadow-md"
+            class="inline-flex items-center gap-2 rounded-sm bg-primary px-6 py-2 text-sm font-medium text-white hover:bg-opacity-90 shadow-default"
             hx-get="/dashboard/members/new"
             hx-target="#htmx-modal-content"
             hx-swap="innerHTML"
             onClick="document.getElementById('htmx-modal').showModal()"
           >
             <Icon icon={UserPlus} size={18} />
-            New
+            Add Member
           </button>
         </div>
       </div>
 
-      <div class="overflow-x-auto">
-        <table class="table w-full">
-          <thead class="bg-slate-50">
-            <tr>
-              <th class="py-4 px-4 text-sm font-bold text-black uppercase">Member Profile</th>
-              <th class="py-4 px-4 text-sm font-bold text-black uppercase">Contact</th>
-              <th class="py-4 px-4 text-center text-sm font-bold text-black uppercase">Account Status</th>
-              <th class="py-4 px-4 text-sm font-bold text-black uppercase">Joined Date</th>
-              <th class="py-4 px-4 text-right text-sm font-bold text-black uppercase">Quick Actions</th>
+      <div class="max-w-full overflow-x-auto">
+        <table class="w-full table-auto">
+          <thead>
+            <tr class="bg-gray-2 text-left">
+              <th class="min-w-[220px] py-4 px-4 font-bold text-black text-sm uppercase">Member</th>
+              <th class="min-w-[150px] py-4 px-4 font-bold text-black text-sm uppercase">Contact</th>
+              <th class="min-w-[120px] py-4 px-4 font-bold text-black text-sm uppercase">Status</th>
+              <th class="py-4 px-4 font-bold text-black text-sm uppercase">Joined</th>
+              <th class="py-4 px-4 text-right font-bold text-black text-sm uppercase">Actions</th>
             </tr>
           </thead>
           <tbody id="members-table-body">
             {members.length > 0 ? (
-              members.map((member) => <MemberRow key={member.id} member={member} />)
+              members.map((member) => (
+                <tr key={member.id} class="border-b border-stroke">
+                  <td class="py-5 px-4">
+                    <h5 class="font-medium text-black">{member.fullName}</h5>
+                    <p class="text-xs font-bold text-bodydark2 uppercase tracking-widest">{member.memberNumber}</p>
+                  </td>
+                  <td class="py-5 px-4">
+                    <p class="text-sm text-black">{member.phone}</p>
+                  </td>
+                  <td class="py-5 px-4">
+                    <Badge type={member.status === 'active' ? 'success' : 'error'}>
+                      {member.status}
+                    </Badge>
+                  </td>
+                  <td class="py-5 px-4">
+                    <p class="text-sm text-black">{member.createdAt}</p>
+                  </td>
+                  <td class="py-5 px-4">
+                    <div class="flex items-center justify-end space-x-3.5">
+                      <TableAction 
+                        href={`/dashboard/members/${member.id}`} 
+                        icon={Eye} 
+                      />
+                      <TableAction 
+                        variant="danger"
+                        icon={Trash2}
+                        hx-delete={`/dashboard/members/${member.id}`}
+                        hx-target="closest tr"
+                        hx-swap="outerHTML"
+                        hx-confirm={`Are you sure?`}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ))
             ) : (
               <tr>
-                <td colspan="5" class="text-center py-20 text-slate-400 italic">
+                <td colspan="5" class="text-center py-20 text-body italic">
                   No members found in directory
                 </td>
               </tr>
@@ -160,6 +193,7 @@ export function MembersList({ members = [], page = 1, totalPages = 1, search = "
     </div>
   );
 }
+
 
 // Export MemberRow for individual row updates if needed
 export { MembersList as MembersTable }; 

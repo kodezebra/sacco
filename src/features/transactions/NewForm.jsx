@@ -1,19 +1,16 @@
 import Icon from '../../components/Icon.jsx';
-import { ArrowRightLeft, X, Building2, Tag } from 'lucide';
+import { ArrowRightLeft, X, Building2 } from 'lucide';
 
 export default function NewTransactionForm({ associations = [], selectedId = '', initialType = '' }) {
   return (
-    <div class="p-0" id="transaction-form-container">
-      <div class="bg-base-200 p-8 flex justify-between items-start">
-        <div>
-          <h2 class="text-2xl font-bold flex items-center gap-2">
-            <Icon icon={ArrowRightLeft} size={24} />
-            Record Transaction
-          </h2>
-          <p class="text-base-content/70 text-sm mt-1">Log income or expense for a business unit</p>
-        </div>
+    <div class="rounded-sm border border-stroke bg-white shadow-default" id="transaction-form-container">
+      <div class="border-b border-stroke py-4 px-6.5 flex justify-between items-center">
+        <h3 class="font-medium text-black flex items-center gap-2">
+           <Icon icon={ArrowRightLeft} size={20} />
+           Record Transaction
+        </h3>
         <form method="dialog">
-          <button class="btn btn-circle btn-ghost btn-sm">
+          <button class="hover:text-primary">
              <Icon icon={X} size={20} />
           </button>
         </form>
@@ -23,76 +20,68 @@ export default function NewTransactionForm({ associations = [], selectedId = '',
         hx-post="/dashboard/transactions" 
         hx-target="#transaction-form-container"
         hx-swap="outerHTML"
-        class="p-8 flex flex-col gap-6"
+        class="flex flex-col gap-5.5 p-6.5"
       >
         {/* Transaction Type Selection */}
         <div class="grid grid-cols-2 gap-4">
-          <label class="cursor-pointer label border border-base-300 rounded-lg p-4 has-[:checked]:border-success has-[:checked]:bg-success/10 transition-all">
-            <span class="label-text font-bold text-success flex items-center gap-2">
-               INCOME (+)
-            </span>
+          <label class="relative flex cursor-pointer select-none items-center gap-2 rounded border border-stroke p-3 hover:bg-whiten">
             <input 
               type="radio" 
               name="type" 
               value="income" 
-              class="radio radio-success" 
+              class="h-5 w-5 border-stroke accent-success" 
               required 
-              checked={initialType === 'income'}
+              defaultChecked={initialType === 'income'}
             />
+            <span class="text-sm font-bold text-success">INCOME (+)</span>
           </label>
           
-          <label class="cursor-pointer label border border-base-300 rounded-lg p-4 has-[:checked]:border-error has-[:checked]:bg-error/10 transition-all">
-            <span class="label-text font-bold text-error flex items-center gap-2">
-               EXPENSE (-)
-            </span>
+          <label class="relative flex cursor-pointer select-none items-center gap-2 rounded border border-stroke p-3 hover:bg-whiten">
             <input 
               type="radio" 
               name="type" 
               value="expense" 
-              class="radio radio-error" 
+              class="h-5 w-5 border-stroke accent-error" 
               required 
-              checked={initialType === 'expense'}
+              defaultChecked={initialType === 'expense'}
             />
+            <span class="text-sm font-bold text-error">EXPENSE (-)</span>
           </label>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="form-control w-full">
-            <label class="label">
-              <span class="label-text font-bold uppercase tracking-wider text-xs">Amount (UGX)</span>
-            </label>
+          <div>
+            <label class="mb-3 block text-black font-medium text-sm">Amount (UGX)</label>
             <input 
               type="number" 
               name="amount" 
               placeholder="0" 
-              class="input input-bordered focus:input-primary w-full text-lg font-mono" 
+              class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-bold outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter text-black" 
               required 
               min="0"
             />
           </div>
 
-          <div class="form-control w-full">
-            <label class="label">
-              <span class="label-text font-bold uppercase tracking-wider text-xs">Business Unit</span>
-            </label>
-            <div class="input-group">
-               <span><Icon icon={Building2} size={16} /></span>
-               <select name="associationId" class="select select-bordered focus:select-primary w-full" required>
+          <div>
+            <label class="mb-3 block text-black font-medium text-sm">Business Unit</label>
+            <div class="relative z-20 bg-transparent">
+               <select name="associationId" class="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 pl-11 outline-none transition focus:border-primary active:border-primary text-black" required>
                  <option value="" disabled selected={!selectedId}>Select Unit...</option>
                  {associations.map(assoc => (
                    <option key={assoc.id} value={assoc.id} selected={assoc.id === selectedId}>{assoc.name}</option>
                  ))}
                </select>
+               <span class="absolute left-4 top-1/2 z-30 -translate-y-1/2">
+                  <Icon icon={Building2} size={18} class="text-body" />
+               </span>
             </div>
           </div>
         </div>
 
-        <div class="form-control w-full">
-            <label class="label">
-              <span class="label-text font-bold uppercase tracking-wider text-xs">Category / Description</span>
-            </label>
-            <div class="join w-full">
-               <select name="category" class="select select-bordered join-item w-1/3">
+        <div>
+            <label class="mb-3 block text-black font-medium text-sm">Category / Description</label>
+            <div class="flex">
+               <select name="category" class="rounded-l border-[1.5px] border-stroke bg-transparent py-3 px-4 outline-none focus:border-primary active:border-primary text-black text-sm border-r-0">
                  <option>Sales</option>
                  <option>Service Fee</option>
                  <option>Supplies</option>
@@ -106,7 +95,7 @@ export default function NewTransactionForm({ associations = [], selectedId = '',
                   type="text" 
                   name="description" 
                   placeholder="Details (e.g. Sold 50 trays of eggs)" 
-                  class="input input-bordered join-item w-2/3" 
+                  class="w-full rounded-r border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary text-black" 
                   required
                />
             </div>
@@ -115,16 +104,16 @@ export default function NewTransactionForm({ associations = [], selectedId = '',
         <input type="hidden" name="date" value={new Date().toISOString().split('T')[0]} />
         <input type="hidden" name="is_htmx" value="true" />
 
-        <div class="flex justify-end gap-3 mt-4">
+        <div class="flex justify-end gap-4.5 mt-2">
           <button 
             type="button" 
-            class="btn btn-ghost" 
-            onClick="document.getElementById('htmx-modal').close()"
+            class="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 hover:text-primary" 
+            onClick={() => document.getElementById('htmx-modal').close()}
           >
-            Done
+            Cancel
           </button>
-          <button type="submit" class="btn btn-neutral px-8">
-            Save & Add Another
+          <button type="submit" class="flex justify-center rounded bg-secondary py-2 px-6 font-medium text-white hover:bg-opacity-90 shadow-default">
+            Save Entry
           </button>
         </div>
       </form>

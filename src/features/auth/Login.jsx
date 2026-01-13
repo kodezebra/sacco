@@ -5,72 +5,70 @@ import { Lock, User, ArrowRight, AlertCircle } from 'lucide';
 export default function LoginPage({ error }) {
   return (
     <MainLayout title="Sign In">
-      <div class="min-h-screen flex items-center justify-center bg-base-200/50 p-6 selection:bg-primary/10 selection:text-primary">
+      <div class="min-h-screen flex items-center justify-center bg-whiten p-6">
         <div class="w-full max-w-md">
           {/* Logo / Brand */}
           <div class="text-center mb-10">
-            <a href="/" class="inline-flex items-center gap-2 text-3xl font-black tracking-tighter text-slate-900 mb-2">
-              <div class="w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
-                <span class="text-2xl">kz</span>
+            <a href="/" class="inline-flex items-center gap-2 text-3xl font-black tracking-tighter text-black mb-2">
+              <div class="w-12 h-12 rounded-sm bg-primary flex items-center justify-center text-white shadow-default">
+                <span class="text-2xl font-black">S</span>
               </div>
-              <span>App</span>
+              <span>SACCO<span class="text-primary">Admin</span></span>
             </a>
-            <p class="text-slate-500 font-medium">Administrator Access Portal</p>
+            <p class="text-body font-medium">Administrator Access Portal</p>
           </div>
 
-          <div class="card fintech-card overflow-hidden">
+          <div class="rounded-sm border border-stroke bg-white shadow-default overflow-hidden">
             {error && (
-              <div class="bg-error/10 border-b border-error/20 p-4 flex items-center gap-3 text-error text-sm font-bold">
+              <div class="bg-red-50 border-b border-red-100 p-4 flex items-center gap-3 text-red-500 text-sm font-bold">
                 <Icon icon={AlertCircle} size={18} />
                 {error}
               </div>
             )}
             
-            <div class="card-body p-10">
-              <h2 class="text-2xl font-black mb-2">Welcome Back</h2>
-              <p class="text-sm text-slate-400 mb-8 font-medium">Please enter your credentials to continue.</p>
+            <div class="p-8 sm:p-11">
+              <h2 class="text-2xl font-bold text-black mb-1.5">Welcome Back</h2>
+              <p class="text-sm text-body mb-8 font-medium">Please enter your credentials to continue.</p>
 
-              <form action="/auth/login" method="post" class="space-y-6">
-                <div class="form-control">
-                  <label class="label">
-                    <span class="label-text font-bold text-slate-500 uppercase text-[10px] tracking-widest">Email or Phone</span>
-                  </label>
+              <form action="/auth/login" method="post" class="space-y-5.5">
+                <div>
+                  <label class="mb-2.5 block font-bold text-black uppercase text-[11px] tracking-widest">Email or Phone</label>
                   <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                      <Icon icon={User} size={18} />
-                    </div>
                     <input 
                       type="text" 
                       name="identifier"
                       placeholder="e.g. 0703625588" 
-                      class="input input-lg bg-slate-50 border-slate-200 w-full pl-12 focus:bg-white rounded-2xl text-sm" 
+                      class="w-full rounded-sm border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none" 
                       required 
                       autofocus
                     />
+                    <span class="absolute right-4 top-4 text-bodydark2">
+                       <Icon icon={User} size={22} />
+                    </span>
                   </div>
                 </div>
 
-                <div class="form-control">
-                  <div class="flex justify-between items-center mb-1 px-1">
-                    <label class="label-text font-bold text-slate-500 uppercase text-[10px] tracking-widest">Password</label>
-                    <a href="/contact" class="text-[10px] font-bold text-primary hover:underline uppercase tracking-widest">Help?</a>
+                <div>
+                  <div class="flex justify-between items-center mb-2.5">
+                    <label class="block font-bold text-black uppercase text-[11px] tracking-widest">Password</label>
+                    <a href="/contact" class="text-[11px] font-bold text-primary hover:underline uppercase tracking-widest">Help?</a>
                   </div>
                   <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                      <Icon icon={Lock} size={18} />
-                    </div>
                     <input 
                       type="password" 
                       name="password"
                       placeholder="••••••••" 
-                      class="input input-lg bg-slate-50 border-slate-200 w-full pl-12 focus:bg-white rounded-2xl text-sm" 
+                      class="w-full rounded-sm border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none" 
                       required 
                     />
+                    <span class="absolute right-4 top-4 text-bodydark2">
+                       <Icon icon={Lock} size={22} />
+                    </span>
                   </div>
                 </div>
 
-                <div class="pt-4">
-                  <button class="btn btn-primary btn-lg w-full rounded-2xl h-16 text-lg gap-3 shadow-xl shadow-primary/20">
+                <div class="pt-2">
+                  <button class="flex w-full justify-center rounded-sm bg-primary p-3 font-bold text-white hover:bg-opacity-90 transition-all gap-3 shadow-default">
                     Sign In
                     <Icon icon={ArrowRight} size={20} />
                   </button>
@@ -80,9 +78,9 @@ export default function LoginPage({ error }) {
           </div>
 
           <div class="mt-8 text-center">
-             <p class="text-xs text-slate-400 font-medium">
+             <p class="text-xs text-body font-medium">
                Authorized personnel only. For tech support, contact <br />
-               <a href="mailto:kodezebra@gmail.com" class="text-primary hover:underline">kodezebra@gmail.com</a>
+               <a href="mailto:support@saccoadmin.com" class="text-primary hover:underline">support@saccoadmin.com</a>
              </p>
           </div>
         </div>
@@ -90,3 +88,4 @@ export default function LoginPage({ error }) {
     </MainLayout>
   );
 }
+
