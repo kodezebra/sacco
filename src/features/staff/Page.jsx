@@ -3,7 +3,7 @@ import Icon from '../../components/Icon.jsx';
 import Badge from '../../components/Badge.jsx';
 import StatsCard from '../../components/StatsCard.jsx';
 import TableAction from '../../components/TableAction.jsx';
-import { UserPlus, Users, Building2, Briefcase, Lock, UserCheck, UserCog } from 'lucide';
+import { UserPlus, Users, Building2, Briefcase, Lock, UserCheck, UserCog, ShieldCheck } from 'lucide';
 
 export default function StaffPage({ staff = [], currentUser }) {
   const totalPayroll = staff.reduce((sum, s) => sum + (s.salary || 0), 0);
@@ -42,16 +42,15 @@ export default function StaffPage({ staff = [], currentUser }) {
             </div>
             
             {canManageHR && (
-              <button 
-                class="inline-flex items-center gap-2 rounded-sm bg-primary px-6 py-2 text-sm font-medium text-white hover:bg-opacity-90 shadow-default"
-                hx-get="/dashboard/staff/new"
-                hx-target="#htmx-modal-content"
-                hx-swap="innerHTML"
-                onClick="document.getElementById('htmx-modal').showModal()"
-              >
-                <Icon icon={UserPlus} size={20} />
-                Add Staff
-              </button>
+              <div class="flex items-center gap-3">
+                <a 
+                  href="/dashboard/staff/bulk"
+                  class="inline-flex items-center gap-2 rounded-sm bg-primary px-6 py-2 text-sm font-medium text-white hover:bg-opacity-90 shadow-default"
+                >
+                  <Icon icon={Users} size={20} />
+                  Bulk Hire
+                </a>
+              </div>
             )}
           </div>
 
@@ -100,37 +99,30 @@ export default function StaffPage({ staff = [], currentUser }) {
                      </td>
                      <td class="py-5 px-4">
                        <div class="flex items-center justify-end space-x-3.5">
-                            {/* User Access Controls */}
+                            {/* User Access Controls (Security Context) */}
                             {canManageAuth && !s.hasAccount && (
                               <TableAction 
                                 icon={Lock}
-                                hx-get={`/dashboard/staff/${s.id}/user`}
-                                hx-target="#htmx-modal-content"
-                                hx-swap="innerHTML"
-                                onClick={() => document.getElementById('htmx-modal').showModal()}
+                                href={`/dashboard/staff/${s.id}/user`}
+                                className="!bg-neutral !text-white !border-neutral hover:!bg-opacity-90"
                                 title="Grant Access"
                               />
                             )}
                             {canManageAuth && s.hasAccount && (
                               <TableAction 
-                                icon={UserCog}
-                                hx-get={`/dashboard/staff/${s.id}/user/edit`}
-                                hx-target="#htmx-modal-content"
-                                hx-swap="innerHTML"
-                                onClick={() => document.getElementById('htmx-modal').showModal()}
-                                title="Manage Auth"
+                                icon={ShieldCheck}
+                                href={`/dashboard/staff/${s.id}/user/edit`}
+                                className="!bg-neutral !text-white !border-neutral hover:!bg-opacity-90"
+                                title="Security"
                               />
                             )}
                             
-                            {/* HR Controls */}
+                            {/* HR Controls (Employment Context) */}
                             {canManageHR && (
                               <TableAction 
                                 icon={UserCog}
-                                hx-get={`/dashboard/staff/${s.id}/edit`}
-                                hx-target="#htmx-modal-content"
-                                hx-swap="innerHTML"
-                                onClick={() => document.getElementById('htmx-modal').showModal()}
-                                title="Edit Record"
+                                href={`/dashboard/staff/${s.id}/edit`}
+                                title="Edit Profile"
                               />
                             )}
                        </div>

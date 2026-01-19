@@ -1,7 +1,8 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import TableAction from '../../components/TableAction.jsx';
-import { Search, Filter, Eye, ChevronLeft, ChevronRight } from 'lucide';
+import StatsCard from '../../components/StatsCard.jsx';
+import { Search, Filter, Eye, ChevronLeft, ChevronRight, PieChart, Users, TrendingUp, Plus } from 'lucide';
 
 export function Pagination({ page, totalPages, search }) {
   if (totalPages <= 1) return null;
@@ -69,6 +70,14 @@ export function SharesList({ shares = [], page = 1, totalPages = 1, search = "" 
             <Icon icon={Filter} size={16} />
             Filter
           </button>
+          
+          <a 
+            href="/dashboard/shares/new"
+            class="inline-flex items-center gap-2 rounded-sm bg-primary px-6 py-2 text-sm font-medium text-white hover:bg-opacity-90 shadow-default"
+          >
+            <Icon icon={Plus} size={20} />
+            New Purchase
+          </a>
         </div>
       </div>
 
@@ -120,10 +129,32 @@ export function SharesList({ shares = [], page = 1, totalPages = 1, search = "" 
   );
 }
 
-export default function SharesPage({ shares = [], page = 1, totalPages = 1, search = "" }) {
+export default function SharesPage({ shares = [], page = 1, totalPages = 1, search = "", stats = {} }) {
   return (
     <DashboardLayout title="Shares Ledger">
        <div class="flex flex-col gap-6">
+          {/* Stats Grid */}
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            <StatsCard 
+              label="Total Share Capital" 
+              value={(stats.totalCapital || 0).toLocaleString() + " UGX"} 
+              icon={PieChart} 
+              colorClass="text-primary" 
+            />
+            <StatsCard 
+              label="Total Shareholders" 
+              value={stats.totalShareholders || 0} 
+              icon={Users} 
+              colorClass="text-secondary" 
+            />
+            <StatsCard 
+              label="Share Price" 
+              value={(stats.sharePrice || 0).toLocaleString() + " UGX"} 
+              icon={TrendingUp} 
+              colorClass="text-success" 
+            />
+          </div>
+
           <SharesList shares={shares} page={page} totalPages={totalPages} search={search} />
        </div>
     </DashboardLayout>

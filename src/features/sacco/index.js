@@ -38,6 +38,7 @@ app.put('/', async (c) => {
     defaultLoanDuration: parseInt(body.defaultLoanDuration || '6'),
     sharePrice: parseInt(body.sharePrice || '0'),
     registrationFee: parseInt(body.registrationFee || '0'),
+    loanMultiplier: parseFloat(body.loanMultiplier || '3.0'),
     createdAt: body.createdAt
   };
 

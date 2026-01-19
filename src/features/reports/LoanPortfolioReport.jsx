@@ -1,6 +1,7 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
-import { ArrowLeft, Printer, FileSpreadsheet, Banknote } from 'lucide';
+import Badge from '../../components/Badge.jsx';
+import { ArrowLeft, Printer, FileSpreadsheet, Banknote, Users, History, TrendingUp } from 'lucide';
 
 export default function LoanPortfolioReport({ data = [] }) {
   const totalPrincipal = data.reduce((sum, l) => sum + l.principal, 0);
@@ -8,100 +9,111 @@ export default function LoanPortfolioReport({ data = [] }) {
 
   return (
     <DashboardLayout title="Active Loans Report">
-      <div class="flex flex-col gap-8">
+      <div class="flex flex-col gap-8 max-w-screen-2xl mx-auto">
         
         {/* Report Header */}
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 no-print">
           <div class="flex items-center gap-4">
-            <a href="/dashboard/reports" class="btn btn-ghost btn-circle"><Icon icon={ArrowLeft} size={24} /></a>
+            <a href="/dashboard/reports" class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black hover:bg-opacity-90 shadow-default transition-all">
+                <Icon icon={ArrowLeft} size={20} />
+            </a>
             <div>
-              <h1 class="text-3xl font-bold tracking-tight">Active Loan Portfolio</h1>
-              <p class="text-slate-500">Full detailed breakdown of all outstanding loans.</p>
+              <h2 class="text-2xl font-black text-black uppercase tracking-tight">Loan Portfolio Analytics</h2>
+              <p class="text-sm text-body font-medium">Risk exposure and outstanding credit performance.</p>
             </div>
           </div>
-          <div class="flex gap-2">
-            <button class="btn btn-outline btn-sm gap-2" onClick="window.print()">
-              <Icon icon={Printer} size={16} /> Print
-            </button>
-            <button class="btn btn-primary btn-sm gap-2">
-              <Icon icon={FileSpreadsheet} size={16} /> Export CSV
+          <div class="flex gap-3">
+            <button class="inline-flex items-center justify-center gap-2.5 rounded-sm border border-stroke bg-white py-2 px-6 text-center font-bold text-black hover:border-primary hover:text-primary transition-all uppercase tracking-widest text-xs" onClick="window.print()">
+                <Icon icon={Printer} size={16} /> Print
             </button>
           </div>
         </div>
 
         {/* Print-only Header */}
-        <div class="hidden print:block text-center mb-8">
-           <h1 class="text-2xl font-bold uppercase">Active Loan Portfolio Report</h1>
-           <p class="text-sm">Generated on: {new Date().toLocaleString()}</p>
-           <div class="divider"></div>
+        <div class="hidden print:block text-center mb-8 border-b-2 border-black pb-6">
+           <h1 class="text-3xl font-black uppercase tracking-tighter">Report: Active Loan Portfolio</h1>
+           <p class="text-[10px] font-bold text-body mt-2 tracking-widest uppercase tracking-widest">Date Generated: {new Date().toLocaleString()}</p>
         </div>
 
         {/* Summary Stats */}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-           <div class="stats shadow border border-base-200 bg-base-100">
-              <div class="stat">
-                <div class="stat-title">Total Active Principal</div>
-                <div class="stat-value text-primary">{totalPrincipal.toLocaleString()} UGX</div>
-                <div class="stat-desc">Original borrowed amount</div>
+           <div class="rounded-sm border border-stroke bg-white p-6 shadow-default">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Total Principal</span>
+                <div class="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                    <Icon icon={Banknote} size={16} />
+                </div>
               </div>
+              <h3 class="text-2xl font-black text-black font-mono">{totalPrincipal.toLocaleString()} <span class="text-xs">UGX</span></h3>
+              <p class="text-[10px] text-body mt-2 font-bold uppercase tracking-tighter">Aggregate original debt</p>
            </div>
-           <div class="stats shadow border border-base-200 bg-base-100">
-              <div class="stat">
-                <div class="stat-title">Total Outstanding Balance</div>
-                <div class="stat-value text-secondary">{totalBalance.toLocaleString()} UGX</div>
-                <div class="stat-desc">Including remaining interest</div>
+
+           <div class="rounded-sm border border-stroke bg-white p-6 shadow-default border-l-4 border-l-secondary">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Outstanding Exposure</span>
+                <div class="h-8 w-8 rounded-full bg-secondary/10 text-secondary flex items-center justify-center">
+                    <Icon icon={TrendingUp} size={16} />
+                </div>
               </div>
+              <h3 class="text-2xl font-black text-secondary font-mono">{totalBalance.toLocaleString()} <span class="text-xs">UGX</span></h3>
+              <p class="text-[10px] text-body mt-2 font-bold uppercase tracking-tighter">Remaining principle + interest</p>
            </div>
         </div>
 
         {/* Data Table */}
-        <div class="card bg-base-100 border border-base-200 shadow-sm">
-          <div class="overflow-x-auto">
-            <table class="table table-sm table-zebra w-full">
-              <thead class="bg-base-200">
-                <tr>
-                  <th>Member</th>
-                  <th class="text-right">Principal</th>
-                  <th class="text-right">Interest</th>
-                  <th class="text-right">Total Due</th>
-                  <th class="text-right">Total Paid</th>
-                  <th class="text-right bg-base-300">Balance</th>
-                  <th>Issued</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.map((loan) => (
-                  <tr key={loan.id}>
-                    <td>
-                      <div class="font-bold">{loan.memberName}</div>
-                      <div class="text-[10px] opacity-50">{loan.memberNumber}</div>
-                    </td>
-                    <td class="text-right">{loan.principal.toLocaleString()}</td>
-                    <td class="text-right">{loan.interestRate}%</td>
-                    <td class="text-right">{loan.totalDue.toLocaleString()}</td>
-                    <td class="text-right text-success">{loan.totalPaid.toLocaleString()}</td>
-                    <td class="text-right font-bold bg-base-200/50">{loan.balance.toLocaleString()}</td>
-                    <td class="text-xs opacity-60">{loan.issuedDate}</td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot class="bg-base-200 font-bold">
-                <tr>
-                  <td>TOTALS</td>
-                  <td class="text-right">{totalPrincipal.toLocaleString()}</td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td class="text-right">{totalBalance.toLocaleString()}</td>
-                  <td></td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
+        <div class="rounded-sm border border-stroke bg-white shadow-default overflow-hidden">
+            <div class="bg-gray-2/50 py-4 px-6 border-b border-stroke flex justify-between items-center">
+                <h4 class="font-black text-black text-xs uppercase tracking-widest">Active Credit Facilities</h4>
+                <Badge type="ghost" size="xs">{data.length} RECIPIENTS</Badge>
+            </div>
+            <div class="max-w-full overflow-x-auto">
+                <table class="w-full table-auto">
+                    <thead>
+                        <tr class="bg-slate-50 text-left border-b border-stroke">
+                            <th class="py-4 px-6 font-black text-black uppercase text-[10px] tracking-widest">Member Portfolio</th>
+                            <th class="py-4 px-6 text-right font-black text-black uppercase text-[10px] tracking-widest">Principal</th>
+                            <th class="py-4 px-6 text-right font-black text-black uppercase text-[10px] tracking-widest">Due (Total)</th>
+                            <th class="py-4 px-6 text-right font-black text-black uppercase text-[10px] tracking-widest">Settled</th>
+                            <th class="py-4 px-6 text-right font-black text-black uppercase text-[10px] tracking-widest bg-gray-2/50">Current Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {data.map((loan) => (
+                        <tr key={loan.id} class="border-b border-stroke hover:bg-whiten transition-colors group">
+                            <td class="py-5 px-6">
+                                <div class="font-black text-black text-sm">{loan.memberName}</div>
+                                <div class="text-[10px] font-bold text-body uppercase tracking-tighter mt-0.5">{loan.memberNumber} • {loan.issuedDate}</div>
+                            </td>
+                            <td class="py-5 px-6 text-right font-mono font-black text-xs text-body opacity-70">
+                                {loan.principal.toLocaleString()}
+                            </td>
+                            <td class="py-5 px-6 text-right font-mono font-black text-xs text-black">
+                                {loan.totalDue.toLocaleString()}
+                            </td>
+                            <td class="py-5 px-6 text-right font-mono font-black text-xs text-success">
+                                {loan.totalPaid.toLocaleString()}
+                            </td>
+                            <td class="py-5 px-6 text-right font-mono font-black text-sm text-black bg-gray-2/30">
+                                {loan.balance.toLocaleString()}
+                            </td>
+                        </tr>
+                        ))}
+                    </tbody>
+                    <tfoot class="bg-gray-2/50 font-black">
+                        <tr>
+                            <td class="py-6 px-6 text-[10px] uppercase tracking-[0.2em] text-black">Aggregate Totals</td>
+                            <td class="py-6 px-6 text-right text-sm font-mono">{totalPrincipal.toLocaleString()}</td>
+                            <td></td>
+                            <td></td>
+                            <td class="py-6 px-6 text-right text-sm font-mono text-primary">{totalBalance.toLocaleString()}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
         </div>
 
-        <div class="hidden print:block mt-20 border-t pt-4 text-center text-xs opacity-50">
-           End of Active Loan Portfolio Report • SACCO Management System
+        <div class="hidden print:block mt-20 border-t border-stroke pt-6 text-center">
+           <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">End of Portfolio Audit • CONFIDENTIAL</p>
         </div>
       </div>
     </DashboardLayout>

@@ -89,7 +89,7 @@ export function SaccoForm({ sacco, success }) {
                             </div>
                         </div>
 
-                        <div class="mb-4.5 grid grid-cols-2 gap-4">
+                        <div class="mb-4.5 grid grid-cols-3 gap-4">
                             <div>
                                 <label class="mb-2.5 block text-black font-medium text-sm">Share Price</label>
                                 <input type="number" name="sharePrice" value={sacco?.sharePrice || 20000} class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary text-black" />
@@ -97,6 +97,10 @@ export function SaccoForm({ sacco, success }) {
                             <div>
                                 <label class="mb-2.5 block text-black font-medium text-sm">Reg. Fee</label>
                                 <input type="number" name="registrationFee" value={sacco?.registrationFee || 10000} class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary text-black" />
+                            </div>
+                            <div>
+                                <label class="mb-2.5 block text-black font-medium text-sm">Loan Multiplier</label>
+                                <input type="number" step="0.1" name="loanMultiplier" value={sacco?.loanMultiplier || 3.0} class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary text-black" />
                             </div>
                         </div>
 

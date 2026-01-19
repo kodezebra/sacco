@@ -1,7 +1,7 @@
 import { 
   Users, Banknote, ArrowRightLeft, PieChart, Wallet,
   Settings, PanelLeft, LayoutDashboard, FileText, Layers, Briefcase, LogOut,
-  Bell, ChevronDown, User, Menu
+  Bell, ChevronDown, User, Menu, X, ArrowRight
 } from 'lucide';
 import Icon from '../components/Icon.jsx';
 import MainLayout from './MainLayout.jsx';
@@ -9,22 +9,22 @@ import MainLayout from './MainLayout.jsx';
 export default function DashboardLayout({ title, children, currentUser }) {
   const menuSections = [
     {
-      label: "MENU",
+      label: "SACCO",
       items: [
         { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
         { label: "Members", href: "/dashboard/members", icon: Users },
+        { label: "Shares & Capital", href: "/dashboard/shares", icon: PieChart },
+        { label: "Savings Accounts", href: "/dashboard/savings", icon: Wallet },
+        { label: "Loans", href: "/dashboard/loans", icon: Banknote },
         { label: "Staff / HR", href: "/dashboard/staff", icon: Briefcase },
         { label: "Payroll", href: "/dashboard/payroll", icon: Wallet },
-        { label: "Associations", href: "/dashboard/associations", icon: Layers },
       ]
     },
     {
-      label: "FINANCE",
+      label: "ASSOCIATIONS",
       items: [
-        { label: "Transactions", href: "/dashboard/transactions", icon: ArrowRightLeft },
-        { label: "Savings", href: "/dashboard/savings", icon: Wallet },
-        { label: "Shares", href: "/dashboard/shares", icon: PieChart },
-        { label: "Loans", href: "/dashboard/loans", icon: Banknote },
+        { label: "Projects & Units", href: "/dashboard/associations", icon: Layers },
+        { label: "Transaction Journal", href: "/dashboard/transactions", icon: ArrowRightLeft },
       ]
     },
     {
@@ -86,11 +86,8 @@ export default function DashboardLayout({ title, children, currentUser }) {
 
           {/* Main Content */}
           <main class="w-full max-w-screen-2xl p-4 md:p-6 2xl:p-10 mx-auto">
-             {/* Breadcrumb / Title Area */}
-             <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <h2 class="text-2xl font-bold text-black">
-                   {title}
-                </h2>
+             {/* Breadcrumb Area (Header removed for minimalist style) */}
+             <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
                 <nav>
                    <ol class="flex items-center gap-2 text-sm font-medium text-body">
                       <li><a class="hover:text-primary" href="/dashboard">Dashboard</a></li>
@@ -106,40 +103,46 @@ export default function DashboardLayout({ title, children, currentUser }) {
           <div id="htmx-toast-container" class="toast toast-top toast-end z-50"></div>
           
            {/* Scripts */}
-           <script>
-            {`
-            document.addEventListener('htmx:afterSwap', function (evt) {
-              const hxTrigger = evt.detail.xhr.getResponseHeader('HX-Trigger');
-              if (hxTrigger) {
-                const triggers = JSON.parse(hxTrigger);
-
-                // Handle showMessage (toast)
-                if (triggers.showMessage) {
-                  const { message, type } = triggers.showMessage;
-                  const toastContainer = document.getElementById('htmx-toast-container');
-                  if (toastContainer) {
-                    const alertClass = type === 'success' ? 'bg-success' : 'bg-error';
-                    const toast = document.createElement('div');
-                    toast.className = 'alert ' + alertClass + ' text-sm font-bold shadow-default rounded-sm text-white border-none py-3 px-6';
-                    toast.innerHTML = '<span>' + message + '</span>';
-                    toastContainer.appendChild(toast);
-                    setTimeout(() => toast.remove(), 5000); 
-                  }
-                }
-
-                // Handle refreshList
-                if (triggers.refreshList || triggers.memberUpdated || triggers.refreshTransactions) {
-                  window.location.reload(); 
-                }
-
-                // Handle closeModal
-                if (triggers.closeModal) {
-                  const modal = document.getElementById('htmx-modal');
-                  if (modal) {
-                    modal.close();
-                  }
-                }
+           <script dangerouslySetInnerHTML={{ __html: `
+            // Handle showMessage event (triggered via HX-Trigger header)
+            document.body.addEventListener('showMessage', function(evt) {
+              const { message, type } = evt.detail;
+              const toastContainer = document.getElementById('htmx-toast-container');
+              if (toastContainer) {
+                const alertClass = type === 'success' ? 'bg-success' : 'bg-error';
+                const toast = document.createElement('div');
+                toast.className = 'alert ' + alertClass + ' text-sm font-bold shadow-default rounded-sm text-white border-none py-3 px-6 z-[9999]';
+                toast.innerHTML = '<span>' + message + '</span>';
+                toastContainer.appendChild(toast);
+                setTimeout(() => toast.remove(), 5000);
               }
+            });
+
+            // Handle openModal event
+            document.body.addEventListener('openModal', function() {
+               const modal = document.getElementById('htmx-modal');
+               if (modal) modal.classList.add('modal-open');
+            });
+
+            // Handle closeModal event
+            document.body.addEventListener('closeModal', function() {
+              console.log("Event: closing modal...");
+              const modal = document.getElementById('htmx-modal');
+              if (modal) {
+                modal.classList.remove('modal-open');
+                // Optional: Clear content to ensure clean state for next open
+                setTimeout(() => {
+                    const content = document.getElementById('htmx-modal-content');
+                    if (content) content.innerHTML = '';
+                }, 200);
+              }
+            });
+
+            // Handle refresh events
+            ['refreshList', 'memberUpdated', 'refreshTransactions'].forEach(event => {
+              document.body.addEventListener(event, function() {
+                window.location.reload();
+              });
             });
 
             // Sidebar Active Link Highlight
@@ -153,14 +156,13 @@ export default function DashboardLayout({ title, children, currentUser }) {
                 }
               });
             });
-            `}
-          </script>
+            ` }} />
         </div>
 
         {/* Sidebar */}
         <div class="drawer-side z-40">
           <label for="dashboard-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-          <div class="flex min-h-full flex-col justify-between bg-secondary w-64 duration-300 ease-linear">
+          <div class="flex min-h-full flex-col justify-between bg-neutral w-64 duration-300 ease-linear">
              
              {/* Sidebar Header */}
              <div class="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5 h-16 shrink-0 border-b border-boxdark">
@@ -209,15 +211,52 @@ export default function DashboardLayout({ title, children, currentUser }) {
         </div>
       </div>
 
-      {/* Generic Modal */}
-      <dialog id="htmx-modal" class="modal">
-        <div id="htmx-modal-content" class="modal-box p-0 rounded-sm bg-white shadow-default max-w-2xl border-none">
-          {/* Content */}
+      {/* Modal Styles inspired by user example */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        .modal-overlay {
+            visibility: hidden;
+            opacity: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(2px);
+            transition: all 0.3s ease-in-out;
+        }
+        .modal.modal-open {
+            visibility: visible;
+            opacity: 1;
+            display: flex !important;
+        }
+        #htmx-toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .toast-item {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .toast-hide {
+            animation: slideOut 0.3s ease-in forwards;
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+      ` }} />
+
+      {/* Generic Modal (Optimized for reliability) */}
+      <div id="htmx-modal" class="modal modal-overlay items-center justify-center fixed inset-0 z-[999]">
+        <div class="modal-box p-0 rounded-sm bg-white shadow-default max-w-2xl border-none relative z-[1000]">
+           <div id="htmx-modal-content"></div>
         </div>
-        <form method="dialog" class="modal-backdrop bg-black/50 backdrop-blur-sm">
-          <button>close</button>
-        </form>
-      </dialog>
+        <div class="fixed inset-0 w-full h-full cursor-pointer" onclick="document.getElementById('htmx-modal').classList.remove('modal-open')"></div>
+      </div>
     </MainLayout>
   );
 }

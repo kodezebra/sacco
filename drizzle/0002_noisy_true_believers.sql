@@ -1,0 +1,1 @@
+ALTER TABLE `sacco` ADD `loan_multiplier` integer DEFAULT 2;

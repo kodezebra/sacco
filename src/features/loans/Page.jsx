@@ -2,7 +2,12 @@ import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import Badge from '../../components/Badge.jsx';
 import TableAction from '../../components/TableAction.jsx';
-import { Search, Filter, Banknote, Eye, ChevronLeft, ChevronRight } from 'lucide';
+import StatsCard from '../../components/StatsCard.jsx';
+import { 
+  Search, Filter, Banknote, Eye, 
+  ChevronLeft, ChevronRight, Plus, 
+  TrendingUp, Users 
+} from 'lucide';
 
 export function Pagination({ page, totalPages, search }) {
   if (totalPages <= 1) return null;
@@ -54,7 +59,7 @@ export function LoansList({ loans = [], page = 1, totalPages = 1, search = "" })
               type="search" 
               name="search"
               placeholder="Search loans..." 
-              class="w-full rounded-sm border border-stroke bg-whiten py-2 pl-10 pr-4 text-sm font-medium text-black focus:border-primary focus:outline-none xl:w-72"
+              class="w-full rounded-sm border border-stroke bg-whiten py-2 pl-10 pr-4 text-sm font-medium text-black focus:border-primary focus:outline-none xl:w-64"
               value={search}
               hx-get="/dashboard/loans"
               hx-trigger="keyup changed delay:500ms, search"
@@ -70,6 +75,14 @@ export function LoansList({ loans = [], page = 1, totalPages = 1, search = "" })
             <Icon icon={Filter} size={16} />
             Filter
           </button>
+
+          <a 
+            href="/dashboard/loans/new"
+            class="inline-flex items-center gap-2 rounded-sm bg-primary px-6 py-2 text-sm font-medium text-white hover:bg-opacity-90 shadow-default"
+          >
+            <Icon icon={Plus} size={20} />
+            Issue Loan
+          </a>
         </div>
       </div>
 
@@ -119,7 +132,7 @@ export function LoansList({ loans = [], page = 1, totalPages = 1, search = "" })
                           hx-get={`/dashboard/members/${loan.memberId}/loans/${loan.id}/pay`}
                           hx-target="#htmx-modal-content"
                           hx-swap="innerHTML"
-                          onClick={() => document.getElementById('htmx-modal').showModal()}
+                          onclick="document.getElementById('htmx-modal').classList.add('modal-open')"
                           title="Repayment"
                         />
                       )}
@@ -141,13 +154,31 @@ export function LoansList({ loans = [], page = 1, totalPages = 1, search = "" })
   );
 }
 
-// Export for backward compat if needed (though we updated usage)
-export { LoansList as LoansTable };
-
-export default function LoansPage({ loans = [], page = 1, totalPages = 1, search = "" }) {
+export default function LoansPage({ loans = [], page = 1, totalPages = 1, search = "", stats = {} }) {
   return (
     <DashboardLayout title="Loans Portfolio">
        <div class="flex flex-col gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            <StatsCard 
+              label="Active Portfolio" 
+              value={(stats.activePrincipal || 0).toLocaleString() + " UGX"} 
+              icon={Banknote} 
+              colorClass="text-primary" 
+            />
+            <StatsCard 
+              label="Active Loans" 
+              value={stats.activeCount || 0} 
+              icon={Users} 
+              colorClass="text-secondary" 
+            />
+            <StatsCard 
+              label="Interest Performance" 
+              value={(stats.totalLoans || 0) + " issued"} 
+              icon={TrendingUp} 
+              colorClass="text-success" 
+            />
+          </div>
+
           <LoansList loans={loans} page={page} totalPages={totalPages} search={search} />
        </div>
     </DashboardLayout>

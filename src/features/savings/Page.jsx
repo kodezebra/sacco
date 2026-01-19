@@ -2,7 +2,12 @@ import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import Badge from '../../components/Badge.jsx';
 import TableAction from '../../components/TableAction.jsx';
-import { Search, Eye, ChevronLeft, ChevronRight, ArrowDownLeft, ArrowUpRight } from 'lucide';
+import StatsCard from '../../components/StatsCard.jsx';
+import { 
+  Search, Eye, ChevronLeft, ChevronRight, 
+  ArrowDownLeft, ArrowUpRight, Wallet, TrendingUp, 
+  Plus, Minus 
+} from 'lucide';
 
 export function Pagination({ page, totalPages, search }) {
   if (totalPages <= 1) return null;
@@ -54,7 +59,7 @@ export function SavingsList({ savings = [], page = 1, totalPages = 1, search = "
               type="search" 
               name="search"
               placeholder="Search by member..." 
-              class="w-full rounded-sm border border-stroke bg-whiten py-2 pl-10 pr-4 text-sm font-medium text-black focus:border-primary focus:outline-none xl:w-72"
+              class="w-full rounded-sm border border-stroke bg-whiten py-2 pl-10 pr-4 text-sm font-medium text-black focus:border-primary focus:outline-none xl:w-64"
               value={search}
               hx-get="/dashboard/savings"
               hx-trigger="keyup changed delay:500ms, search"
@@ -64,6 +69,23 @@ export function SavingsList({ savings = [], page = 1, totalPages = 1, search = "
               hx-include="[name='page']"
             />
             <input type="hidden" name="page" value="1" />
+          </div>
+
+          <div class="flex items-center gap-2">
+            <a 
+              href="/dashboard/savings/new?type=deposit"
+              class="inline-flex items-center gap-2 rounded-sm bg-success px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90 shadow-default"
+            >
+              <Icon icon={Plus} size={18} />
+              Deposit
+            </a>
+            <a 
+              href="/dashboard/savings/new?type=withdrawal"
+              class="inline-flex items-center gap-2 rounded-sm bg-error px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90 shadow-default"
+            >
+              <Icon icon={Minus} size={18} />
+              Withdraw
+            </a>
           </div>
         </div>
       </div>
@@ -123,10 +145,31 @@ export function SavingsList({ savings = [], page = 1, totalPages = 1, search = "
   );
 }
 
-export default function SavingsPage({ savings = [], page = 1, totalPages = 1, search = "" }) {
+export default function SavingsPage({ savings = [], page = 1, totalPages = 1, search = "", stats = {} }) {
   return (
     <DashboardLayout title="Savings">
        <div class="flex flex-col gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            <StatsCard 
+              label="Total Savings Balance" 
+              value={(stats.totalBalance || 0).toLocaleString() + " UGX"} 
+              icon={Wallet} 
+              colorClass="text-primary" 
+            />
+            <StatsCard 
+              label="Total Deposits" 
+              value={(stats.totalDeposits || 0).toLocaleString() + " UGX"} 
+              icon={TrendingUp} 
+              colorClass="text-success" 
+            />
+            <StatsCard 
+              label="Total Withdrawals" 
+              value={(stats.totalWithdrawals || 0).toLocaleString() + " UGX"} 
+              icon={ArrowUpRight} 
+              colorClass="text-error" 
+            />
+          </div>
+
           <SavingsList savings={savings} page={page} totalPages={totalPages} search={search} />
        </div>
     </DashboardLayout>

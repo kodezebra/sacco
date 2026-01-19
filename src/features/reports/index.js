@@ -1,10 +1,11 @@
 import { Hono } from 'hono';
 import { eq, desc, sql, like, or } from 'drizzle-orm';
-import { loans, members, loanPayments, shares, savings, transactions } from '../../db/schema';
+import { loans, members, loanPayments, shares, savings, transactions, associations, staff } from '../../db/schema';
 import ReportsPage, { MemberSearchList } from './Page';
 import LoanPortfolioReport from './LoanPortfolioReport';
 import MemberStatement from './MemberStatement';
 import CashFlowReport from './CashFlowReport';
+import ProjectReport from './ProjectReport';
 import { roleGuard } from '../auth/middleware';
 
 const app = new Hono();
@@ -14,6 +15,8 @@ app.get('/', roleGuard(['super_admin', 'admin', 'manager', 'auditor']), async (c
   const db = c.get('db');
   const search = c.req.query('search') || '';
   
+  const allAssociations = await db.select().from(associations).execute();
+
   let searchedMembers = [];
   if (search) {
     searchedMembers = await db.select()
@@ -27,7 +30,59 @@ app.get('/', roleGuard(['super_admin', 'admin', 'manager', 'auditor']), async (c
     return c.html(<MemberSearchList members={searchedMembers} />);
   }
 
-  return c.html(<ReportsPage searchedMembers={searchedMembers} search={search} />);
+  return c.html(<ReportsPage searchedMembers={searchedMembers} search={search} associations={allAssociations} />);
+});
+
+// GET /projects/:id ... Business Unit Detailed Performance
+app.get('/projects/:id', roleGuard(['super_admin', 'admin', 'manager', 'auditor']), async (c) => {
+  const db = c.get('db');
+  const id = c.req.param('id');
+
+  const assoc = await db.select().from(associations).where(eq(associations.id, id)).get();
+  if (!assoc) return c.text('Association not found', 404);
+
+  const txs = await db.select()
+    .from(transactions)
+    .where(eq(transactions.associationId, id))
+    .orderBy(desc(transactions.date))
+    .execute();
+
+  // Aggregate by Category
+  const categoryMap = {};
+  let totalIncome = 0;
+  let totalExpense = 0;
+
+  txs.forEach(t => {
+    if (!categoryMap[t.category]) {
+      categoryMap[t.category] = { name: t.category, type: t.type, amount: 0, count: 0 };
+    }
+    categoryMap[t.category].amount += t.amount;
+    categoryMap[t.category].count += 1;
+    
+    if (t.type === 'income') totalIncome += t.amount;
+    else totalExpense += t.amount;
+  });
+
+  const staffRes = await db.select({ count: sql`count(*)` })
+    .from(staff)
+    .where(eq(staff.associationId, id))
+    .execute();
+
+  const stats = {
+    totalIncome,
+    totalExpense,
+    netProfit: totalIncome - totalExpense,
+    txCount: txs.length
+  };
+
+  return c.html(
+    <ProjectReport 
+      association={assoc} 
+      stats={stats} 
+      categories={Object.values(categoryMap)}
+      staffCount={staffRes[0].count || 0}
+    />
+  );
 });
 
 // GET /cash-flow ... Cash Flow Statement

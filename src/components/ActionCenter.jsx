@@ -6,25 +6,24 @@ import { Plus, Users, ArrowRightLeft, Banknote } from 'lucide';
  */
 export default function ActionCenter() {
   const actions = [
-    { label: "Register Member", icon: Users, href: "/dashboard/members/new", isModal: true },
-    { label: "New Transaction", icon: ArrowRightLeft, href: "/dashboard/transactions/new", isModal: true },
-    { label: "Issue Loan", icon: Banknote, href: "/dashboard/loans", isModal: false },
+    { label: "Register Member", icon: Users, href: "/dashboard/members/new" },
+    { label: "Record Transaction", icon: ArrowRightLeft, href: "/dashboard/transactions/new" },
+    { label: "Issue New Loan", icon: Banknote, href: "/dashboard/loans/new" },
   ];
 
   return (
-    <div class="flex flex-wrap items-center gap-3">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {actions.map((action, i) => (
-        <button
-          key={i}
-          class="flex items-center gap-2.5 rounded-sm border border-stroke bg-white px-4 py-2 font-medium text-black shadow-default hover:text-primary hover:border-primary transition-all duration-300"
-          hx-get={action.isModal ? action.href : undefined}
-          hx-target={action.isModal ? "#htmx-modal-content" : undefined}
-          hx-swap={action.isModal ? "innerHTML" : undefined}
-          onClick={action.isModal ? () => document.getElementById('htmx-modal').showModal() : () => window.location.href = action.href}
-        >
-          <Icon icon={action.icon} size={18} />
-          <span class="text-xs font-bold uppercase tracking-tight">{action.label}</span>
-        </button>
+          <a
+            key={i}
+            href={action.href}
+            class="flex flex-col items-center justify-center p-6 rounded-sm border border-stroke bg-gray-2 hover:bg-white hover:border-primary hover:text-primary hover:shadow-default transition-all group gap-3"
+          >
+            <div class="h-12 w-12 rounded-full bg-white flex items-center justify-center border border-stroke group-hover:border-primary transition-colors">
+                <Icon icon={action.icon} size={24} />
+            </div>
+            <span class="text-xs font-black uppercase tracking-widest">{action.label}</span>
+          </a>
       ))}
     </div>
   );

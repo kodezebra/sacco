@@ -6,9 +6,12 @@ export const createMemberSchema = z.object({
   address: z.string().optional(),
   nextOfKinName: z.string().optional(),
   nextOfKinPhone: z.string().optional(),
+  createdAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)").optional(),
 });
 
-export const updateMemberSchema = createMemberSchema;
+export const updateMemberSchema = createMemberSchema.extend({
+  status: z.enum(['active', 'inactive']).optional(),
+});
 
 export const memberTransactionSchema = z.object({
   amount: z.coerce.number().min(1, "Amount must be greater than 0"),

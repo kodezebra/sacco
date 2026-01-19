@@ -27,6 +27,7 @@ export const sacco = sqliteTable("sacco", {
   
   sharePrice: integer("share_price").default(20000),
   registrationFee: integer("registration_fee").default(10000),
+  loanMultiplier: integer("loan_multiplier").default(2),
 
   createdAt: text("created_at").notNull(),
 });

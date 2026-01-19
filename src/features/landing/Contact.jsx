@@ -25,20 +25,24 @@ export default function ContactPage({ sacco }) {
                   </h2>
                   <p class="text-slate-400 mt-2">Submit your inquiry and we'll get back to you within 24 hours.</p>
                </div>
-               <div class="p-10">
+               <form 
+                  hx-post="/contact" 
+                  hx-swap="outerHTML"
+                  class="p-10"
+               >
                   <div class="grid md:grid-cols-2 gap-8 mb-8">
                     <div class="form-control w-full">
                       <label class="label">
                         <span class="label-text font-bold text-slate-500 uppercase text-[10px] tracking-widest">Full Name</span>
                       </label>
-                      <input type="text" placeholder="John Doe" class="input input-lg bg-slate-50 border-slate-200 w-full focus:bg-white rounded-2xl" />
+                      <input type="text" name="fullName" placeholder="John Doe" class="input input-lg bg-slate-50 border-slate-200 w-full focus:bg-white rounded-2xl" required />
                     </div>
                     
                     <div class="form-control w-full">
                       <label class="label">
                         <span class="label-text font-bold text-slate-500 uppercase text-[10px] tracking-widest">Email Address</span>
                       </label>
-                      <input type="email" placeholder="john@example.com" class="input input-lg bg-slate-50 border-slate-200 w-full focus:bg-white rounded-2xl" />
+                      <input type="email" name="email" placeholder="john@example.com" class="input input-lg bg-slate-50 border-slate-200 w-full focus:bg-white rounded-2xl" required />
                     </div>
                   </div>
 
@@ -46,14 +50,14 @@ export default function ContactPage({ sacco }) {
                     <label class="label">
                       <span class="label-text font-bold text-slate-500 uppercase text-[10px] tracking-widest">Your Inquiry</span>
                     </label>
-                    <textarea class="textarea textarea-lg bg-slate-50 border-slate-200 h-48 w-full focus:bg-white rounded-2xl" placeholder="How can we assist you today?"></textarea>
+                    <textarea name="message" class="textarea textarea-lg bg-slate-50 border-slate-200 h-48 w-full focus:bg-white rounded-2xl" placeholder="How can we assist you today?" required></textarea>
                   </div>
 
-                  <button class="btn btn-primary btn-lg w-full rounded-2xl h-16 text-lg gap-3 shadow-xl shadow-primary/20">
-                    <Icon icon={Send} size={20} />
+                  <button type="submit" class="btn btn-primary btn-lg w-full rounded-2xl h-16 text-lg gap-3 shadow-xl shadow-primary/20 group">
+                    <Icon icon={Send} size={20} class="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                     Submit Inquiry
                   </button>
-               </div>
+               </form>
             </div>
 
             {/* Support Info */}

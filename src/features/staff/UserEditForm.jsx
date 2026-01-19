@@ -1,118 +1,144 @@
+import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
-import { UserCog, X, Lock, Shield, Mail, Trash2, Save } from 'lucide';
+import { UserCog, X, Lock, Shield, Mail, Trash2, Save, ArrowLeft } from 'lucide';
 
-export default function UserEditForm({ staff, user }) {
+export default function ManageAccessPage({ staff, user }) {
   return (
-    <div class="p-0">
-      <div class="bg-base-200 p-8 text-base-content flex justify-between items-start">
-        <div>
-          <h2 class="text-2xl font-bold flex items-center gap-2">
-            <Icon icon={UserCog} size={24} />
-            Manage User Account
-          </h2>
-          <p class="text-base-content/70 text-sm mt-1">
-            Editing access for <span class="font-bold">{staff.fullName}</span>
-          </p>
+    <DashboardLayout title={`Manage: ${staff.fullName}`}>
+      <div class="mx-auto max-w-270">
+        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 class="text-title-md2 font-bold text-black uppercase tracking-tight">Security Management</h2>
+          <nav>
+            <ol class="flex items-center gap-2">
+              <li><a class="font-medium" href="/dashboard/staff">Staff /</a></li>
+              <li class="font-medium text-primary">Manage Auth</li>
+            </ol>
+          </nav>
         </div>
-        <form method="dialog">
-          <button class="btn btn-circle btn-ghost btn-sm">
-             <Icon icon={X} size={20} />
-          </button>
-        </form>
-      </div>
 
-      <div class="p-8 flex flex-col gap-8">
-        {/* Main Edit Form */}
-        <form 
-          action={`/dashboard/staff/${staff.id}/user/update`} 
-          method="POST" 
-          class="flex flex-col gap-6"
-        >
-          <div class="form-control w-full">
-            <label class="label">
-              <span class="label-text font-bold uppercase tracking-wider text-xs">Login Identifier</span>
-            </label>
-            <div class="input-group">
-                <span><Icon icon={Mail} size={16} /></span>
-                <input 
-                  type="text" 
-                  value={user.identifier}
-                  disabled
-                  class="input input-bordered w-full bg-base-200 text-base-content/60 cursor-not-allowed" 
-                />
-            </div>
-            <label class="label">
-               <span class="label-text-alt text-slate-400">Cannot be changed. Revoke and recreate if needed.</span>
-            </label>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="form-control w-full">
-              <label class="label">
-                <span class="label-text font-bold uppercase tracking-wider text-xs">System Role</span>
-              </label>
-              <select name="role" class="select select-bordered focus:select-primary w-full" required>
-                <option value="staff" selected={user.role === 'staff'}>Staff (Standard Access)</option>
-                <option value="manager" selected={user.role === 'manager'}>Manager (Approve & Edit)</option>
-                <option value="admin" selected={user.role === 'admin'}>Admin (System Operations)</option>
-                <option value="auditor" selected={user.role === 'auditor'}>Auditor (Read Only)</option>
-                <option value="super_admin" selected={user.role === 'super_admin'}>Super Admin (Full Control)</option>
-              </select>
-            </div>
-
-            <div class="form-control w-full">
-              <label class="label">
-                <span class="label-text font-bold uppercase tracking-wider text-xs">Reset Password</span>
-              </label>
-              <div class="input-group">
-                  <span><Icon icon={Lock} size={16} /></span>
-                  <input 
-                    type="password" 
-                    name="password" 
-                    placeholder="Leave blank to keep current" 
-                    class="input input-bordered focus:input-primary w-full" 
-                    minlength="8"
-                  />
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-9">
+          <div class="lg:col-span-3 flex flex-col gap-9">
+            
+            {/* Main Update Form */}
+            <div class="rounded-sm border border-stroke bg-white shadow-default">
+              <div class="border-b border-stroke py-4 px-6.5 bg-neutral text-white rounded-t-sm">
+                <h3 class="font-bold flex items-center gap-2 text-sm uppercase">
+                  <Icon icon={UserCog} size={18} />
+                  Account Configuration
+                </h3>
               </div>
+
+              <form 
+                action={`/dashboard/staff/${staff.id}/user/update`} 
+                method="POST" 
+                class="p-6.5"
+              >
+                <div class="mb-6">
+                  <label class="mb-3 block text-black font-medium text-sm uppercase tracking-wide">Identifier (Locked)</label>
+                  <div class="relative">
+                      <input 
+                        type="text" 
+                        value={user.identifier}
+                        disabled
+                        class="w-full rounded border-[1.5px] border-stroke bg-gray-2 py-3 px-5 pl-11 font-bold text-body cursor-not-allowed outline-none" 
+                      />
+                      <span class="absolute left-4 top-1/2 -translate-y-1/2">
+                          <Icon icon={Mail} size={18} class="text-bodydark2" />
+                      </span>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <label class="mb-3 block text-black font-medium text-sm uppercase tracking-wide">System Role</label>
+                    <div class="relative z-20 bg-transparent">
+                        <select name="role" class="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary text-black" required>
+                          <option value="staff" selected={user.role === 'staff'}>Staff (Standard)</option>
+                          <option value="manager" selected={user.role === 'manager'}>Manager</option>
+                          <option value="admin" selected={user.role === 'admin'}>Administrator</option>
+                          <option value="auditor" selected={user.role === 'auditor'}>Auditor</option>
+                          <option value="super_admin" selected={user.role === 'super_admin'}>Super Admin</option>
+                        </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="mb-3 block text-black font-medium text-sm uppercase tracking-wide">Password Reset</label>
+                    <div class="relative">
+                        <input 
+                          type="password" 
+                          name="password" 
+                          placeholder="Leave blank to keep" 
+                          class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 pl-11 font-medium outline-none transition focus:border-primary active:border-primary text-black" 
+                          minlength="8"
+                        />
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2">
+                            <Icon icon={Lock} size={18} class="text-body" />
+                        </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex justify-end gap-4 border-t border-stroke pt-6">
+                    <a href="/dashboard/staff" class="flex justify-center rounded border border-stroke py-3 px-8 font-medium text-black hover:shadow-1 transition">
+                        Cancel
+                    </a>
+                    <button type="submit" class="flex justify-center rounded bg-primary py-3 px-10 font-bold text-white hover:bg-opacity-90 shadow-default uppercase tracking-widest flex items-center gap-2">
+                        <Icon icon={Save} size={18} />
+                        Save Settings
+                    </button>
+                </div>
+              </form>
             </div>
+
+            {/* Revoke Card */}
+            <div class="rounded-sm border border-error/20 bg-white shadow-default">
+                <div class="border-b border-error/10 py-4 px-6.5 bg-error/5 flex justify-between items-center">
+                    <h3 class="font-bold text-error text-sm uppercase tracking-widest">Revoke Access</h3>
+                </div>
+                <div class="p-6.5">
+                    <p class="text-sm text-body mb-6">
+                        This action will immediately disable and permanently delete the user login account for <strong>{staff.fullName}</strong>. 
+                        The employment record will not be affected.
+                    </p>
+                    <form 
+                        action={`/dashboard/staff/${staff.id}/user/delete`} 
+                        method="POST"
+                        onSubmit="return confirm('Are you sure you want to permanently revoke system access for this employee?');"
+                    >
+                        <button type="submit" class="w-full flex justify-center items-center gap-2 rounded bg-error py-3 font-bold text-white hover:bg-opacity-90 shadow-default active:scale-95 transition-all uppercase tracking-widest">
+                            <Icon icon={Trash2} size={18} />
+                            Delete Account
+                        </button>
+                    </form>
+                </div>
+            </div>
+
           </div>
 
-          <div class="flex justify-end gap-3 mt-2">
-            <form method="dialog">
-              <button class="btn btn-ghost">Cancel</button>
-            </form>
-            <button type="submit" class="btn btn-primary px-6 gap-2">
-              <Icon icon={Save} size={18} />
-              Update Account
-            </button>
-          </div>
-        </form>
-
-        <div class="divider">Danger Zone</div>
-
-        {/* Revoke Access Form */}
-        <div class="alert alert-error/10 border-error/20 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div class="flex gap-3">
-             <div class="text-error"><Icon icon={Shield} size={24} /></div>
-             <div>
-               <h3 class="font-bold text-error">Revoke System Access</h3>
-               <p class="text-xs text-error/80">
-                 This will permanently delete the user login. The staff record will remain.
-               </p>
+          <div class="lg:col-span-2">
+             <div class="rounded-sm border border-stroke bg-white shadow-default">
+                <div class="border-b border-stroke py-4 px-6.5 bg-gray-2/50">
+                    <h3 class="font-bold text-black text-sm uppercase tracking-widest">Security Audit</h3>
+                </div>
+                <div class="p-6.5 space-y-4">
+                    <div class="flex justify-between items-center border-b border-stroke pb-2">
+                        <span class="text-xs font-bold text-slate-400 uppercase">Created On</span>
+                        <span class="text-xs font-mono font-bold text-black">{user.createdAt?.split('T')[0] || 'N/A'}</span>
+                    </div>
+                    <div class="flex justify-between items-center border-b border-stroke pb-2">
+                        <span class="text-xs font-bold text-slate-400 uppercase">Last Login</span>
+                        <span class="text-xs font-mono font-bold text-black">None Recorded</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-400 uppercase">Account Status</span>
+                        <span class="bg-success/10 text-success text-[10px] font-black px-2 py-0.5 rounded uppercase">Active</span>
+                    </div>
+                </div>
              </div>
           </div>
-          <form 
-            action={`/dashboard/staff/${staff.id}/user/delete`} 
-            method="POST"
-            onSubmit="return confirm('Are you sure you want to remove this user account? The staff member will no longer be able to log in.');"
-          >
-             <button class="btn btn-error btn-sm btn-outline gap-2">
-               <Icon icon={Trash2} size={16} />
-               Revoke Access
-             </button>
-          </form>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

@@ -1,51 +1,103 @@
 import { Hono } from 'hono';
 import { eq, desc } from 'drizzle-orm';
-import { zValidator } from '@hono/zod-validator';
-import { staff, associations, users } from '../../db/schema';
-import StaffList from './Page';
+import { staff, associations, users, members } from '../../db/schema';
+import StaffPage from './Page';
 import NewStaffForm from './NewForm';
 import EditStaffForm from './EditForm';
+import BulkStaffHirePage from './BulkForm';
 import UserForm from './UserForm';
 import UserEditForm from './UserEditForm';
 import { roleGuard } from '../auth/middleware';
-import { hashPassword } from '../auth/utils';
 import { createStaffSchema, updateStaffSchema, createUserSchema, updateUserSchema } from './validation';
+import { zValidator } from '@hono/zod-validator';
+import { hashPassword } from '../auth/utils';
 
 const app = new Hono();
 
-// 1. List All Staff
+// 1. List Staff
 app.get('/', async (c) => {
   const db = c.get('db');
-  const currentUser = c.get('user');
   
-  const allAssociations = await db.select().from(associations).execute();
-  const assocMap = new Map(allAssociations.map(a => [a.id, a]));
+  // Fetch staff with association names and check if they have accounts
+  const allStaff = await db.select({
+    id: staff.id,
+    fullName: staff.fullName,
+    role: staff.role,
+    salary: staff.salary,
+    status: staff.status,
+    associationId: staff.associationId,
+    unitName: associations.name
+  })
+  .from(staff)
+  .leftJoin(associations, eq(staff.associationId, associations.id))
+  .orderBy(desc(staff.status))
+  .execute();
 
-  const staffRaw = await db.select().from(staff).execute();
-  
-  const staffWithUnit = staffRaw.map(s => ({
+  const allUsers = await db.select().from(users).execute();
+  const usersMap = new Map(allUsers.map(u => [u.staffId, u]));
+
+  const staffWithAccountStatus = allStaff.map(s => ({
     ...s,
-    unitName: assocMap.get(s.associationId)?.name || 'Unknown Unit',
-    unitType: assocMap.get(s.associationId)?.type || 'N/A'
+    hasAccount: usersMap.has(s.id),
+    accountRole: usersMap.get(s.id)?.role
   }));
 
-  const staffIds = staffWithUnit.map(s => s.id);
-  const existingUsers = await db.select().from(users).execute();
-  const userMap = new Set(existingUsers.map(u => u.staffId));
-
-  const staffFinal = staffWithUnit.map(s => ({
-    ...s,
-    hasAccount: userMap.has(s.id)
-  }));
-
-  return c.html(<StaffList staff={staffFinal} currentUser={currentUser} />);
+  return c.html(<StaffPage staff={staffWithAccountStatus} currentUser={c.get('user')} />);
 });
 
-// 2. New Staff Form
+// 2. Bulk Hiring Routes
+app.get('/bulk', roleGuard(['super_admin', 'admin', 'manager']), async (c) => {
+  const db = c.get('db');
+  const activeAssocs = await db.select().from(associations).where(eq(associations.status, 'active')).execute();
+  const allMembers = await db.select().from(members).where(eq(members.status, 'active')).execute();
+  return c.html(<BulkStaffHirePage associations={activeAssocs} members={allMembers} />);
+});
+
+app.post('/bulk', roleGuard(['super_admin', 'admin', 'manager']), async (c) => {
+  const db = c.get('db');
+  const body = await c.req.parseBody();
+  const hires = [];
+  const regex = /^hires\[(\d+)\]\[(\w+)\]$/;
+  
+  for (const [key, value] of Object.entries(body)) {
+    const match = key.match(regex);
+    if (match) {
+      const index = parseInt(match[1]);
+      const field = match[2];
+      if (!hires[index]) hires[index] = {};
+      hires[index][field] = value;
+    }
+  }
+
+  const validHires = hires.filter(h => h && h.fullName && h.role && h.associationId && h.salary);
+  if (validHires.length === 0) return c.redirect('/dashboard/staff/bulk');
+
+  try {
+    const ops = validHires.map(h => {
+        return db.insert(staff).values({
+            id: `stf_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+            fullName: h.fullName,
+            role: h.role,
+            associationId: h.associationId,
+            salary: parseInt(h.salary),
+            status: 'active'
+        }).execute();
+    });
+    await Promise.all(ops);
+
+    c.header('HX-Trigger', JSON.stringify({ showMessage: { message: `Successfully hired ${validHires.length} staff members!`, type: 'success' } }));
+    return c.redirect('/dashboard/staff');
+  } catch (e) {
+    console.error(e);
+    return c.redirect('/dashboard/staff/bulk');
+  }
+});
+
+// 3. Single Create (Modal)
 app.get('/new', roleGuard(['super_admin', 'admin', 'manager']), async (c) => {
   const db = c.get('db');
-  const activeAssociations = await db.select().from(associations).where(eq(associations.status, 'active')).execute();
-  return c.html(<NewStaffForm associations={activeAssociations} />);
+  const activeAssocs = await db.select().from(associations).where(eq(associations.status, 'active')).execute();
+  return c.html(<NewStaffForm associations={activeAssocs} />);
 });
 
 // 3. Create Staff (Validated)

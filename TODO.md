@@ -1,8 +1,8 @@
 # SACCO Project Tasks
 
-- [ ] Fix Business Unit Income/Expense Flow
-- [ ] Fix modals (make them uniform)
-- [ ] Fix alerts (they are not working)
-- [ ] Polish Dashboard UI
-- [ ] Handle Contact Form (backend logic)
-- [ ] zod validation, shuld be in validation.js in the feature
+- [x] Fix Business Unit Income/Expense Flow
+- [x] Fix modals (make them uniform)
+- [x] Fix alerts (they are not working)
+- [x] Polish Dashboard UI
+- [x] Handle Contact Form (backend logic)
+- [x] zod validation, shuld be in validation.js in the feature

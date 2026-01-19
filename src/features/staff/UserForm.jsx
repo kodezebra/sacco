@@ -1,100 +1,124 @@
+import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
-import { UserPlus, X, Lock, Shield, Mail } from 'lucide';
+import { UserPlus, X, Lock, Shield, Mail, ArrowLeft, Check } from 'lucide';
 
-export default function UserForm({ staff }) {
+export default function GrantAccessPage({ staff }) {
   return (
-    <div class="p-0">
-      <div class="bg-secondary p-8 text-secondary-content flex justify-between items-start">
-        <div>
-          <h2 class="text-2xl font-bold flex items-center gap-2">
-            <Icon icon={Lock} size={24} />
-            Create Login Account
-          </h2>
-          <p class="text-secondary-content/70 text-sm mt-1">
-            Grant system access to <span class="font-bold text-white">{staff.fullName}</span>
-          </p>
-        </div>
-        <form method="dialog">
-          <button class="btn btn-circle btn-ghost btn-sm text-secondary-content">
-             <Icon icon={X} size={20} />
-          </button>
-        </form>
-      </div>
-
-      <form 
-        action={`/dashboard/staff/${staff.id}/user`} 
-        method="POST" 
-        class="p-8 flex flex-col gap-6"
-      >
-        <div class="alert alert-info shadow-sm text-sm">
-          <Icon icon={Shield} size={18} />
-          <div>
-            <h3 class="font-bold">Security Notice</h3>
-            <p>The user will use these credentials to log in. Ensure the password is strong.</p>
-          </div>
+    <DashboardLayout title={`Access Control: ${staff.fullName}`}>
+      <div class="mx-auto max-w-270">
+        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 class="text-title-md2 font-bold text-black uppercase tracking-tight">Access Control</h2>
+          <nav>
+            <ol class="flex items-center gap-2">
+              <li><a class="font-medium" href="/dashboard/staff">Staff /</a></li>
+              <li class="font-medium text-primary">Grant Access</li>
+            </ol>
+          </nav>
         </div>
 
-        <div class="form-control w-full">
-          <label class="label">
-            <span class="label-text font-bold uppercase tracking-wider text-xs">Login Identifier</span>
-          </label>
-          <div class="input-group">
-              <span><Icon icon={Mail} size={16} /></span>
-              <input 
-                type="text" 
-                name="identifier" 
-                placeholder="Email or Phone Number" 
-                class="input input-bordered focus:input-secondary w-full" 
-                required 
-                autofocus
-              />
-          </div>
-          <label class="label">
-             <span class="label-text-alt text-slate-400">Must be unique in the system.</span>
-          </label>
-        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-9">
+          <div class="lg:col-span-3">
+            <div class="rounded-sm border border-stroke bg-white shadow-default">
+              <div class="border-b border-stroke py-4 px-6.5 bg-neutral text-white rounded-t-sm">
+                <h3 class="font-bold flex items-center gap-2 text-sm uppercase">
+                  <Icon icon={Lock} size={18} />
+                  Create Security Account
+                </h3>
+              </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="form-control w-full">
-            <label class="label">
-              <span class="label-text font-bold uppercase tracking-wider text-xs">Password</span>
-            </label>
-            <div class="input-group">
-                <span><Icon icon={Lock} size={16} /></span>
-                <input 
-                  type="password" 
-                  name="password" 
-                  placeholder="••••••••" 
-                  class="input input-bordered focus:input-secondary w-full" 
-                  required 
-                  minlength="8"
-                />
+              <form 
+                action={`/dashboard/staff/${staff.id}/user`} 
+                method="POST" 
+                class="p-6.5"
+              >
+                <div class="mb-6">
+                  <label class="mb-3 block text-black font-medium text-sm uppercase tracking-wide">Login Identifier (Email/Phone)</label>
+                  <div class="relative">
+                      <input 
+                        type="text" 
+                        name="identifier" 
+                        placeholder="john@example.com" 
+                        class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 pl-11 font-medium outline-none transition focus:border-primary active:border-primary text-black" 
+                        required 
+                        autofocus
+                      />
+                      <span class="absolute left-4 top-1/2 -translate-y-1/2">
+                          <Icon icon={Mail} size={18} class="text-body" />
+                      </span>
+                  </div>
+                  <p class="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-widest">Must be unique across the entire system.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <label class="mb-3 block text-black font-medium text-sm uppercase tracking-wide">Initial Password</label>
+                    <div class="relative">
+                        <input 
+                          type="password" 
+                          name="password" 
+                          placeholder="••••••••" 
+                          class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 pl-11 font-medium outline-none transition focus:border-primary active:border-primary text-black" 
+                          required 
+                          minlength="8"
+                        />
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2">
+                            <Icon icon={Lock} size={18} class="text-body" />
+                        </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="mb-3 block text-black font-medium text-sm uppercase tracking-wide">Security Role</label>
+                    <div class="relative z-20 bg-transparent">
+                        <select name="role" class="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary text-black" required>
+                          <option value="staff">Staff (Standard)</option>
+                          <option value="manager">Manager (Operations)</option>
+                          <option value="admin">Administrator</option>
+                          <option value="auditor">Auditor (Read-Only)</option>
+                          <option value="super_admin">Super Admin</option>
+                        </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex justify-end gap-4 border-t border-stroke pt-6">
+                    <a href="/dashboard/staff" class="flex justify-center rounded border border-stroke py-3 px-8 font-medium text-black hover:shadow-1 transition">
+                        Cancel
+                    </a>
+                    <button type="submit" class="flex justify-center rounded bg-neutral py-3 px-10 font-bold text-white hover:bg-opacity-90 shadow-default uppercase tracking-widest flex items-center gap-2">
+                        <Icon icon={Shield} size={18} />
+                        Grant Access
+                    </button>
+                </div>
+              </form>
             </div>
           </div>
 
-          <div class="form-control w-full">
-            <label class="label">
-              <span class="label-text font-bold uppercase tracking-wider text-xs">System Role</span>
-            </label>
-            <select name="role" class="select select-bordered focus:select-secondary w-full" required>
-              <option value="staff" selected>Staff (Standard Access)</option>
-              <option value="manager">Manager (Approve & Edit)</option>
-              <option value="admin">Admin (System Operations)</option>
-              <option value="auditor">Auditor (Read Only)</option>
-              <option value="super_admin">Super Admin (Full Control)</option>
-            </select>
+          <div class="lg:col-span-2">
+             <div class="rounded-sm border border-stroke bg-white shadow-default">
+                <div class="border-b border-stroke py-4 px-6.5 bg-gray-2/50">
+                    <h3 class="font-bold text-black text-sm uppercase tracking-widest">Security Policy</h3>
+                </div>
+                <div class="p-6.5">
+                    <div class="flex gap-3 mb-4">
+                        <div class="text-primary"><Icon icon={Shield} size={24} /></div>
+                        <div>
+                            <h4 class="font-bold text-black text-sm uppercase">Verification Required</h4>
+                            <p class="text-xs text-body mt-1 leading-relaxed">
+                                Creating an account allows this staff member to log in. Please ensure the identifier is correct.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-2 p-4 rounded-sm border-l-4 border-primary">
+                        <p class="text-xs text-black font-medium italic">
+                            "System security depends on the integrity of our staff accounts."
+                        </p>
+                    </div>
+                </div>
+             </div>
           </div>
         </div>
-
-        <div class="flex justify-end gap-3 mt-4">
-          <form method="dialog">
-            <button class="btn btn-ghost">Cancel</button>
-          </form>
-          <button type="submit" class="btn btn-secondary px-8">
-            Create Account
-          </button>
-        </div>
-      </form>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }

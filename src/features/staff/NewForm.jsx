@@ -63,10 +63,21 @@ export default function NewStaffForm({ associations = [] }) {
             <div class="input-group">
                <span><Icon icon={Building2} size={16} /></span>
                <select name="associationId" class="select select-bordered focus:select-primary w-full" required>
-                 <option value="" disabled selected>Select Business Unit...</option>
-                 {associations.map(assoc => (
-                   <option key={assoc.id} value={assoc.id}>{assoc.name} ({assoc.type})</option>
-                 ))}
+                 <option value="" disabled selected>Select Association / Unit...</option>
+                 
+                 {/* Administrative Units */}
+                 <optgroup label="Administrative (Sacco HQ)">
+                   {associations.filter(a => a.type === 'department').map(assoc => (
+                     <option key={assoc.id} value={assoc.id}>{assoc.name}</option>
+                   ))}
+                 </optgroup>
+
+                 {/* Associations / Projects */}
+                 <optgroup label="Associations (Projects)">
+                   {associations.filter(a => a.type !== 'department').map(assoc => (
+                     <option key={assoc.id} value={assoc.id}>{assoc.name} ({assoc.type})</option>
+                   ))}
+                 </optgroup>
                </select>
             </div>
             <label class="label">

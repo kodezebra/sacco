@@ -1,26 +1,47 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import Badge from '../../components/Badge.jsx';
-import { Plus, Users, TrendingUp, TrendingDown, ArrowRight, Layers } from 'lucide';
+import StatsCard from '../../components/StatsCard.jsx';
+import { Plus, Users, TrendingUp, TrendingDown, ArrowRight, Layers, Banknote, Wallet } from 'lucide';
 
-export default function AssociationsPage({ associations = [] }) {
+export default function AssociationsPage({ associations = [], stats = {} }) {
   return (
-    <DashboardLayout title="Business Units">
+    <DashboardLayout title="Projects & Units">
        <div class="flex flex-col gap-6">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h2 class="text-title-md font-bold text-black">Projects & Associations</h2>
+            <h2 class="text-title-md font-bold text-black uppercase tracking-tight">Business Units</h2>
+            <p class="text-sm text-body font-medium">Independent projects and administrative departments.</p>
           </div>
-          <button 
-            class="inline-flex items-center justify-center gap-2.5 rounded-sm bg-primary py-2 px-6 text-center font-medium text-white hover:bg-opacity-90 shadow-default"
-            hx-get="/dashboard/associations/new"
-            hx-target="#htmx-modal-content"
-            hx-swap="innerHTML"
-            onClick="document.getElementById('htmx-modal').showModal()"
+          <a 
+            href="/dashboard/associations/new"
+            class="inline-flex items-center justify-center gap-2.5 rounded-sm bg-primary py-2.5 px-8 text-center font-bold text-white hover:bg-opacity-90 shadow-default transition-all active:scale-95 uppercase tracking-widest text-sm"
           >
             <Icon icon={Plus} size={20} />
-            Add Unit
-          </button>
+            <span>New Unit</span>
+          </a>
+        </div>
+
+        {/* Stats Grid */}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          <StatsCard 
+            label="Total Business Units" 
+            value={stats.totalUnits || 0} 
+            icon={Layers} 
+            colorClass="text-primary" 
+          />
+          <StatsCard 
+            label="Aggregate Revenue" 
+            value={(stats.totalRevenue || 0).toLocaleString() + " UGX"} 
+            icon={Banknote} 
+            colorClass="text-success" 
+          />
+          <StatsCard 
+            label="Net Operational Position" 
+            value={(stats.netPosition || 0).toLocaleString() + " UGX"} 
+            icon={Wallet} 
+            colorClass={stats.netPosition >= 0 ? "text-primary" : "text-warning"} 
+          />
         </div>
 
         {associations.length === 0 ? (
@@ -65,7 +86,14 @@ export default function AssociationsPage({ associations = [] }) {
                       </div>
                     </div>
 
-                    <div class="flex justify-end">
+                    <div class="flex justify-between items-center">
+                      <a 
+                        href={`/dashboard/transactions/journal?associationId=${assoc.id}`} 
+                        class="inline-flex items-center gap-1.5 text-xs font-bold text-success hover:underline uppercase tracking-wider"
+                      >
+                        <Icon icon={Plus} size={14} />
+                        Transactions
+                      </a>
                       <a href={`/dashboard/associations/${assoc.id}`} class="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">
                         View Details
                         <Icon icon={ArrowRight} size={16} />

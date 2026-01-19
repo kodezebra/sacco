@@ -3,7 +3,7 @@ import Icon from '../../components/Icon.jsx';
 import StatsCard from '../../components/StatsCard.jsx';
 import Badge from '../../components/Badge.jsx';
 import TableAction from '../../components/TableAction.jsx';
-import { Plus, Search, FileSpreadsheet, Trash2, ChevronLeft, ChevronRight, Eye, Users, Wallet, Banknote, UserPlus } from 'lucide';
+import { Plus, Search, FileSpreadsheet, Trash2, ChevronLeft, ChevronRight, Eye, Users, Wallet, Banknote, UserPlus, Download, Filter } from 'lucide';
 
 const formatCompact = (val) => {
   if (!val) return '0';
@@ -13,27 +13,35 @@ const formatCompact = (val) => {
 };
 
 export function MemberRow({ member }) {
+  const initials = member.fullName?.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) || '?';
+  
   return (
-    <tr key={member.id} class="border-b border-slate-100 hover:bg-slate-50 transition-colors group">
-      <td class="py-4 px-4">
+    <tr key={member.id} class="border-b border-stroke hover:bg-whiten transition-colors group cursor-pointer" onclick={`window.location.href='/dashboard/members/${member.id}'`}>
+      <td class="py-5 px-4">
         <div class="flex items-center gap-3">
+          <div class="flex h-10 w-10 items-center justify-center rounded-full bg-whiten text-xs font-bold text-body group-hover:bg-primary group-hover:text-white transition-colors">
+            {initials}
+          </div>
           <div>
-            <div class="font-black text-slate-700 group-hover:text-primary transition-colors">{member.fullName}</div>
-            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{member.memberNumber}</div>
+            <h5 class="font-medium text-black">{member.fullName}</h5>
+            <p class="text-xs font-bold text-bodydark2 uppercase tracking-widest">{member.memberNumber}</p>
           </div>
         </div>
       </td>
-      <td class="py-4 px-4 font-mono text-xs font-bold text-slate-500">{member.phone}</td>
-      <td class="py-4 px-4 text-center">
+      <td class="py-5 px-4">
+        <p class="text-sm text-black">{member.phone}</p>
+      </td>
+      <td class="py-5 px-4">
         <Badge type={member.status === 'active' ? 'success' : 'error'}>
           {member.status}
         </Badge>
       </td>
-      <td class="py-4 px-4 text-[11px] font-medium text-slate-400 font-mono italic">{member.createdAt}</td>
-      <td class="py-4 px-4 text-right">
-        <div class="flex gap-2 justify-end items-center transition-opacity">
+      <td class="hidden lg:table-cell py-5 px-4">
+        <p class="text-sm text-black">{member.createdAt}</p>
+      </td>
+      <td class="sticky right-0 bg-white group-hover:bg-whiten transition-colors py-5 px-4 z-10 shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.02)]" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-end space-x-3.5">
           <TableAction 
-            label="Profile" 
             href={`/dashboard/members/${member.id}`} 
             icon={Eye} 
           />
@@ -41,9 +49,9 @@ export function MemberRow({ member }) {
             variant="danger"
             icon={Trash2}
             hx-delete={`/dashboard/members/${member.id}`}
-            hx-target="closest tr"
-            hx-swap="outerHTML"
-            hx-confirm={`Are you sure you want to delete ${member.fullName}?`}
+            hx-target="body"
+            hx-push-url="true"
+            hx-confirm={`Are you sure you want to permanently delete member: ${member.fullName}?`}
           />
         </div>
       </td>
@@ -51,7 +59,7 @@ export function MemberRow({ member }) {
   );
 }
 
-export function Pagination({ page, totalPages, search }) {
+export function Pagination({ page, totalPages, search, status = "" }) {
   if (totalPages <= 1) return null;
 
   return (
@@ -63,7 +71,7 @@ export function Pagination({ page, totalPages, search }) {
         <button 
           class="join-item btn btn-xs h-9 px-4 bg-white hover:bg-gray-2 text-black border-none" 
           disabled={page <= 1}
-          hx-get={`/dashboard/members?page=${page - 1}&search=${search}`}
+          hx-get={`/dashboard/members?page=${page - 1}&search=${search}&status=${status}`}
           hx-target="#members-list-container"
           hx-swap="outerHTML"
         >
@@ -72,7 +80,7 @@ export function Pagination({ page, totalPages, search }) {
         <button 
           class="join-item btn btn-xs h-9 px-4 bg-white hover:bg-gray-2 text-black border-none"
           disabled={page >= totalPages}
-          hx-get={`/dashboard/members?page=${page + 1}&search=${search}`}
+          hx-get={`/dashboard/members?page=${page + 1}&search=${search}&status=${status}`}
           hx-target="#members-list-container"
           hx-swap="outerHTML"
         >
@@ -83,69 +91,92 @@ export function Pagination({ page, totalPages, search }) {
   );
 }
 
-export function MembersList({ members = [], page = 1, totalPages = 1, search = "", stats }) {
+export function MembersList({ members = [], page = 1, totalPages = 1, search = "", status = "", stats }) {
   return (
     <div id="members-list-container" class="rounded-sm border border-stroke bg-white shadow-default">
-      {/* Card Header */}
-      <div class="flex flex-col gap-4 border-b border-stroke px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h3 class="text-xl font-bold text-black">Member Directory</h3>
-        </div>
+      {/* Refined Header */}
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-stroke px-6 py-4.5">
         
+        {/* Left Side: Search & Filters */}
         <div class="flex flex-wrap items-center gap-3">
           <div class="relative">
-            <button class="absolute left-3 top-1/2 -translate-y-1/2 text-bodydark2">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-bodydark2">
               <Icon icon={Search} size={18} />
-            </button>
+            </span>
             <input 
               type="search" 
               name="search"
               placeholder="Search members..." 
-              class="w-full rounded-sm border border-stroke bg-whiten py-2 pl-10 pr-4 text-sm font-medium text-black focus:border-primary focus:outline-none xl:w-72"
+              class="w-full rounded-sm border border-stroke bg-whiten py-2 pl-10 pr-10 text-sm font-medium text-black focus:border-primary focus:outline-none md:w-64"
               value={search}
               hx-get="/dashboard/members"
               hx-trigger="keyup changed delay:500ms, search"
               hx-target="#members-list-container"
               hx-swap="outerHTML"
-              hx-indicator=".htmx-indicator"
-              hx-include="[name='page']" 
+              hx-indicator="#search-indicator"
+              hx-include="[name='page'], [name='status']" 
             />
-            <input type="hidden" name="page" value="1" />
+            <div id="search-indicator" class="htmx-indicator absolute right-3 top-1/2 -translate-y-1/2">
+               <div class="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+            </div>
           </div>
 
-          <a href="/dashboard/members/export" class="inline-flex items-center gap-2 rounded-sm border border-stroke bg-white px-4 py-2 text-sm font-medium text-black hover:text-primary hover:border-primary" download>
-            <Icon icon={FileSpreadsheet} size={18} />
-            <span class="hidden lg:inline">Export</span>
+          <div class="relative">
+            <select 
+              name="status"
+              class="appearance-none rounded-sm border border-stroke bg-whiten py-2 pl-4 pr-10 text-sm font-medium text-black focus:border-primary outline-none"
+              hx-get="/dashboard/members"
+              hx-target="#members-list-container"
+              hx-swap="outerHTML"
+              hx-include="[name='search'], [name='page']"
+            >
+              <option value="">All Statuses</option>
+              <option value="active" selected={status === 'active'}>Active</option>
+              <option value="inactive" selected={status === 'inactive'}>Inactive</option>
+            </select>
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-bodydark2 pointer-events-none">
+              <Icon icon={Filter} size={14} />
+            </span>
+          </div>
+          
+          <input type="hidden" name="page" value="1" />
+        </div>
+        
+        {/* Right Side: Global Actions */}
+        <div class="flex flex-wrap items-center gap-3">
+          <a 
+            href="/dashboard/members/export-form"
+            class="inline-flex items-center gap-2 rounded-sm border border-stroke bg-white px-4 py-2.5 text-sm font-bold text-black hover:text-primary hover:border-primary transition-colors shadow-sm uppercase tracking-widest text-xs"
+          >
+            <Icon icon={Download} size={18} />
+            <span>Export</span>
           </a>
 
-          <button 
-            class="inline-flex items-center gap-2 rounded-sm bg-primary px-6 py-2 text-sm font-medium text-white hover:bg-opacity-90 shadow-default"
-            hx-get="/dashboard/members/new"
-            hx-target="#htmx-modal-content"
-            hx-swap="innerHTML"
-            onClick="document.getElementById('htmx-modal').showModal()"
+          <a 
+            href="/dashboard/members/new"
+            class="inline-flex items-center gap-2 rounded-sm bg-primary px-6 py-2.5 text-sm font-bold text-white hover:bg-opacity-90 shadow-default transition-all active:scale-95 uppercase tracking-widest text-xs"
           >
             <Icon icon={UserPlus} size={18} />
-            Add Member
-          </button>
+            <span>New Member</span>
+          </a>
         </div>
       </div>
 
-      <div class="max-w-full overflow-x-auto">
-        <table class="w-full table-auto">
+      <div class="max-w-full overflow-x-auto scrollbar-thin scrollbar-thumb-stroke">
+        <table class="w-full table-auto border-collapse">
           <thead>
             <tr class="bg-gray-2 text-left">
               <th class="min-w-[220px] py-4 px-4 font-bold text-black text-sm uppercase">Member</th>
               <th class="min-w-[150px] py-4 px-4 font-bold text-black text-sm uppercase">Contact</th>
               <th class="min-w-[120px] py-4 px-4 font-bold text-black text-sm uppercase">Status</th>
-              <th class="py-4 px-4 font-bold text-black text-sm uppercase">Joined</th>
-              <th class="py-4 px-4 text-right font-bold text-black text-sm uppercase">Actions</th>
+              <th class="hidden lg:table-cell py-4 px-4 font-bold text-black text-sm uppercase">Joined</th>
+              <th class="sticky right-0 bg-gray-2 py-4 px-4 text-right font-bold text-black text-sm uppercase z-10 shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.02)]">Actions</th>
             </tr>
           </thead>
           <tbody id="members-table-body">
             {members.length > 0 ? (
               members.map((member) => (
-                <tr key={member.id} class="border-b border-stroke">
+                <tr key={member.id} class="border-b border-stroke hover:bg-whiten transition-colors group">
                   <td class="py-5 px-4">
                     <h5 class="font-medium text-black">{member.fullName}</h5>
                     <p class="text-xs font-bold text-bodydark2 uppercase tracking-widest">{member.memberNumber}</p>
@@ -158,10 +189,10 @@ export function MembersList({ members = [], page = 1, totalPages = 1, search = "
                       {member.status}
                     </Badge>
                   </td>
-                  <td class="py-5 px-4">
+                  <td class="hidden lg:table-cell py-5 px-4">
                     <p class="text-sm text-black">{member.createdAt}</p>
                   </td>
-                  <td class="py-5 px-4">
+                  <td class="sticky right-0 bg-white group-hover:bg-whiten transition-colors py-5 px-4 z-10 shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.02)]">
                     <div class="flex items-center justify-end space-x-3.5">
                       <TableAction 
                         href={`/dashboard/members/${member.id}`} 
@@ -181,8 +212,11 @@ export function MembersList({ members = [], page = 1, totalPages = 1, search = "
               ))
             ) : (
               <tr>
-                <td colspan="5" class="text-center py-20 text-body italic">
-                  No members found in directory
+                <td colspan="5" class="text-center py-24 bg-gray-2/30">
+                  <div class="flex flex-col items-center gap-2">
+                    <Icon icon={Users} size={48} class="text-bodydark2 opacity-20" />
+                    <p class="text-body italic text-sm">No members found in directory</p>
+                  </div>
                 </td>
               </tr>
             )}
