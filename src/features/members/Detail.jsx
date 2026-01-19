@@ -269,7 +269,28 @@ export default function MemberDetailPage({ member, stats, loans = [], savings = 
   if (!member) return null;
 
   const chartOptions = {
-// ...
+    series: [
+      { name: 'Inflow', data: trendData.map(d => d.income || 0) },
+      { name: 'Outflow', data: trendData.map(d => d.expense || 0) }
+    ],
+    chart: {
+      type: 'area',
+      height: 250,
+      toolbar: { show: false },
+      fontFamily: 'Inter, sans-serif'
+    },
+    colors: ['#10B981', '#F0950C'],
+    stroke: { curve: 'smooth', width: 2 },
+    dataLabels: { enabled: false },
+    xaxis: {
+      categories: trendData.map(d => d.month),
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+    },
+    grid: { strokeDashArray: 4, yaxis: { lines: { show: true } } },
+    tooltip: {
+      y: { formatter: (val) => val.toLocaleString() + " UGX" }
+    }
   };
 
   return (
