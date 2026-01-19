@@ -5,6 +5,7 @@ import StatsCard from '../../components/StatsCard.jsx';
 import ActionCenter from '../../components/ActionCenter.jsx';
 import Timeline from '../../components/Timeline.jsx';
 import Badge from '../../components/Badge.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { 
   Users, Banknote, PieChart, TrendingUp, 
   ArrowUpRight, History, LayoutDashboard, Wallet, 
@@ -91,14 +92,14 @@ export default function DashboardHome({ stats, recentActivity = [], sacco, trend
   };
 
   return (
-    <DashboardLayout title="Analytics Dashboard">
+    <DashboardLayout title="Overview">
       <div class="flex flex-col gap-6">
         
-        {/* Welcome Section */}
-        <div class="mb-2">
-           <h3 class="text-2xl font-black text-black">{greeting}, {currentUser?.fullName || 'Administrator'}</h3>
-           <p class="text-sm text-body font-medium mt-1">Here is what is happening with {sacco.name} today.</p>
-        </div>
+        <PageHeader 
+          title={`${greeting}, ${currentUser?.fullName || 'Administrator'}`}
+          subtitle={`Here is what is happening with ${sacco.name} today.`}
+          breadcrumbs={[]}
+        />
 
         {/* KPI Stats Grid */}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">

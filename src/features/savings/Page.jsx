@@ -3,6 +3,7 @@ import Icon from '../../components/Icon.jsx';
 import Badge from '../../components/Badge.jsx';
 import TableAction from '../../components/TableAction.jsx';
 import StatsCard from '../../components/StatsCard.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { 
   Search, Eye, ChevronLeft, ChevronRight, 
   ArrowDownLeft, ArrowUpRight, Wallet, TrendingUp, 
@@ -70,23 +71,6 @@ export function SavingsList({ savings = [], page = 1, totalPages = 1, search = "
             />
             <input type="hidden" name="page" value="1" />
           </div>
-
-          <div class="flex items-center gap-2">
-            <a 
-              href="/dashboard/savings/new?type=deposit"
-              class="inline-flex items-center gap-2 rounded-sm bg-success px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90 shadow-default"
-            >
-              <Icon icon={Plus} size={18} />
-              Deposit
-            </a>
-            <a 
-              href="/dashboard/savings/new?type=withdrawal"
-              class="inline-flex items-center gap-2 rounded-sm bg-error px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90 shadow-default"
-            >
-              <Icon icon={Minus} size={18} />
-              Withdraw
-            </a>
-          </div>
         </div>
       </div>
 
@@ -148,6 +132,32 @@ export function SavingsList({ savings = [], page = 1, totalPages = 1, search = "
 export default function SavingsPage({ savings = [], page = 1, totalPages = 1, search = "", stats = {} }) {
   return (
     <DashboardLayout title="Savings">
+       <PageHeader 
+          title="Savings Accounts"
+          subtitle="Manage member deposits and withdrawals."
+          breadcrumbs={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Savings', href: '/dashboard/savings', active: true }
+          ]}
+          actions={(
+            <div class="flex items-center gap-2">
+              <a 
+                href="/dashboard/savings/new?type=deposit"
+                class="inline-flex items-center gap-2 rounded-sm bg-success px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90 shadow-default"
+              >
+                <Icon icon={Plus} size={18} />
+                Deposit
+              </a>
+              <a 
+                href="/dashboard/savings/new?type=withdrawal"
+                class="inline-flex items-center gap-2 rounded-sm bg-error px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90 shadow-default"
+              >
+                <Icon icon={Minus} size={18} />
+                Withdraw
+              </a>
+            </div>
+          )}
+        />
        <div class="flex flex-col gap-6">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
             <StatsCard 

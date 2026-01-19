@@ -3,9 +3,11 @@ import Icon from '../../components/Icon.jsx';
 import ApexChart from '../../components/ApexChart.jsx';
 import StatsCard from '../../components/StatsCard.jsx';
 import Badge from '../../components/Badge.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { 
   ArrowLeft, Users, Banknote, 
-  TrendingUp, TrendingDown, Receipt, ShieldCheck, Plus, Download, Trash2
+  TrendingUp, TrendingDown, Receipt, ShieldCheck, Plus, Download, Trash2,
+  ChevronDown
 } from 'lucide';
 
 export default function AssociationDetail({ association, transactions = [], staff = [], stats, trendData = [] }) {
@@ -27,7 +29,8 @@ export default function AssociationDetail({ association, transactions = [], staf
       type: 'area',
       height: 200,
       toolbar: { show: false },
-      sparkline: { enabled: false }
+      sparkline: { enabled: false },
+      fontFamily: 'Inter, sans-serif'
     },
     colors: ['#10B981', '#FB5454'], 
     stroke: { curve: 'smooth', width: 2 },
@@ -47,30 +50,23 @@ export default function AssociationDetail({ association, transactions = [], staf
   return (
     <DashboardLayout title={association.name}>
       <div class="flex flex-col gap-6">
-        {/* Header Navigation */}
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div class="flex items-center gap-4">
-            <a href="/dashboard/associations" class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black hover:bg-opacity-90 shadow-default transition-all">
-                <Icon icon={ArrowLeft} size={20} />
+        <PageHeader 
+          title={association.name}
+          subtitle={`Type: ${association.type} • Active Business Unit`}
+          backHref="/dashboard/associations"
+          breadcrumbs={[
+            { label: 'Units', href: '/dashboard/associations' },
+            { label: 'Analysis', href: `/dashboard/associations/${association.id}`, active: true }
+          ]}
+          actions={(
+            <a 
+              href={`/dashboard/associations/export-form?id=${association.id}`}
+              class="inline-flex items-center justify-center gap-2.5 rounded-sm border border-stroke bg-white py-2 px-6 text-center font-bold text-black hover:border-primary hover:text-primary lg:px-4 shadow-default transition-all uppercase tracking-widest text-xs"
+            >
+              <Icon icon={Download} size={18} /> Export Data
             </a>
-            <div>
-              <div class="flex items-center gap-3">
-                <h2 class="text-title-md font-bold text-black">{association.name}</h2>
-                <Badge type="ghost">{association.type}</Badge>
-              </div>
-              <p class="text-body text-sm font-medium opacity-70">Project & Association Performance</p>
-            </div>
-          </div>
-          <div class="flex gap-2">
-             <a 
-                href={`/dashboard/associations/export-form?id=${association.id}`}
-                class="inline-flex items-center justify-center gap-2.5 rounded-sm border border-stroke bg-white py-2 px-6 text-center font-bold text-black hover:border-primary hover:text-primary lg:px-4 shadow-default transition-all uppercase tracking-widest text-xs"
-              >
-                <Icon icon={Download} size={18} />
-                Export Data
-              </a>
-          </div>
-        </div>
+          )}
+        />
 
         {/* 1. Stats Overview - Top Layer */}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
@@ -107,36 +103,15 @@ export default function AssociationDetail({ association, transactions = [], staf
             {/* Left: Transaction Ledger */}
             <div class="col-span-12 lg:col-span-7">
                 <div class="rounded-sm border border-stroke bg-white shadow-default h-full">
-                  <div class="py-4 px-6 border-b border-stroke flex items-center justify-between">
-                    <h3 class="font-bold text-black uppercase tracking-wider text-sm">Recent Activity</h3>
+                  <div class="py-4 px-6 border-b border-stroke flex items-center justify-between bg-gray-2/30">
+                    <h3 class="font-bold text-black uppercase tracking-wider text-xs">Recent Activity</h3>
                     <div class="flex gap-2">
-                      <button 
-                        class="inline-flex items-center justify-center gap-1 rounded-sm bg-primary/10 py-1.5 px-3 text-xs font-bold text-primary hover:bg-primary hover:text-white transition-all border border-primary/20"
-                        hx-get={`/dashboard/transactions/journal-form?associationId=${association.id}`}
-                        hx-target="#htmx-modal-content"
-                        hx-swap="innerHTML"
-                        onclick="document.getElementById('htmx-modal').classList.add('modal-open')"
+                      <a 
+                        href={`/dashboard/transactions/journal?associationId=${association.id}`}
+                        class="inline-flex items-center justify-center gap-1 rounded-sm bg-primary/10 py-1.5 px-3 text-[10px] font-black text-primary hover:bg-primary hover:text-white transition-all border border-primary/20 uppercase tracking-widest"
                       >
-                        <Icon icon={Plus} size={14} /> TRANSACTIONS
-                      </button>
-                      <button 
-                        class="inline-flex items-center justify-center gap-1 rounded-sm bg-success/10 py-1.5 px-3 text-xs font-bold text-success hover:bg-success hover:text-white transition-all"
-                        hx-get={`/dashboard/transactions/new?associationId=${association.id}&type=income`}
-                        hx-target="#htmx-modal-content"
-                        hx-swap="innerHTML"
-                        onclick="document.getElementById('htmx-modal').classList.add('modal-open')"
-                      >
-                        <Icon icon={Plus} size={14} /> INCOME
-                      </button>
-                      <button 
-                        class="inline-flex items-center justify-center gap-1 rounded-sm bg-error/10 py-1.5 px-3 text-xs font-bold text-error hover:bg-error hover:text-white transition-all"
-                        hx-get={`/dashboard/transactions/new?associationId=${association.id}&type=expense`}
-                        hx-target="#htmx-modal-content"
-                        hx-swap="innerHTML"
-                        onclick="document.getElementById('htmx-modal').classList.add('modal-open')"
-                      >
-                        <Icon icon={Plus} size={14} /> EXPENSE
-                      </button>
+                        <Icon icon={Plus} size={12} /> Journal
+                      </a>
                     </div>
                   </div>
                   
@@ -144,9 +119,9 @@ export default function AssociationDetail({ association, transactions = [], staf
                       <table class="w-full table-auto">
                         <thead>
                           <tr class="bg-gray-2 text-left">
-                            <th class="py-3 px-4 font-bold text-black text-xs uppercase">Date</th>
-                            <th class="py-3 px-4 font-bold text-black text-xs uppercase">Category</th>
-                            <th class="py-3 px-4 text-right font-bold text-black text-xs uppercase">Amount</th>
+                            <th class="py-3 px-4 font-bold text-black text-[10px] uppercase">Date</th>
+                            <th class="py-3 px-4 font-bold text-black text-[10px] uppercase">Category</th>
+                            <th class="py-3 px-4 text-right font-bold text-black text-[10px] uppercase">Amount</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -210,21 +185,26 @@ export default function AssociationDetail({ association, transactions = [], staf
                     </div>
                 </div>
 
-                {/* Staff Section - Now in Sidebar */}
+                {/* Staff Section */}
                 <div class="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default">
-                    <h4 class="mb-6 text-sm font-bold text-black uppercase tracking-widest border-b border-stroke pb-2">Assigned Staff</h4>
+                    <h4 class="mb-6 text-xs font-black text-black uppercase tracking-widest border-b border-stroke pb-2">Assigned Staff</h4>
                     <div class="flex flex-col gap-4">
                       {staff.length === 0 ? (
                         <p class="text-xs text-body italic">No staff assigned.</p>
                       ) : staff.map((s) => (
-                        <div key={s.id} class="flex items-center gap-3">
-                          <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-whiten text-[10px] font-black text-body uppercase border border-stroke">
-                            {(s.fullName || '?').charAt(0)}
+                        <div key={s.id} class="flex items-center justify-between group">
+                          <div class="flex items-center gap-3">
+                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-whiten text-[10px] font-black text-body uppercase border border-stroke">
+                                {(s.fullName || '?').charAt(0)}
+                            </div>
+                            <div class="truncate">
+                                <h5 class="font-bold text-black text-xs truncate">{s.fullName}</h5>
+                                <p class="text-[9px] font-bold text-body uppercase tracking-tighter opacity-60">{s.role}</p>
+                            </div>
                           </div>
-                          <div class="truncate">
-                            <h5 class="font-bold text-black text-xs truncate">{s.fullName}</h5>
-                            <p class="text-[9px] font-bold text-body uppercase tracking-tighter opacity-60">{s.role}</p>
-                          </div>
+                          <a href={`/dashboard/staff/${s.id}/edit`} class="opacity-0 group-hover:opacity-100 transition-opacity text-primary">
+                             <Icon icon={ArrowLeft} size={14} class="rotate-180" />
+                          </a>
                         </div>
                       ))}
                     </div>
@@ -248,36 +228,36 @@ export function AssociationProfileForm({ id, association }) {
       hx-swap="outerHTML"
       class="rounded-sm border border-stroke bg-white shadow-default"
     >
-        <div class="border-b border-stroke py-4 px-6">
-           <h3 class="font-bold text-black uppercase tracking-wider text-sm">Unit Settings & Profile</h3>
+        <div class="border-b border-stroke py-4 px-6 bg-gray-2/50">
+           <h3 class="font-black text-black uppercase tracking-widest text-xs">Unit Settings & Profile</h3>
         </div>
         <div class="p-6.5 flex flex-col gap-6">
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4.5">
             <div>
-                <label class="mb-2.5 block text-black font-medium text-sm">Project/Association Name</label>
+                <label class="mb-2.5 block text-black font-bold uppercase tracking-widest text-[10px]">Project/Association Name</label>
                 <input 
                   type="text" 
                   name="name" 
                   value={association.name} 
-                  class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary text-black" 
+                  class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-bold outline-none transition focus:border-primary active:border-primary text-black" 
                   required 
                 />
             </div>
 
             <div>
-                <label class="mb-2.5 block text-black font-medium text-sm">Unit Status</label>
+                <label class="mb-2.5 block text-black font-bold uppercase tracking-widest text-[10px]">Unit Status</label>
                 <div class="relative z-20 bg-transparent">
                   <select 
                     name="status" 
                     defaultValue={association.status}
-                    class="relative z-20 w-full appearance-none rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary text-black"
+                    class="relative z-20 w-full appearance-none rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-bold outline-none transition focus:border-primary active:border-primary text-black"
                   >
                     <option value="active">Active & Operational</option>
                     <option value="inactive">Inactive / Suspended</option>
                   </select>
                   <span class="absolute top-1/2 right-4 z-30 -translate-y-1/2 text-body">
-                    <Icon icon={TrendingUp} size={20} class="rotate-90" />
+                    <Icon icon={ChevronDown} size={20} />
                   </span>
                 </div>
             </div>
@@ -285,12 +265,12 @@ export function AssociationProfileForm({ id, association }) {
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4.5">
             <div>
-                <label class="mb-2.5 block text-black font-medium text-sm">Category</label>
+                <label class="mb-2.5 block text-black font-bold uppercase tracking-widest text-[10px]">Category</label>
                 <div class="relative z-20 bg-transparent">
                   <select 
                     name="type" 
                     defaultValue={association.type}
-                    class="relative z-20 w-full appearance-none rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary text-black"
+                    class="relative z-20 w-full appearance-none rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-bold outline-none transition focus:border-primary active:border-primary text-black"
                   >
                     <option value="project">Business/Investment Unit</option>
                     <option value="department">Administrative Department</option>
@@ -302,7 +282,7 @@ export function AssociationProfileForm({ id, association }) {
             </div>
               
             <div class="flex items-end pb-1">
-                <p class="text-xs text-body italic">Created on {association.createdAt}. Changes to category will affect future report grouping.</p>
+                <p class="text-[10px] text-body font-bold italic uppercase tracking-tighter">Created on {association.createdAt}. Changes to category will affect future report grouping.</p>
             </div>
           </div>
 

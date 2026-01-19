@@ -1,6 +1,7 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import Badge from '../../components/Badge.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { ArrowLeft, PieChart, Plus, TrendingUp, Info } from 'lucide';
 
 export default function MemberSharesPage({ member, shares = [], sharePrice = 20000 }) {
@@ -9,22 +10,24 @@ export default function MemberSharesPage({ member, shares = [], sharePrice = 200
 
   return (
     <DashboardLayout title={`Shares: ${member.fullName}`}>
-      <div class="mx-auto max-w-screen-xl flex flex-col gap-8">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div class="flex items-center gap-4">
-            <a href={`/dashboard/members/${member.id}`} class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black hover:bg-opacity-90 shadow-default transition-all">
-               <Icon icon={ArrowLeft} size={20} />
+      <PageHeader 
+        title="Equity Portfolio"
+        subtitle={`Permanent capital and shareholding for ${member.fullName}`}
+        backHref={`/dashboard/members/${member.id}`}
+        breadcrumbs={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Members', href: '/dashboard/members' },
+            { label: member.fullName, href: `/dashboard/members/${member.id}` },
+            { label: 'Shares', href: `/dashboard/members/${member.id}/shares`, active: true }
+        ]}
+        actions={(
+            <a href={`/dashboard/members/${member.id}/shares/new`} class="btn btn-primary gap-2 uppercase tracking-widest text-xs font-black px-6 shadow-md">
+                <Icon icon={Plus} size={16} /> Buy New Shares
             </a>
-            <div>
-              <h2 class="text-2xl font-black text-black uppercase tracking-tight">Equity Portfolio</h2>
-              <p class="text-sm text-body font-medium">Permanent capital and shareholding for {member.fullName}</p>
-            </div>
-          </div>
-          <a href={`/dashboard/members/${member.id}/shares/new`} class="btn btn-primary gap-2 uppercase tracking-widest text-xs font-black px-6 shadow-md">
-             <Icon icon={Plus} size={16} /> Buy New Shares
-          </a>
-        </div>
+        )}
+      />
 
+      <div class="mx-auto max-w-screen-xl flex flex-col gap-8">
         {/* Portfolio Stats */}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="rounded-sm border border-stroke bg-white p-6 shadow-default">

@@ -1,6 +1,7 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import Badge from '../../components/Badge.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { 
   Wallet, CheckCircle, ArrowLeft, Info, Search, 
   Users, Building2, Plus, Trash2, Calculator, ArrowRight
@@ -10,23 +11,22 @@ export default function RunPayrollPage({ staffList = [] }) {
   return (
     <DashboardLayout title="Run Payroll">
       <div class="mx-auto max-w-7xl">
-        {/* Header */}
-        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div class="flex items-center gap-4">
-            <a href="/dashboard/payroll" class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black hover:bg-opacity-90 shadow-default transition-all">
-               <Icon icon={ArrowLeft} size={20} />
-            </a>
-            <div>
-              <h2 class="text-title-md2 font-bold text-black uppercase tracking-tight">Salary Disbursement</h2>
-              <p class="text-sm text-body font-medium">Batch processing for employee compensation.</p>
-            </div>
-          </div>
-          
-          <button type="button" onclick="loadAllStaff()" class="inline-flex items-center gap-2 rounded-sm border border-stroke bg-white px-4 py-2 text-sm font-bold text-black hover:text-primary transition-all shadow-sm">
-             <Icon icon={Plus} size={18} />
-             Add All Active Staff
-          </button>
-        </div>
+        <PageHeader 
+          title="Salary Disbursement"
+          subtitle="Batch processing for employee compensation."
+          backHref="/dashboard/payroll"
+          breadcrumbs={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Payroll', href: '/dashboard/payroll' },
+            { label: 'Run', href: '/dashboard/payroll/run', active: true }
+          ]}
+          actions={(
+            <button type="button" onclick="loadAllStaff()" class="inline-flex items-center gap-2 rounded-sm border border-stroke bg-white px-4 py-2 text-sm font-bold text-black hover:text-primary transition-all shadow-sm">
+                 <Icon icon={Plus} size={18} />
+                 Add All Active Staff
+            </button>
+          )}
+        />
 
         <form action="/dashboard/payroll/run" method="POST">
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">

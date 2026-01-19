@@ -2,6 +2,7 @@ import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import TableAction from '../../components/TableAction.jsx';
 import StatsCard from '../../components/StatsCard.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { Search, Filter, Eye, ChevronLeft, ChevronRight, PieChart, Users, TrendingUp, Plus } from 'lucide';
 
 export function Pagination({ page, totalPages, search }) {
@@ -42,7 +43,7 @@ export function SharesList({ shares = [], page = 1, totalPages = 1, search = "" 
       {/* Card Header */}
       <div class="flex flex-col gap-4 border-b border-stroke px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h3 class="text-xl font-bold text-black">Shares Ledger</h3>
+          <h3 class="text-xl font-bold text-black">Transaction Log</h3>
         </div>
         
         <div class="flex flex-wrap items-center gap-3">
@@ -70,14 +71,6 @@ export function SharesList({ shares = [], page = 1, totalPages = 1, search = "" 
             <Icon icon={Filter} size={16} />
             Filter
           </button>
-          
-          <a 
-            href="/dashboard/shares/new"
-            class="inline-flex items-center gap-2 rounded-sm bg-primary px-6 py-2 text-sm font-medium text-white hover:bg-opacity-90 shadow-default"
-          >
-            <Icon icon={Plus} size={20} />
-            New Purchase
-          </a>
         </div>
       </div>
 
@@ -132,6 +125,23 @@ export function SharesList({ shares = [], page = 1, totalPages = 1, search = "" 
 export default function SharesPage({ shares = [], page = 1, totalPages = 1, search = "", stats = {} }) {
   return (
     <DashboardLayout title="Shares Ledger">
+       <PageHeader 
+          title="Shares Ledger"
+          subtitle="Track member equity and share capital."
+          breadcrumbs={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Shares', href: '/dashboard/shares', active: true }
+          ]}
+          actions={(
+            <a 
+              href="/dashboard/shares/new"
+              class="inline-flex items-center gap-2 rounded-sm bg-primary px-6 py-2 text-sm font-medium text-white hover:bg-opacity-90 shadow-default"
+            >
+              <Icon icon={Plus} size={20} />
+              New Purchase
+            </a>
+          )}
+        />
        <div class="flex flex-col gap-6">
           {/* Stats Grid */}
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">

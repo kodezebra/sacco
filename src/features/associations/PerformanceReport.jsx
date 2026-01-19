@@ -1,6 +1,7 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import Badge from '../../components/Badge.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { ArrowLeft, Printer, TrendingUp, TrendingDown, Layers, Users, Calendar } from 'lucide';
 
 export default function PerformanceReport({ association, stats, categories, staffCount, period = {} }) {
@@ -11,20 +12,24 @@ export default function PerformanceReport({ association, stats, categories, staf
       <div class="flex flex-col gap-8 max-w-5xl mx-auto">
         
         {/* Header - No Print */}
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 no-print bg-white p-6 rounded-sm border border-stroke shadow-default">
-          <div class="flex items-center gap-4">
-            <a href={`/dashboard/associations/${association.id}`} class="flex h-10 w-10 items-center justify-center rounded-full bg-whiten text-black hover:bg-opacity-90 shadow-default transition-all">
-                <Icon icon={ArrowLeft} size={20} />
-            </a>
-            <div>
-              <h1 class="text-xl font-bold text-black">{association.name}</h1>
-              <p class="text-sm text-body font-medium">Business Performance Analysis</p>
-            </div>
-          </div>
-          <button class="inline-flex items-center justify-center gap-2 rounded bg-primary py-2 px-6 font-medium text-white hover:bg-opacity-90 shadow-default transition-all" onClick="window.print()">
-            <Icon icon={Printer} size={18} /> 
-            <span>Print Report</span>
-          </button>
+        <div class="no-print">
+          <PageHeader 
+            title={association.name}
+            subtitle="Business Performance Analysis"
+            backHref={`/dashboard/associations/${association.id}`}
+            breadcrumbs={[
+              { label: 'Dashboard', href: '/dashboard' },
+              { label: 'Projects', href: '/dashboard/associations' },
+              { label: association.name, href: `/dashboard/associations/${association.id}` },
+              { label: 'Performance', href: `/dashboard/associations/${association.id}/performance`, active: true }
+            ]}
+            actions={(
+              <button class="inline-flex items-center justify-center gap-2 rounded bg-primary py-2 px-6 font-medium text-white hover:bg-opacity-90 shadow-default transition-all" onClick="window.print()">
+                <Icon icon={Printer} size={18} /> 
+                <span>Print Report</span>
+              </button>
+            )}
+          />
         </div>
 
         {/* Report Content - This is what gets printed */}

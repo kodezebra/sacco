@@ -1,5 +1,6 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { Layers, X, Calendar, Info, ArrowLeft, Check } from 'lucide';
 
 export default function NewAssociationPage({ errors = {}, values = {} }) {
@@ -8,15 +9,15 @@ export default function NewAssociationPage({ errors = {}, values = {} }) {
   return (
     <DashboardLayout title="Create Business Unit">
       <div class="mx-auto max-w-270">
-        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 class="text-title-md2 font-bold text-black uppercase tracking-tight">New Business Unit</h2>
-          <nav>
-            <ol class="flex items-center gap-2">
-              <li><a class="font-medium" href="/dashboard/associations">Units /</a></li>
-              <li class="font-medium text-primary">Create</li>
-            </ol>
-          </nav>
-        </div>
+        <PageHeader 
+          title="New Business Unit"
+          subtitle="Configure a new project or department."
+          breadcrumbs={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Units', href: '/dashboard/associations' },
+            { label: 'Create', href: '/dashboard/associations/new', active: true }
+          ]}
+        />
 
         <div class="grid grid-cols-1 gap-9 lg:grid-cols-5">
           <div class="lg:col-span-3">

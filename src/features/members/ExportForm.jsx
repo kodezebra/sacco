@@ -1,5 +1,6 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { Download, Calendar, ArrowLeft, FileText, Info } from 'lucide';
 
 export default function MemberExportPage() {
@@ -9,15 +10,15 @@ export default function MemberExportPage() {
   return (
     <DashboardLayout title="Export Members">
       <div class="mx-auto max-w-270">
-        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 class="text-title-md2 font-bold text-black uppercase tracking-tight">Directory Export</h2>
-          <nav>
-            <ol class="flex items-center gap-2">
-              <li><a class="font-medium" href="/dashboard/members">Directory /</a></li>
-              <li class="font-medium text-primary">Export</li>
-            </ol>
-          </nav>
-        </div>
+        <PageHeader 
+          title="Directory Export"
+          subtitle="Download member data for offline analysis."
+          breadcrumbs={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Directory', href: '/dashboard/members' },
+            { label: 'Export', href: '/dashboard/members/export', active: true }
+          ]}
+        />
 
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-9">
           <div class="lg:col-span-3">

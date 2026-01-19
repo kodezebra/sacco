@@ -1,5 +1,6 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { UserPlus, X, Phone, MapPin, User, Calendar, Check, Info } from 'lucide';
 
 export default function NewMemberPage({ errors = {}, values = {}, defaults = {} }) {
@@ -8,15 +9,15 @@ export default function NewMemberPage({ errors = {}, values = {}, defaults = {} 
   return (
     <DashboardLayout title="Register New Member">
       <div class="mx-auto max-w-270">
-        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 class="text-title-md2 font-bold text-black uppercase tracking-tight">New Membership</h2>
-          <nav>
-            <ol class="flex items-center gap-2">
-              <li><a class="font-medium" href="/dashboard/members">Directory /</a></li>
-              <li class="font-medium text-primary">Registration</li>
-            </ol>
-          </nav>
-        </div>
+        <PageHeader 
+          title="New Membership"
+          subtitle="Register a new person into the SACCO database."
+          breadcrumbs={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Directory', href: '/dashboard/members' },
+            { label: 'Registration', href: '/dashboard/members/new', active: true }
+          ]}
+        />
 
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-9">
           <div class="lg:col-span-3">

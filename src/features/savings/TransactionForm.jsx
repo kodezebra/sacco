@@ -1,5 +1,6 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { ArrowLeft, Check, Search, Users, Wallet, ArrowDownLeft, ArrowUpRight } from 'lucide';
 
 export default function SavingsTransactionPage({ members = [], initialType = 'deposit' }) {
@@ -8,17 +9,15 @@ export default function SavingsTransactionPage({ members = [], initialType = 'de
   return (
     <DashboardLayout title={`Record Savings ${initialType === 'deposit' ? 'Deposit' : 'Withdrawal'}`}>
       <div class="mx-auto max-w-270">
-        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 class="text-title-md2 font-bold text-black uppercase tracking-tight">
-            {initialType === 'deposit' ? 'Add Savings' : 'Withdraw Savings'}
-          </h2>
-          <nav>
-            <ol class="flex items-center gap-2">
-              <li><a class="font-medium" href="/dashboard/savings">Savings /</a></li>
-              <li class="font-medium text-primary capitalize">{initialType}</li>
-            </ol>
-          </nav>
-        </div>
+        <PageHeader 
+          title={initialType === 'deposit' ? 'Add Savings' : 'Withdraw Savings'}
+          subtitle={`Record a new ${initialType} transaction.`}
+          breadcrumbs={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Savings', href: '/dashboard/savings' },
+            { label: initialType === 'deposit' ? 'Deposit' : 'Withdraw', href: `/dashboard/savings/new?type=${initialType}`, active: true }
+          ]}
+        />
 
         <div class="grid grid-cols-1 gap-9 lg:grid-cols-5">
           <div class="flex flex-col gap-9 lg:col-span-3">

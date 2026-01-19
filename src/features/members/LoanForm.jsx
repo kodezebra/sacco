@@ -1,5 +1,6 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { Banknote, ArrowLeft, Check, Calendar, Info, TrendingUp, Percent, Clock } from 'lucide';
 
 export default function MemberLoanPage({ member, loanLimit = 0, defaults = {}, errors = {}, values = {} }) {
@@ -8,15 +9,17 @@ export default function MemberLoanPage({ member, loanLimit = 0, defaults = {}, e
   return (
     <DashboardLayout title={`Loan: ${member.fullName}`}>
       <div class="mx-auto max-w-270">
-        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 class="text-title-md2 font-bold text-black uppercase tracking-tight">Loan Disbursement</h2>
-          <nav>
-            <ol class="flex items-center gap-2">
-              <li><a class="font-medium" href={`/dashboard/members/${member.id}`}>{member.fullName} /</a></li>
-              <li class="font-medium text-primary">New Loan</li>
-            </ol>
-          </nav>
-        </div>
+        <PageHeader 
+          title="Loan Disbursement"
+          subtitle={`Process new credit agreement for ${member.fullName}`}
+          backHref={`/dashboard/members/${member.id}`}
+          breadcrumbs={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Members', href: '/dashboard/members' },
+            { label: member.fullName, href: `/dashboard/members/${member.id}` },
+            { label: 'New Loan', href: `/dashboard/members/${member.id}/loans/new`, active: true }
+          ]}
+        />
 
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-9">
           <div class="lg:col-span-3">

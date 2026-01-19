@@ -1,6 +1,7 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import Badge from '../../components/Badge.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { ArrowLeft, Banknote, Plus, CheckCircle2, History, AlertCircle, TrendingUp } from 'lucide';
 
 export default function MemberLoansPage({ member, loans = [], loanLimit = 0 }) {
@@ -10,26 +11,28 @@ export default function MemberLoansPage({ member, loans = [], loanLimit = 0 }) {
 
   return (
     <DashboardLayout title={`Loans: ${member.fullName}`}>
-      <div class="mx-auto max-w-screen-xl flex flex-col gap-8">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div class="flex items-center gap-4">
-            <a href={`/dashboard/members/${member.id}`} class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black hover:bg-opacity-90 shadow-default transition-all">
-               <Icon icon={ArrowLeft} size={20} />
+      <PageHeader 
+        title="Credit Portfolio"
+        subtitle={`Loan history and active obligations for ${member.fullName}`}
+        backHref={`/dashboard/members/${member.id}`}
+        breadcrumbs={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Members', href: '/dashboard/members' },
+            { label: member.fullName, href: `/dashboard/members/${member.id}` },
+            { label: 'Loans', href: `/dashboard/members/${member.id}/loans`, active: true }
+        ]}
+        actions={(
+            <a 
+              href={loanLimit > 0 && activeLoans.length === 0 ? `/dashboard/members/${member.id}/loans/new` : '#'} 
+              class={`btn btn-primary gap-2 uppercase tracking-widest text-xs font-black px-6 shadow-md ${loanLimit <= 0 || activeLoans.length > 0 ? 'btn-disabled opacity-50' : ''}`}
+              onclick={activeLoans.length > 0 ? "alert('Clear active loan first')" : undefined}
+            >
+               <Icon icon={Plus} size={16} /> New Loan Application
             </a>
-            <div>
-              <h2 class="text-2xl font-black text-black uppercase tracking-tight">Credit Portfolio</h2>
-              <p class="text-sm text-body font-medium">Loan history and active obligations for {member.fullName}</p>
-            </div>
-          </div>
-          <a 
-            href={loanLimit > 0 && activeLoans.length === 0 ? `/dashboard/members/${member.id}/loans/new` : '#'} 
-            class={`btn btn-primary gap-2 uppercase tracking-widest text-xs font-black px-6 shadow-md ${loanLimit <= 0 || activeLoans.length > 0 ? 'btn-disabled opacity-50' : ''}`}
-            onclick={activeLoans.length > 0 ? "alert('Clear active loan first')" : undefined}
-          >
-             <Icon icon={Plus} size={16} /> New Loan Application
-          </a>
-        </div>
+        )}
+      />
 
+      <div class="mx-auto max-w-screen-xl flex flex-col gap-8">
         {/* Loan Stats */}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="rounded-sm border border-stroke bg-white p-6 shadow-default">

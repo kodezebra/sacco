@@ -1,20 +1,21 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { UserPlus, X, Briefcase, Building2, Plus, Users, Trash2, Check, Search } from 'lucide';
 
 export default function BulkStaffHirePage({ associations = [], members = [] }) {
   return (
     <DashboardLayout title="Bulk Hiring">
       <div class="mx-auto max-w-7xl">
-        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 class="text-title-md2 font-bold text-black uppercase tracking-tight">Mass Recruitment</h2>
-          <nav>
-            <ol class="flex items-center gap-2">
-              <li><a class="font-medium" href="/dashboard/staff">Staff /</a></li>
-              <li class="font-medium text-primary">Bulk Hire</li>
-            </ol>
-          </nav>
-        </div>
+        <PageHeader 
+          title="Mass Recruitment"
+          subtitle="Hire multiple staff members at once."
+          breadcrumbs={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Staff', href: '/dashboard/staff' },
+            { label: 'Bulk Hire', href: '/dashboard/staff/bulk', active: true }
+          ]}
+        />
 
         <form action="/dashboard/staff/bulk" method="POST">
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">

@@ -2,6 +2,7 @@ import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import Badge from '../../components/Badge.jsx';
 import StatsCard from '../../components/StatsCard.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { 
   ArrowRightLeft, ArrowUpRight, ArrowDownLeft, 
   Plus, Download, Search, Filter, 
@@ -156,6 +157,12 @@ export default function TransactionsPage({ transactions = [], associations = [],
   return (
     <DashboardLayout title="Financial Ledger">
        <div class="flex flex-col gap-6">
+        <PageHeader 
+          title="Financial Ledger"
+          subtitle="Consolidated transaction history across all units."
+          breadcrumbs={[{ label: 'Ledger', href: '/dashboard/transactions', active: true }]}
+        />
+
         {/* Financial Summary Stats */}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           <StatsCard 

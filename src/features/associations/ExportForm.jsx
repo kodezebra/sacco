@@ -1,5 +1,6 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { Download, Calendar, ArrowLeft, FileSpreadsheet, Info } from 'lucide';
 
 export default function AssociationExportPage({ associationId, associationName }) {
@@ -9,15 +10,17 @@ export default function AssociationExportPage({ associationId, associationName }
   return (
     <DashboardLayout title={`Export: ${associationName}`}>
       <div class="mx-auto max-w-270">
-        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 class="text-title-md2 font-bold text-black uppercase tracking-tight">Data Export</h2>
-          <nav>
-            <ol class="flex items-center gap-2">
-              <li><a class="font-medium" href={`/dashboard/associations/${associationId}`}>{associationName} /</a></li>
-              <li class="font-medium text-primary">Export</li>
-            </ol>
-          </nav>
-        </div>
+        <PageHeader 
+          title="Data Export"
+          subtitle={`Generate CSV reports for ${associationName}`}
+          backHref={`/dashboard/associations/${associationId}`}
+          breadcrumbs={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Projects', href: '/dashboard/associations' },
+            { label: associationName, href: `/dashboard/associations/${associationId}` },
+            { label: 'Export', href: `/dashboard/associations/${associationId}/export`, active: true }
+          ]}
+        />
 
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-9">
           <div class="lg:col-span-3">

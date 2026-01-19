@@ -1,20 +1,22 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { UserPlus, X, Lock, Shield, Mail, ArrowLeft, Check } from 'lucide';
 
 export default function GrantAccessPage({ staff }) {
   return (
     <DashboardLayout title={`Access Control: ${staff.fullName}`}>
       <div class="mx-auto max-w-270">
-        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 class="text-title-md2 font-bold text-black uppercase tracking-tight">Access Control</h2>
-          <nav>
-            <ol class="flex items-center gap-2">
-              <li><a class="font-medium" href="/dashboard/staff">Staff /</a></li>
-              <li class="font-medium text-primary">Grant Access</li>
-            </ol>
-          </nav>
-        </div>
+        <PageHeader 
+          title="Access Control"
+          subtitle={`Security provisioning for ${staff.fullName}`}
+          backHref="/dashboard/staff"
+          breadcrumbs={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Staff', href: '/dashboard/staff' },
+            { label: 'Grant Access', href: `/dashboard/staff/${staff.id}/user`, active: true }
+          ]}
+        />
 
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-9">
           <div class="lg:col-span-3">

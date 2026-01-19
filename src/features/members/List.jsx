@@ -3,6 +3,7 @@ import Icon from '../../components/Icon.jsx';
 import StatsCard from '../../components/StatsCard.jsx';
 import Badge from '../../components/Badge.jsx';
 import TableAction from '../../components/TableAction.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { Plus, Search, FileSpreadsheet, Trash2, ChevronLeft, ChevronRight, Eye, Users, Wallet, Banknote, UserPlus, Download, Filter } from 'lucide';
 
 const formatCompact = (val) => {
@@ -232,10 +233,16 @@ export function MembersList({ members = [], page = 1, totalPages = 1, search = "
 // Export MemberRow for individual row updates if needed
 export { MembersList as MembersTable }; 
 
-export default function MembersPage({ members = [], page = 1, totalPages = 1, search = "", stats }) {
+export default function MembersPage({ members = [], page = 1, totalPages = 1, search = "", status = "", stats }) {
   return (
-    <DashboardLayout title="Member Directory">
+    <DashboardLayout title="Members">
       <div class="max-w-full overflow-x-hidden">
+        <PageHeader 
+          title="Member Directory"
+          subtitle="Manage registrations, financial standing and onboarding."
+          breadcrumbs={[{ label: 'Directory', href: '/dashboard/members', active: true }]}
+        />
+
         <div class="flex flex-col gap-8 pb-12">
           
           {/* Directory Stats Row */}

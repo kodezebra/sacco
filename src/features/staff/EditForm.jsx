@@ -1,20 +1,22 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { User, ArrowLeft, Briefcase, Building2, Trash2, Check } from 'lucide';
 
 export default function EditStaffPage({ staff, associations = [] }) {
   return (
     <DashboardLayout title={`Edit: ${staff.fullName}`}>
       <div class="mx-auto max-w-270">
-        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 class="text-title-md2 font-bold text-black uppercase tracking-tight">Staff Profile</h2>
-          <nav>
-            <ol class="flex items-center gap-2">
-              <li><a class="font-medium" href="/dashboard/staff">Staff /</a></li>
-              <li class="font-medium text-primary">Edit Record</li>
-            </ol>
-          </nav>
-        </div>
+        <PageHeader 
+          title="Staff Profile"
+          subtitle={`Manage employment details for ${staff.fullName}`}
+          backHref="/dashboard/staff"
+          breadcrumbs={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Staff', href: '/dashboard/staff' },
+            { label: 'Edit Record', href: `/dashboard/staff/${staff.id}`, active: true }
+          ]}
+        />
 
         <div class="grid grid-cols-1 gap-9">
           <div class="rounded-sm border border-stroke bg-white shadow-default">

@@ -1,6 +1,7 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import Badge from '../../components/Badge.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { ArrowLeft, Printer, TrendingUp, TrendingDown, Layers, Users, Calendar, Download } from 'lucide';
 
 export default function ProjectReport({ association, stats, categories, staffCount, period = {} }) {
@@ -11,24 +12,27 @@ export default function ProjectReport({ association, stats, categories, staffCou
       <div class="flex flex-col gap-8 max-w-screen-2xl mx-auto">
         
         {/* Header - Web Only */}
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 no-print">
-          <div class="flex items-center gap-4">
-            <a href="/dashboard/reports" class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black hover:bg-opacity-90 shadow-default transition-all">
-                <Icon icon={ArrowLeft} size={20} />
-            </a>
-            <div>
-              <h2 class="text-2xl font-black text-black uppercase tracking-tight">Business Unit Analysis</h2>
-              <p class="text-sm text-body font-medium">Performance metrics for {association.name}.</p>
-            </div>
-          </div>
-          <div class="flex gap-3">
-            <a href={`/dashboard/associations/export-form?id=${association.id}`} class="inline-flex items-center justify-center gap-2.5 rounded-sm border border-stroke bg-white py-2 px-6 text-center font-bold text-black hover:border-primary hover:text-primary transition-all uppercase tracking-widest text-xs">
-                <Icon icon={Download} size={16} /> Export Data
-            </a>
-            <button class="inline-flex items-center justify-center gap-2.5 rounded-sm border border-stroke bg-white py-2 px-6 text-center font-bold text-black hover:border-primary hover:text-primary transition-all uppercase tracking-widest text-xs" onClick="window.print()">
-                <Icon icon={Printer} size={16} /> Print Report
-            </button>
-          </div>
+        <div class="no-print">
+          <PageHeader 
+            title="Business Unit Analysis"
+            subtitle={`Performance metrics for ${association.name}.`}
+            backHref="/dashboard/reports"
+            breadcrumbs={[
+              { label: 'Dashboard', href: '/dashboard' },
+              { label: 'Reports', href: '/dashboard/reports' },
+              { label: association.name, href: `/dashboard/reports/projects/${association.id}`, active: true }
+            ]}
+            actions={(
+              <div class="flex gap-3">
+                <a href={`/dashboard/associations/export-form?id=${association.id}`} class="inline-flex items-center justify-center gap-2.5 rounded-sm border border-stroke bg-white py-2 px-6 text-center font-bold text-black hover:border-primary hover:text-primary transition-all uppercase tracking-widest text-xs">
+                    <Icon icon={Download} size={16} /> Export Data
+                </a>
+                <button class="inline-flex items-center justify-center gap-2.5 rounded-sm border border-stroke bg-white py-2 px-6 text-center font-bold text-black hover:border-primary hover:text-primary transition-all uppercase tracking-widest text-xs" onClick="window.print()">
+                    <Icon icon={Printer} size={16} /> Print Report
+                </button>
+              </div>
+            )}
+          />
         </div>
 
         {/* Print Header */}

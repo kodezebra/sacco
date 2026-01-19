@@ -1,5 +1,6 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import {
   TrendingUp, Users, Banknote, 
   Download, Search, Layers, ArrowRight, FileText
@@ -71,6 +72,14 @@ export default function ReportsPage({ searchedMembers = [], search = "", associa
 
   return (
     <DashboardLayout title="Reports Center">
+      <PageHeader 
+        title="Reports Center" 
+        subtitle="Financial statements and operational reports."
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Reports', href: '/dashboard/reports', active: true }
+        ]}
+      />
       <div class="flex flex-col gap-6">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
           {/* Left Column: Standard Reports */}

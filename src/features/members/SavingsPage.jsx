@@ -1,6 +1,7 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import Badge from '../../components/Badge.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { ArrowLeft, Wallet, Plus, Minus, History } from 'lucide';
 
 export default function MemberSavingsPage({ member, savings = [] }) {
@@ -10,17 +11,17 @@ export default function MemberSavingsPage({ member, savings = [] }) {
 
   return (
     <DashboardLayout title={`Savings: ${member.fullName}`}>
-      <div class="mx-auto max-w-screen-xl flex flex-col gap-8">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div class="flex items-center gap-4">
-            <a href={`/dashboard/members/${member.id}`} class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black hover:bg-opacity-90 shadow-default transition-all">
-               <Icon icon={ArrowLeft} size={20} />
-            </a>
-            <div>
-              <h2 class="text-2xl font-black text-black uppercase tracking-tight">Savings Ledger</h2>
-              <p class="text-sm text-body font-medium">Full transaction history for {member.fullName}</p>
-            </div>
-          </div>
+      <PageHeader 
+        title="Savings Ledger"
+        subtitle={`Full transaction history for ${member.fullName}`}
+        backHref={`/dashboard/members/${member.id}`}
+        breadcrumbs={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Members', href: '/dashboard/members' },
+            { label: member.fullName, href: `/dashboard/members/${member.id}` },
+            { label: 'Savings', href: `/dashboard/members/${member.id}/savings`, active: true }
+        ]}
+        actions={(
           <div class="flex gap-2">
             <a href={`/dashboard/members/${member.id}/deposit`} class="btn btn-primary gap-2 uppercase tracking-widest text-xs font-black px-6 shadow-md">
                <Icon icon={Plus} size={16} /> Deposit Cash
@@ -29,8 +30,10 @@ export default function MemberSavingsPage({ member, savings = [] }) {
                <Icon icon={Minus} size={16} /> Withdraw
             </a>
           </div>
-        </div>
+        )}
+      />
 
+      <div class="mx-auto max-w-screen-xl flex flex-col gap-8">
         {/* Quick Summary Cards */}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="rounded-sm border border-stroke bg-white p-6 shadow-default">

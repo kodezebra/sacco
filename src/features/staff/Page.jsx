@@ -3,6 +3,7 @@ import Icon from '../../components/Icon.jsx';
 import Badge from '../../components/Badge.jsx';
 import StatsCard from '../../components/StatsCard.jsx';
 import TableAction from '../../components/TableAction.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { UserPlus, Users, Building2, Briefcase, Lock, UserCheck, UserCog, ShieldCheck } from 'lucide';
 
 export default function StaffPage({ staff = [], currentUser }) {
@@ -14,10 +15,25 @@ export default function StaffPage({ staff = [], currentUser }) {
   const canManageAuth = ['super_admin', 'admin'].includes(role);
 
   return (
-    <DashboardLayout title="Human Resources">
+    <DashboardLayout title="Staff">
        <div class="flex flex-col gap-6">
+        <PageHeader 
+          title="Staff Directory"
+          subtitle="Manage employee records, roles and security access."
+          breadcrumbs={[{ label: 'Staff', href: '/dashboard/staff', active: true }]}
+          actions={canManageHR && (
+            <a 
+              href="/dashboard/staff/bulk"
+              class="inline-flex items-center gap-2 rounded-sm bg-primary px-6 py-2.5 text-sm font-bold text-white hover:bg-opacity-90 shadow-default transition-all uppercase tracking-widest"
+            >
+              <Icon icon={Users} size={20} />
+              Bulk Hire
+            </a>
+          )}
+        />
+
         {/* HR Stats */}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6">
           <StatsCard 
             label="Total Employees" 
             value={staff.length} 
@@ -35,25 +51,6 @@ export default function StaffPage({ staff = [], currentUser }) {
 
         {/* Staff Table Card */}
         <div class="rounded-sm border border-stroke bg-white shadow-default">
-          {/* Card Header */}
-          <div class="flex flex-col gap-4 border-b border-stroke px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h3 class="text-xl font-bold text-black">Staff Directory</h3>
-            </div>
-            
-            {canManageHR && (
-              <div class="flex items-center gap-3">
-                <a 
-                  href="/dashboard/staff/bulk"
-                  class="inline-flex items-center gap-2 rounded-sm bg-primary px-6 py-2 text-sm font-medium text-white hover:bg-opacity-90 shadow-default"
-                >
-                  <Icon icon={Users} size={20} />
-                  Bulk Hire
-                </a>
-              </div>
-            )}
-          </div>
-
           <div class="max-w-full overflow-x-auto">
              <table class="w-full table-auto">
                <thead>

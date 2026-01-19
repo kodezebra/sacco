@@ -1,5 +1,6 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { ArrowRightLeft, X, Building2, Calendar, Tag, ArrowLeft, Check, Plus } from 'lucide';
 
 export default function NewTransactionPage({ associations = [], selectedId = '', initialType = 'income', errors = {}, values = {} }) {
@@ -8,15 +9,15 @@ export default function NewTransactionPage({ associations = [], selectedId = '',
   return (
     <DashboardLayout title="Record Transaction">
       <div class="mx-auto max-w-270">
-        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 class="text-title-md2 font-bold text-black uppercase tracking-tight text-2xl">Single Ledger Entry</h2>
-          <nav>
-            <ol class="flex items-center gap-2">
-              <li><a class="font-medium" href="/dashboard/transactions">Ledger /</a></li>
-              <li class="font-medium text-primary">New Entry</li>
-            </ol>
-          </nav>
-        </div>
+        <PageHeader 
+          title="Single Ledger Entry"
+          subtitle="Record a new income or expense transaction."
+          breadcrumbs={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Ledger', href: '/dashboard/transactions' },
+            { label: 'New Entry', href: '/dashboard/transactions/new', active: true }
+          ]}
+        />
 
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-9">
           <div class="lg:col-span-3">

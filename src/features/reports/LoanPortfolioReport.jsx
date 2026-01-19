@@ -1,6 +1,7 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import Badge from '../../components/Badge.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { ArrowLeft, Printer, FileSpreadsheet, Banknote, Users, History, TrendingUp } from 'lucide';
 
 export default function LoanPortfolioReport({ data = [] }) {
@@ -11,22 +12,23 @@ export default function LoanPortfolioReport({ data = [] }) {
     <DashboardLayout title="Active Loans Report">
       <div class="flex flex-col gap-8 max-w-screen-2xl mx-auto">
         
-        {/* Report Header */}
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 no-print">
-          <div class="flex items-center gap-4">
-            <a href="/dashboard/reports" class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black hover:bg-opacity-90 shadow-default transition-all">
-                <Icon icon={ArrowLeft} size={20} />
-            </a>
-            <div>
-              <h2 class="text-2xl font-black text-black uppercase tracking-tight">Loan Portfolio Analytics</h2>
-              <p class="text-sm text-body font-medium">Risk exposure and outstanding credit performance.</p>
-            </div>
-          </div>
-          <div class="flex gap-3">
-            <button class="inline-flex items-center justify-center gap-2.5 rounded-sm border border-stroke bg-white py-2 px-6 text-center font-bold text-black hover:border-primary hover:text-primary transition-all uppercase tracking-widest text-xs" onClick="window.print()">
-                <Icon icon={Printer} size={16} /> Print
-            </button>
-          </div>
+        {/* Report Header - Web Only */}
+        <div class="no-print">
+          <PageHeader 
+            title="Loan Portfolio Analytics"
+            subtitle="Risk exposure and outstanding credit performance."
+            backHref="/dashboard/reports"
+            breadcrumbs={[
+              { label: 'Dashboard', href: '/dashboard' },
+              { label: 'Reports', href: '/dashboard/reports' },
+              { label: 'Loan Portfolio', href: '/dashboard/reports/loans-active', active: true }
+            ]}
+            actions={(
+              <button class="inline-flex items-center justify-center gap-2.5 rounded-sm border border-stroke bg-white py-2 px-6 text-center font-bold text-black hover:border-primary hover:text-primary transition-all uppercase tracking-widest text-xs" onClick="window.print()">
+                  <Icon icon={Printer} size={16} /> Print
+              </button>
+            )}
+          />
         </div>
 
         {/* Print-only Header */}

@@ -1,5 +1,6 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import ApexChart from '../../components/ApexChart.jsx';
 import StatsCard from '../../components/StatsCard.jsx';
 import Badge from '../../components/Badge.jsx';
@@ -268,46 +269,29 @@ export default function MemberDetailPage({ member, stats, loans = [], savings = 
   if (!member) return null;
 
   const chartOptions = {
-    series: [
-      { name: 'Savings', data: trendData.map(d => d.savings) },
-      { name: 'Loans', data: trendData.map(d => d.loans) }
-    ],
-    chart: { type: 'area', height: 220, toolbar: { show: false }, fontFamily: 'Inter, sans-serif' },
-    colors: ['#10B981', '#F59E0B'],
-    stroke: { curve: 'smooth', width: 2 },
-    xaxis: { categories: trendData.map(d => d.month), axisBorder: { show: false }, axisTicks: { show: false } },
-    fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.45, opacityTo: 0.05, stops: [20, 100] } },
-    grid: { strokeDashArray: 4, yaxis: { lines: { show: true } } },
-    dataLabels: { enabled: false },
+// ...
   };
 
   return (
     <DashboardLayout title="Member Snapshot">
       <div class="mx-auto max-w-screen-2xl">
-        {/* Header Navigation */}
-        <div class="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div class="flex items-center gap-4">
-            <a href="/dashboard/members" class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black hover:bg-opacity-90 shadow-default transition-all">
-                <Icon icon={ArrowLeft} size={20} />
+        <PageHeader 
+          title={member.fullName}
+          subtitle={`Reg No: ${member.memberNumber} • Joined: ${member.createdAt}`}
+          backHref="/dashboard/members"
+          breadcrumbs={[
+            { label: 'Directory', href: '/dashboard/members' },
+            { label: 'Profile', href: `/dashboard/members/${member.id}`, active: true }
+          ]}
+          actions={(
+            <a 
+              href={`/dashboard/reports/member-statement/${member.id}`} 
+              class="inline-flex items-center justify-center gap-2.5 rounded-sm border border-stroke bg-white py-2 px-6 text-center font-black text-black hover:border-primary hover:text-primary lg:px-4 shadow-default transition-all uppercase tracking-widest text-xs"
+            >
+               <Icon icon={FileText} size={16} /> Statement
             </a>
-            <div>
-                <div class="flex items-center gap-3">
-                    <h2 class="text-2xl font-black text-black uppercase tracking-tight">{member.fullName}</h2>
-                    <Badge type={member.status === 'active' ? 'success' : 'error'} size="xs">{member.status}</Badge>
-                </div>
-                <p class="text-[10px] font-black text-bodydark2 uppercase tracking-[0.2em] mt-1">Reg No: {member.memberNumber} • Joined: {member.createdAt}</p>
-            </div>
-          </div>
-
-          <div class="flex gap-2">
-              <a 
-                href={`/dashboard/reports/member-statement/${member.id}`} 
-                class="inline-flex items-center justify-center gap-2.5 rounded-sm border border-stroke bg-white py-2 px-6 text-center font-black text-black hover:border-primary hover:text-primary lg:px-4 shadow-default transition-all uppercase tracking-widest text-xs"
-              >
-                 <Icon icon={FileText} size={16} /> Statement
-              </a>
-          </div>
-        </div>
+          )}
+        />
 
         <div class="flex flex-col gap-8">
             {/* 1. Global KPIs */}

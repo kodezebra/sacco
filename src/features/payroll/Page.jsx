@@ -1,25 +1,27 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import StatsCard from '../../components/StatsCard.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { Wallet, History, User } from 'lucide';
 
 export default function PayrollPage({ history = [], stats = {} }) {
   return (
-    <DashboardLayout title="Payroll Management">
+    <DashboardLayout title="Payroll">
        <div class="flex flex-col gap-6">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h2 class="text-title-md font-bold text-black uppercase tracking-tight">Salary Disbursement</h2>
-            <p class="text-sm text-body">Manage employee compensation and payment history.</p>
-          </div>
-          <a 
-            href="/dashboard/payroll/run"
-            class="inline-flex items-center justify-center gap-2.5 rounded-sm bg-primary py-2.5 px-8 text-center font-bold text-white hover:bg-opacity-90 shadow-default transition-all active:scale-95 uppercase tracking-widest text-sm"
-          >
-            <Icon icon={Wallet} size={20} />
-            Run Payroll
-          </a>
-        </div>
+        <PageHeader 
+          title="Payroll Control"
+          subtitle="Process monthly disbursements and manage payment history."
+          breadcrumbs={[{ label: 'Payroll', href: '/dashboard/payroll', active: true }]}
+          actions={(
+            <a 
+              href="/dashboard/payroll/run"
+              class="inline-flex items-center justify-center gap-2.5 rounded-sm bg-primary py-2.5 px-8 text-center font-bold text-white hover:bg-opacity-90 shadow-default transition-all active:scale-95 uppercase tracking-widest text-sm"
+            >
+              <Icon icon={Wallet} size={20} />
+              Run Payroll
+            </a>
+          )}
+        />
 
         {/* Stats */}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">

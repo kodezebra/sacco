@@ -1,6 +1,7 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
 import Badge from '../../components/Badge.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { ArrowLeft, Printer, TrendingUp, TrendingDown, DollarSign, Download } from 'lucide';
 
 export default function CashFlowReport({ transactions, stats, categories }) {
@@ -8,22 +9,23 @@ export default function CashFlowReport({ transactions, stats, categories }) {
     <DashboardLayout title="Cash Flow Statement">
       <div class="flex flex-col gap-8 max-w-screen-2xl mx-auto">
         
-        {/* Header */}
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 no-print">
-          <div class="flex items-center gap-4">
-            <a href="/dashboard/reports" class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black hover:bg-opacity-90 shadow-default transition-all">
-                <Icon icon={ArrowLeft} size={20} />
-            </a>
-            <div>
-              <h2 class="text-2xl font-black text-black uppercase tracking-tight">Cash Flow Statement</h2>
-              <p class="text-sm text-body font-medium">Summary of all system-wide inflows and outflows.</p>
-            </div>
-          </div>
-          <div class="flex gap-3">
-            <button class="inline-flex items-center justify-center gap-2.5 rounded-sm border border-stroke bg-white py-2 px-6 text-center font-bold text-black hover:border-primary hover:text-primary transition-all uppercase tracking-widest text-xs" onClick="window.print()">
-                <Icon icon={Printer} size={16} /> Print
-            </button>
-          </div>
+        {/* Header - Web Only */}
+        <div class="no-print">
+            <PageHeader 
+            title="Cash Flow Statement"
+            subtitle="Summary of all system-wide inflows and outflows."
+            backHref="/dashboard/reports"
+            breadcrumbs={[
+                { label: 'Dashboard', href: '/dashboard' },
+                { label: 'Reports', href: '/dashboard/reports' },
+                { label: 'Cash Flow', href: '/dashboard/reports/cash-flow', active: true }
+            ]}
+            actions={(
+                <button class="inline-flex items-center justify-center gap-2.5 rounded-sm border border-stroke bg-white py-2 px-6 text-center font-bold text-black hover:border-primary hover:text-primary transition-all uppercase tracking-widest text-xs" onClick="window.print()">
+                    <Icon icon={Printer} size={16} /> Print
+                </button>
+            )}
+            />
         </div>
 
         {/* Print Header */}

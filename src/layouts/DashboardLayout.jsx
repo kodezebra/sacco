@@ -86,16 +86,6 @@ export default function DashboardLayout({ title, children, currentUser }) {
 
           {/* Main Content */}
           <main class="w-full max-w-screen-2xl p-4 md:p-6 2xl:p-10 mx-auto">
-             {/* Breadcrumb Area (Header removed for minimalist style) */}
-             <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-                <nav>
-                   <ol class="flex items-center gap-2 text-sm font-medium text-body">
-                      <li><a class="hover:text-primary" href="/dashboard">Dashboard</a></li>
-                      <li class="text-primary font-semibold">/ {title}</li>
-                   </ol>
-                </nav>
-             </div>
-
              {children}
           </main>
 

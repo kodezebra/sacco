@@ -1,6 +1,7 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
-import { Wallet, ArrowLeft, Check, Search, Calendar, Info, TrendingUp } from 'lucide';
+import PageHeader from '../../components/PageHeader.jsx';
+import { Wallet, ArrowLeft, Check, Calendar, Info, TrendingUp } from 'lucide';
 
 export default function MemberDepositPage({ member, defaults = {}, errors = {}, values = {} }) {
   const today = new Date().toISOString().split('T')[0];
@@ -8,15 +9,17 @@ export default function MemberDepositPage({ member, defaults = {}, errors = {}, 
   return (
     <DashboardLayout title={`Deposit: ${member.fullName}`}>
       <div class="mx-auto max-w-270">
-        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 class="text-title-md2 font-bold text-black uppercase tracking-tight">Savings Deposit</h2>
-          <nav>
-            <ol class="flex items-center gap-2">
-              <li><a class="font-medium" href={`/dashboard/members/${member.id}`}>{member.fullName} /</a></li>
-              <li class="font-medium text-primary">Deposit</li>
-            </ol>
-          </nav>
-        </div>
+        <PageHeader 
+          title="Savings Deposit"
+          subtitle={`Record new deposit for ${member.fullName}`}
+          backHref={`/dashboard/members/${member.id}`}
+          breadcrumbs={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Members', href: '/dashboard/members' },
+            { label: member.fullName, href: `/dashboard/members/${member.id}` },
+            { label: 'Deposit', href: `/dashboard/members/${member.id}/deposit`, active: true }
+          ]}
+        />
 
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-9">
           <div class="lg:col-span-3">

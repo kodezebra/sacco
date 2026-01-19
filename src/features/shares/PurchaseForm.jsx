@@ -1,5 +1,6 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { ArrowLeft, Check, Search, User } from 'lucide';
 
 export default function SharePurchasePage({ members = [], sharePrice = 20000 }) {
@@ -8,15 +9,15 @@ export default function SharePurchasePage({ members = [], sharePrice = 20000 }) 
   return (
     <DashboardLayout title="New Share Purchase">
       <div class="mx-auto max-w-270">
-        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 class="text-title-md2 font-bold text-black">Record Purchase</h2>
-          <nav>
-            <ol class="flex items-center gap-2">
-              <li><a class="font-medium" href="/dashboard/shares">Shares /</a></li>
-              <li class="font-medium text-primary">New Purchase</li>
-            </ol>
-          </nav>
-        </div>
+        <PageHeader 
+          title="Record Purchase"
+          subtitle="Process a new share acquisition for a member."
+          breadcrumbs={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Shares', href: '/dashboard/shares' },
+            { label: 'New Purchase', href: '/dashboard/shares/new', active: true }
+          ]}
+        />
 
         <div class="grid grid-cols-1 gap-9 lg:grid-cols-5">
           <div class="flex flex-col gap-9 lg:col-span-3">

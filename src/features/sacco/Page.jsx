@@ -1,5 +1,6 @@
 import DashboardLayout from '../../layouts/DashboardLayout.jsx';
 import Icon from '../../components/Icon.jsx';
+import PageHeader from '../../components/PageHeader.jsx';
 import { Settings, Save, Building2, Phone, Mail, MapPin, Banknote, Percent } from 'lucide';
 
 export function SaccoForm({ sacco, success }) {
@@ -123,6 +124,14 @@ export function SaccoForm({ sacco, success }) {
 export default function SaccoPage({ sacco }) {
   return (
     <DashboardLayout title="System Settings">
+       <PageHeader 
+        title="System Settings" 
+        subtitle="Configure organization profile and financial policies."
+        breadcrumbs={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Settings', href: '/dashboard/sacco', active: true }
+        ]}
+      />
        <div class="flex flex-col gap-6">
         <SaccoForm sacco={sacco} />
       </div>

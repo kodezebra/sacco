@@ -6,3 +6,4 @@
 - [x] Polish Dashboard UI
 - [x] Handle Contact Form (backend logic)
 - [x] zod validation, shuld be in validation.js in the feature
+- [] fix financial flow in member details not showing
